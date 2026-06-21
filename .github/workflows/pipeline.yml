@@ -16,7 +16,11 @@ jobs:
   pipeline:
     runs-on: ubuntu-latest
     timeout-minutes: 15
-
+jobs:
+  pipeline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: CREAO-PROJECT   # ← adicionar esta linha
     steps:
       - name: Checkout
         uses: actions/checkout@v4
