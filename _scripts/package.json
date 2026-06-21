@@ -1,0 +1,18 @@
+{
+  "name": "cybersecfest-auto-scripts",
+  "version": "1.0.0",
+  "description": "CybersecFEST — Pipeline autônomo standalone",
+  "type": "commonjs",
+  "scripts": {
+    "pipeline": "node pipeline.js",
+    "guardian": "node guardian.js",
+    "arte":     "node gerador-artes.js"
+  },
+  "dependencies": {
+    "openai": "^4.52.0",
+    "@google/generative-ai": "^0.21.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
