@@ -1,0 +1,210 @@
+{
+  "id": "e4b59707-ca32-4fea-94ed-53e2c48ae934",
+  "name": "CybersecFEST — Campaign Planner",
+  "description": "Camada estratégica do ecossistema CybersecFEST: planeja campanhas completas, calendários editoriais mensais e gera o plano de temas que alimenta o Pipeline Orquestrador. Opera exclusivamente com dados confirmados — nunca inventa informações.",
+  "formFields": [
+    {
+      "id": "objetivo",
+      "name": "Objetivo da Campanha",
+      "type": "select",
+      "options": [
+        {
+          "label": "Captação de Patrocinadores",
+          "value": "patrocinadores"
+        },
+        {
+          "label": "Captação de Speakers",
+          "value": "speakers"
+        },
+        {
+          "label": "Venda de Ingressos / Inscrições",
+          "value": "inscricoes"
+        },
+        {
+          "label": "Divulgação de Agenda / Programação",
+          "value": "agenda"
+        },
+        {
+          "label": "Fortalecimento Institucional / Branding",
+          "value": "institucional"
+        },
+        {
+          "label": "Parceiros e Apoiadores",
+          "value": "parceiros"
+        }
+      ],
+      "required": true
+    },
+    {
+      "id": "publico",
+      "name": "Público-Alvo",
+      "type": "select",
+      "options": [
+        {
+          "label": "CMOs / Diretores de Marketing",
+          "value": "cmos"
+        },
+        {
+          "label": "CTOs / CISOs / Gestores de TI",
+          "value": "ctos"
+        },
+        {
+          "label": "Decisores Executivos (C-Level)",
+          "value": "clevel"
+        },
+        {
+          "label": "Profissionais de Cibersegurança",
+          "value": "profissionais"
+        },
+        {
+          "label": "Empresas / Marcas (Patrocinadores)",
+          "value": "empresas"
+        },
+        {
+          "label": "Speakers / Especialistas",
+          "value": "especialistas"
+        },
+        {
+          "label": "Estudantes e Comunidade Tech",
+          "value": "comunidade"
+        }
+      ],
+      "required": true
+    },
+    {
+      "id": "canais",
+      "name": "Canais de Publicação",
+      "type": "multiselect",
+      "options": [
+        {
+          "label": "LinkedIn",
+          "value": "linkedin"
+        },
+        {
+          "label": "Instagram",
+          "value": "instagram"
+        },
+        {
+          "label": "E-mail Marketing",
+          "value": "email"
+        }
+      ],
+      "required": true
+    },
+    {
+      "id": "entregas",
+      "name": "Tipos de Entrega",
+      "type": "multiselect",
+      "options": [
+        {
+          "label": "Estratégia de Campanha",
+          "value": "estrategia"
+        },
+        {
+          "label": "Calendário Editorial",
+          "value": "calendario"
+        },
+        {
+          "label": "Plano de Temas (para o Orquestrador)",
+          "value": "plano_temas"
+        },
+        {
+          "label": "Copies para Posts",
+          "value": "copies"
+        },
+        {
+          "label": "Estrutura de Carrossel",
+          "value": "carrossel"
+        },
+        {
+          "label": "Roteiro de Vídeo",
+          "value": "video"
+        },
+        {
+          "label": "E-mails (assunto + pré-header + corpo)",
+          "value": "emails"
+        },
+        {
+          "label": "Briefing Visual",
+          "value": "briefing_visual"
+        },
+        {
+          "label": "Checklist de Aprovação",
+          "value": "checklist"
+        }
+      ],
+      "required": true
+    },
+    {
+      "id": "tom_de_voz",
+      "name": "Tom de Voz",
+      "type": "select",
+      "options": [
+        {
+          "label": "Institucional + Urgência",
+          "value": "institucional_urgencia"
+        },
+        {
+          "label": "Educativo + Inspirador",
+          "value": "educativo"
+        },
+        {
+          "label": "Direto + Comercial",
+          "value": "comercial"
+        },
+        {
+          "label": "Comunidade + Pertencimento",
+          "value": "comunidade"
+        },
+        {
+          "label": "Técnico + Especializado",
+          "value": "tecnico"
+        }
+      ],
+      "required": true
+    },
+    {
+      "id": "prazo",
+      "name": "Prazo / Período da Campanha",
+      "type": "string",
+      "example": "Julho 2025",
+      "required": true
+    },
+    {
+      "id": "cta_principal",
+      "name": "CTA Principal",
+      "type": "string",
+      "example": "Agendar reunião com o time comercial",
+      "required": false
+    },
+    {
+      "id": "informacoes_confirmadas",
+      "name": "Informações Confirmadas",
+      "type": "textarea",
+      "required": false
+    },
+    {
+      "id": "material_referencia",
+      "name": "Material de Referência",
+      "type": "textarea",
+      "required": false
+    },
+    {
+      "id": "quantidade_pecas",
+      "name": "Quantidade de Peças",
+      "type": "integer",
+      "required": false,
+      "default_value": 5
+    }
+  ],
+  "persistFields": [
+    "objetivo",
+    "publico",
+    "canais",
+    "prazo",
+    "quantidade_pecas",
+    "total_pecas_geradas",
+    "campanhas_criadas",
+    "pendencias_identificadas"
+  ]
+}
