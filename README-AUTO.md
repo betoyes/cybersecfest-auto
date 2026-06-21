@@ -71,3 +71,5 @@ cd _scripts
 npm install
 GH_PAT_CREAO=xxx OPENAI_API_KEY_CREAO=yyy GEMINI_API_KEY_CREAO=zzz node pipeline.js
 ```
+
+<!-- deploy: 2026-06-21T20:49:56.389Z -->
