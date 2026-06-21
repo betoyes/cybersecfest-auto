@@ -2,7 +2,6 @@ name: CybersecFEST — Guardian
 
 on:
   schedule:
-    # diariamente às 10h UTC = 07h BRT
     - cron: '0 10 * * *'
   workflow_dispatch:
 
@@ -10,11 +9,8 @@ jobs:
   guardian:
     runs-on: ubuntu-latest
     timeout-minutes: 20
-jobs:
-  guardian:
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    environment: CREAO-PROJECT   # ← adicionar esta linha
+    environment: CREAO-PROJECT
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -33,5 +29,7 @@ jobs:
       - name: Run Guardian
         working-directory: _scripts
         env:
-          GH_PAT_CREAO: ${{ secrets.GH_PAT_CREAO }}
+          GH_PAT_CREAO:         ${{ secrets.GH_PAT_CREAO }}
+          OPENAI_API_KEY_CREAO: ${{ secrets.OPENAI_API_KEY_CREAO }}
+          GEMINI_API_KEY_CREAO: ${{ secrets.GEMINI_API_KEY_CREAO }}
         run: node guardian.js
