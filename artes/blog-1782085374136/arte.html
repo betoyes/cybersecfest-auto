@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@700&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#000;display:flex;justify-content:center;align-items:center;min-height:100vh;}
+.canvas{position:relative;width:540px;height:675px;background:#02050A;overflow:hidden;}
+
+.bg{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;object-position:top right;}
+.ov{position:absolute;top:0;left:0;width:100%;height:100%;background:linear-gradient(160deg,rgba(2,5,10,.05) 0%,rgba(2,5,10,.65) 45%,rgba(2,5,10,.97) 100%);}
+.db{position:absolute;width:3px;height:180px;background:#14A8F4;top:40%;left:36px;transform:rotate(-15deg);}
+.ct{position:absolute;bottom:0;left:0;padding:0 42px 80px;}
+.lg{width:110px;margin-bottom:20px;display:block;}
+.hl{font-family:'Ubuntu',sans-serif;font-weight:700;font-size:30px;line-height:1.2;color:#F6F8FF;max-width:60%;}
+.sb{margin-top:10px;font-family:'Montserrat',sans-serif;font-size:12.5px;color:#94A0B8;border-bottom:1px solid #14A8F4;padding-bottom:8px;}
+
+</style>
+</head>
+<body><div class="canvas">
+<img class="bg" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==">
+<div class="ov"></div>
+<div class="db"></div>
+<div class="ct">
+  <img class="lg" src="https://raw.githubusercontent.com/betoyes/cybersecfest-auto/main/assets/logo-cyberfest.png">
+  <div class="hl">Confraria <span style="color:#14A8F4">CybersecFEST</span> 2026: Defina o <span style="color:#14A8F4">Futuro</span></div>
+  <div class="sb">Conecte-se com líderes visionários, inscreva-se agora</div>
+</div>
+
+<div style="position:absolute;bottom:22px;left:42px;display:flex;align-items:center;gap:12px;">
+  <img src="https://raw.githubusercontent.com/betoyes/cybersecfest-auto/main/assets/logo-devops.webp" style="height:33px;filter:brightness(0) invert(1);">
+  <img src="https://raw.githubusercontent.com/betoyes/cybersecfest-auto/main/assets/logo-iam.webp"    style="height:33px;filter:brightness(0) invert(1);">
+  <img src="https://raw.githubusercontent.com/betoyes/cybersecfest-auto/main/assets/logo-alcatraz.webp" style="height:33px;filter:brightness(0) invert(1);">
+</div></div></body>
+</html>
