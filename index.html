@@ -382,26 +382,13 @@
     overflow: hidden;
   }
 
-  /* thumbnail da arte — iframe embed */
+  /* thumbnail da arte */
   .card-thumb-img {
     position: absolute;
     inset: 0;
     width: 100%; height: 100%;
     object-fit: cover;
     transition: opacity 0.4s;
-  }
-  .card-embed-frame {
-    position: absolute;
-    inset: 0;
-    overflow: hidden;
-  }
-  .card-embed-frame iframe {
-    width: 540px;
-    height: 675px;
-    border: none;
-    pointer-events: none;
-    transform-origin: top left;
-    display: block;
   }
 
 
@@ -1017,7 +1004,7 @@
       <button class="btn-toggle-panel" id="btn-toggle-panel" onclick="toggleModalPanel()" title="Expandir / recolher painel">◀ Legenda</button>
       <div class="modal-art-box" id="modal-art-box">
         <div class="modal-art-scaler" id="modal-art-scaler">
-          <iframe id="modal-iframe" src="" scrolling="no" tabindex="-1" style="width:540px;height:675px;border:none;display:block;pointer-events:none;"></iframe>
+          <img id="modal-img" src="" alt="Arte" style="width:100%;height:100%;object-fit:contain;display:block;">
         </div>
       </div>
     </div>
@@ -1173,8 +1160,8 @@ function renderGrid(artes) {
     const date = new Date(arte.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: '2-digit' });
     return `
     <div class="card" data-slug="${arte.slug}" onclick="window.location.href='artes/${arte.slug}/arte.html'" style="cursor:pointer">
-      <div class="card-thumb" data-slug="${arte.slug}">
-        <div class="card-embed-frame" id="frame-${arte.slug}"></div>
+      <div class="card-thumb" data-card-thumb>
+        <img class="card-thumb-img" src="artes/${arte.slug}/thumb.png" alt="${arte.headline}" loading="lazy" onerror="this.style.opacity=0">
         <div class="card-badge">${TIPO_LABELS[arte.tipo] || arte.tipo}</div>
         ${arte.layout ? `<div class="card-layout-badge">${arte.layout}</div>` : ''}
         <span class="card-date-badge">${date}</span>
@@ -1189,24 +1176,7 @@ function renderGrid(artes) {
     </div>`;
   }).join('');
 
-  // Criar iframes programaticamente — onload ANTES do src para não perder o evento
-  artes.forEach(arte => {
-    const wrap = document.getElementById('frame-' + arte.slug);
-    if (!wrap) return;
-    const iframe = document.createElement('iframe');
-    iframe.scrolling = 'no';
-    iframe.tabIndex = -1;
-    iframe.onload = () => scaleCardFrame(wrap, iframe);
-    iframe.src = 'artes/' + arte.slug + '/arte.html?embed';
-    wrap.appendChild(iframe);
-    // escala inicial (antes do load terminar)
-    requestAnimationFrame(() => scaleCardFrame(wrap, iframe));
-  });
 }
-
-function scaleCardFrame(wrap, iframe) {
-  const w = wrap.offsetWidth || wrap.getBoundingClientRect().width;
-  if (w > 0) iframe.style.transform = 'scale(' + (w / 540) + ')';
 
 
 function renderLayoutFilters() {
@@ -1351,12 +1321,11 @@ function scaleModalArt() {
 
 function openModal(slug, arte) {
   const modal = document.getElementById('modal');
-  const mif = document.getElementById('modal-iframe');
+  const img = document.getElementById('modal-img');
 
-  // Carregar arte.html?embed (modo somente canvas, sem editor)
-  mif.src = '';
-  mif.onload = () => scaleModalArt();
-  setTimeout(() => { mif.src = 'artes/' + slug + '/arte.html?embed'; }, 10);
+  // Usar thumb.png (render composto: fundo + overlay + texto)
+  img.src = '';
+  setTimeout(() => { img.src = 'artes/' + slug + '/thumb.png'; scaleModalArt(); }, 10);
   document.getElementById('modal-badge').textContent = TIPO_LABELS[arte.tipo] || arte.tipo;
   document.getElementById('modal-headline').textContent = arte.headline;
   document.getElementById('modal-actions').innerHTML = `
@@ -1469,18 +1438,12 @@ async function downloadArtePNG(slug) {
 function closeModal(e) {
   if (!e || e.target === document.getElementById('modal')) {
     document.getElementById('modal').classList.remove('open');
-    var mif=document.getElementById('modal-iframe'); if(mif){ mif.onload=null; mif.src=''; }
+    var mi=document.getElementById('modal-img'); if(mi) mi.src='';
   }
 }
 
 loadArtes();
-window.addEventListener('resize', () => {
-  scaleModalArt();
-  document.querySelectorAll('.card-embed-frame').forEach(wrap => {
-    const iframe = wrap.querySelector('iframe');
-    if (iframe) scaleCardFrame(wrap, iframe);
-  });
-});
+window.addEventListener('resize', () => { scaleModalArt(); });
 </script>
 </body>
 </html>
