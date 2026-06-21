@@ -10,7 +10,11 @@ jobs:
   guardian:
     runs-on: ubuntu-latest
     timeout-minutes: 20
-
+jobs:
+  guardian:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: CREAO-PROJECT   # ← adicionar esta linha
     steps:
       - name: Checkout
         uses: actions/checkout@v4
