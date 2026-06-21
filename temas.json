@@ -1,0 +1,317 @@
+{
+  "_meta": {
+    "versao": "3.1.0",
+    "descricao": "Banco de temas do CybersecFEST 2026 — tom aspiracional, FOMO, gatilhos de pertencimento. v3.1.0: historico_aprovacoes adicionado.",
+    "atualizado_em": "2026-06-21",
+    "fonte": "Mídia Kit oficial CybersecFEST 2026"
+  },
+  "evento": {
+    "nome": "CybersecFEST 2026",
+    "posicionamento": "A Principal Confraria de Cibersegurança e Identidade do Brasil",
+    "formato": "Presencial & Executivo",
+    "horario": "8h às 21h",
+    "publico_alvo": [
+      "CISOs",
+      "CIOs",
+      "CTOs",
+      "CEOs",
+      "VPs",
+      "Diretores",
+      "Especialistas",
+      "Parceiros"
+    ],
+    "edicoes_2026": [
+      {
+        "cidade": "Belo Horizonte",
+        "estado": "MG",
+        "mes": "Novembro",
+        "ano": 2026,
+        "status": "confirmada"
+      },
+      {
+        "cidade": "São Paulo",
+        "estado": "SP",
+        "mes": "A definir",
+        "ano": 2026,
+        "status": "confirmada"
+      }
+    ],
+    "historico": [
+      {
+        "edicao": "CyberFest BH 2024",
+        "palestras": 21,
+        "parceiros": 20,
+        "participantes": 160
+      },
+      {
+        "edicao": "CyberSecFest BH 2025",
+        "palestras": 30,
+        "parceiros": 27,
+        "participantes": 200
+      },
+      {
+        "edicao": "IAM Tech Day SP 2025",
+        "palestras": 120,
+        "parceiros": 30,
+        "participantes": 2200
+      }
+    ],
+    "marcas_participantes": [
+      "UnimedBH",
+      "Drogaria Araujo",
+      "Localiza & Co",
+      "Natura",
+      "Itaú",
+      "XP",
+      "AeC",
+      "Stellantis",
+      "Grupo Sada",
+      "VLI Logística",
+      "Grupo Casas Bahia",
+      "Banco Inter",
+      "Rede MaterDei Saúde",
+      "Gerdau"
+    ],
+    "realizadores": [
+      {
+        "nome": "DevOps Bootcamp",
+        "responsavel": "Amanda Pinto",
+        "cargo": "CEO & Founder",
+        "contato": "amanda@devopsbootcamp.net"
+      },
+      {
+        "nome": "IAM Tech Day / Alcatraz Security",
+        "responsavel": "Alfredo Santos",
+        "cargo": "IAM Main Advisor — 28+ anos",
+        "contato": "alfredo@astecnologia.org"
+      }
+    ],
+    "temas_grade": [
+      "IAM",
+      "IAG",
+      "PAM",
+      "MFA",
+      "CIAM",
+      "CIEM",
+      "ITDR",
+      "DevSecOps",
+      "APIs",
+      "LGPD",
+      "Cloud Security",
+      "Pentesting",
+      "IA",
+      "Resiliência",
+      "Riscos Corporativos"
+    ]
+  },
+  "patrocinio": {
+    "status_divulgacao": "beneficios_sem_preco",
+    "cotas_destaque": [
+      {
+        "nome": "Emerald",
+        "nivel": 1,
+        "beneficios": [
+          "Keynote de 10min no palco principal",
+          "Palestra de 30min",
+          "3 entrevistas ao vivo com C-Levels",
+          "7 ingressos time + 10 clientes",
+          "Lounge exclusivo 6mx3m",
+          "Totem, TV e vídeo nos LEDs",
+          "Ativação Roleta Interativa",
+          "Mídia exclusiva e mailing"
+        ]
+      },
+      {
+        "nome": "Diamond",
+        "nivel": 2,
+        "beneficios": [
+          "Palestra de 25min",
+          "2 entrevistas ao vivo",
+          "5 ingressos time + 7 clientes",
+          "Lounge 3mx3m",
+          "Totem, TV e vídeo nos LEDs",
+          "Ativação Roleta Interativa",
+          "Mídia exclusiva e mailing"
+        ]
+      },
+      {
+        "nome": "Gold",
+        "nivel": 3,
+        "beneficios": [
+          "Palestra de 20min",
+          "1 entrevista ao vivo",
+          "3 ingressos time + 5 clientes",
+          "Lounge 3mx3m",
+          "Totem, TV e vídeo nos LEDs",
+          "Ativação Roleta Interativa",
+          "Mídia exclusiva e mailing"
+        ]
+      }
+    ],
+    "cotas_tematicas": [
+      "Podcast",
+      "Happy Hour",
+      "Drink Experience",
+      "Lunch",
+      "Welcome Coffee",
+      "Coffee Break",
+      "Catering"
+    ]
+  },
+  "regras_editoriais": {
+    "tom_principal": "Aspiracional, exclusivo, FOMO. O leitor deve sentir: se não estou lá, estou fora do mercado.",
+    "pilares": [
+      "Networking de alto nível",
+      "Conteúdo estratégico",
+      "Experiências reais",
+      "Grandes oportunidades e conexões"
+    ],
+    "frases_ancora": [
+      "Conversas viram estratégia. Conexões viram negócios. Líderes viram referência.",
+      "Se você é C-Level, líder ou especialista — você já entendeu.",
+      "Para empresas: visibilidade não é mais suficiente. Posicionamento, sim.",
+      "O encontro mais estratégico para líderes de Tecnologia e Cyber Security do Brasil.",
+      "Um ambiente onde CISOs, CIOs, CTOs, CEOs, especialistas e parceiros discutem os desafios reais do mercado."
+    ],
+    "estrutura_post": [
+      "1. Gancho FOMO ou pertencimento",
+      "2. Tensão — leitor se reconhece",
+      "3. CybersecFEST como resposta",
+      "4. CTA direto"
+    ],
+    "proibido": [
+      "tom técnico-acadêmico isolado",
+      "cadeados, hackers encapuzados, código verde",
+      "num mundo cada vez mais digital",
+      "preços de cotas",
+      "datas exatas não confirmadas",
+      "nomes de palestrantes não confirmados"
+    ]
+  },
+  "temas": [
+    {
+      "id": "iam-identidade",
+      "nome": "IAM & Identidade",
+      "tipo_post_recomendado": [
+        "blog",
+        "palestrante",
+        "patrocinador"
+      ],
+      "historico": []
+    },
+    {
+      "id": "pam-privilegiados",
+      "nome": "PAM & Acessos Privilegiados",
+      "tipo_post_recomendado": [
+        "blog",
+        "palestrante",
+        "patrocinador"
+      ],
+      "historico": []
+    },
+    {
+      "id": "devsecops-apis",
+      "nome": "DevSecOps & APIs",
+      "tipo_post_recomendado": [
+        "blog",
+        "palestrante",
+        "evento"
+      ],
+      "historico": []
+    },
+    {
+      "id": "cloud-security",
+      "nome": "Cloud Security",
+      "tipo_post_recomendado": [
+        "blog",
+        "evento",
+        "patrocinador"
+      ],
+      "historico": []
+    },
+    {
+      "id": "lgpd-ia-riscos",
+      "nome": "LGPD, IA & Riscos Emergentes",
+      "tipo_post_recomendado": [
+        "blog",
+        "palestrante"
+      ],
+      "historico": []
+    },
+    {
+      "id": "patrocinio",
+      "nome": "Patrocínio & Posicionamento",
+      "tipo_post_recomendado": [
+        "patrocinador",
+        "evento"
+      ],
+      "historico": []
+    },
+    {
+      "id": "o-evento",
+      "nome": "CybersecFEST — O Encontro",
+      "tipo_post_recomendado": [
+        "evento",
+        "cidade",
+        "blog"
+      ],
+      "historico": []
+    }
+  ],
+  "rotacao_layouts": {
+    "blog": [
+      "C",
+      "M",
+      "N"
+    ],
+    "evento": [
+      "E",
+      "L",
+      "J"
+    ],
+    "palestrante": [
+      "D",
+      "G",
+      "K"
+    ],
+    "patrocinador": [
+      "F",
+      "I",
+      "B"
+    ],
+    "cidade": [
+      "A",
+      "H",
+      "J"
+    ]
+  },
+  "calendario_editorial": {
+    "segunda": {
+      "tipo_post": "blog",
+      "observacao": "Conteúdo com gatilho de pertencimento — tema da grade programática"
+    },
+    "quarta": {
+      "tipo_post": "palestrante",
+      "observacao": "Destaque de speaker, advisor ou case — autoridade + FOMO"
+    },
+    "sexta": {
+      "tipo_post": "evento",
+      "observacao": "Divulgação direta, chamada para participar ou patrocinar"
+    }
+  },
+  "historico_recente": [
+    {
+      "tipo_post": "blog",
+      "layout": "C",
+      "slug": "blog-1782058741657",
+      "data": "2026-06-21"
+    },
+    {
+      "tipo_post": "blog",
+      "layout": "M",
+      "slug": "blog-1782058840735",
+      "data": "2026-06-21"
+    }
+  ],
+  "historico_aprovacoes": []
+}
