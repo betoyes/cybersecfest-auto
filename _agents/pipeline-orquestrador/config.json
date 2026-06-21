@@ -1,0 +1,56 @@
+{
+  "id": "86597381-a3ca-4970-ac69-7f84368800cb",
+  "name": "CybersecFEST — Pipeline Orquestrador",
+  "description": "Cria briefings originais e criativos com FOMO e pertencimento para o CybersecFEST — temas.json é referência, não roteiro. Após aprovação, dispara o Gerador de Artes automaticamente.",
+  "formFields": [
+    {
+      "id": "modo",
+      "type": "select",
+      "required": true,
+      "default_value": "calendario"
+    },
+    {
+      "id": "tipo_post_manual",
+      "type": "select",
+      "required": false
+    },
+    {
+      "id": "tema_manual",
+      "type": "textarea",
+      "required": false
+    },
+    {
+      "id": "cidade",
+      "type": "select",
+      "required": false
+    },
+    {
+      "id": "nome_palestrante",
+      "type": "string",
+      "required": false
+    },
+    {
+      "id": "cargo_empresa",
+      "type": "string",
+      "required": false
+    },
+    {
+      "id": "instrucoes_extras",
+      "type": "textarea",
+      "required": false
+    },
+    {
+      "id": "quantidade_opcoes",
+      "type": "select",
+      "required": true,
+      "default_value": "2"
+    },
+    {
+      "id": "formato",
+      "type": "select",
+      "required": true,
+      "default_value": "feed_vertical"
+    }
+  ],
+  "persistFields": []
+}
