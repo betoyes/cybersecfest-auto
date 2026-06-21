@@ -1,0 +1,56 @@
+[
+  {
+    "slug": "patrocinador-1782039190901",
+    "tipo": "patrocinador",
+    "headline": "O MELHOR ROI NÃO ESTÁ NO ANÚNCIO. ESTÁ NA SALA CERTA.",
+    "palavras_azuis": "ROI, SALA CERTA",
+    "subtitulo": "O CybersecFEST coloca sua empresa dentro das conversas que movem o mercado de segurança no Brasil.",
+    "cidade": "",
+    "formato": "feed_vertical",
+    "image_path": "artes/patrocinador-1782039190901/thumb.png",
+    "html_path": "artes/patrocinador-1782039190901/arte.html",
+    "created_at": "2026-06-21T10:53:13.138Z",
+    "legenda": "O melhor ROI não está no banner. Não está no stand. Está na conversa que acontece quando os decisores certos estão na mesma sala.\n\nO CybersecFEST reúne CISOs, líderes de segurança e executivos de tecnologia que movem o mercado de Cyber Security no Brasil. Sua empresa não precisa de mais visibilidade — precisa de presença estratégica onde as decisões acontecem.\n\nGaranta o patrocínio da sua empresa na próxima edição. Link na bio. 🔐\n\n#CybersecFEST #CyberSecurity #CISO #Patrocinio #CyberSecBrasil #InfoSec #DevOpsBootcamp #IAMTechDay #AlcatrazSecurity #Seguranca #ROI #EventosCorporativos"
+  },
+  {
+    "slug": "evento-1782045624931",
+    "tipo": "evento",
+    "headline": "O RISCO NÃO\nESPERA VOCÊ\nSE ATUALIZAR.",
+    "palavras_azuis": "RISCO, ATUALIZAR",
+    "subtitulo": "Venha debater com quem está no campo. Uma edição. Um encontro que muda perspectiva.",
+    "cidade": "",
+    "formato": "feed_vertical",
+    "legenda": "O cenário de ameaças muda mais rápido do que qualquer plano estratégico consegue acompanhar sozinho.\n\nO CybersecFEST existe para fechar esse gap — reunindo os profissionais que estão na linha de frente com os líderes que definem os orçamentos e as prioridades de segurança das maiores organizações do Brasil.\n\nVocê vai encontrar: palestras que provocam, debates que incomodam, e conexões que abrem portas que e-mail não abre.\n\nNão é sobre coletar caneta e crachá.\nÉ sobre sair diferente de como entrou.\n\nSe você é responsável por segurança, risco ou tecnologia na sua organização — sua cadeira já está reservada. A questão é se você vai ocupá-la. 🔒\n\n#CybersecFEST #CyberSecurity #Cibersegurança #CISO #ZeroTrust #SegurançaDaInformação #LiderançaTech #EventoTech #InfoSec #GestãoDeRisco #DevOpsSecurity #IAMTechDay",
+    "image_path": "artes/evento-1782045624931/thumb.png",
+    "html_path": "artes/evento-1782045624931/arte.html",
+    "created_at": "2026-06-21T12:40:27.598Z"
+  },
+  {
+    "slug": "blog-1782058741657",
+    "tipo": "blog",
+    "headline": "Você gerencia risco. Ou só reage a ele?",
+    "palavras_azuis": "GERENCIA RISCO",
+    "subtitulo": "O CISO que lidera o futuro está nessa sala.",
+    "cidade": "BH e SP",
+    "formato": "feed_vertical",
+    "layout": "C",
+    "legenda": "Tem uma diferença enorme entre gerenciar risco e reagir a ele.\n\nA maioria das empresas ainda reage.\nEspera o incidente. Monta o comitê de crise. Aprende tarde demais.\n\nOs líderes que chegam ao CybersecFEST já decidiram:\nsegurança é vantagem competitiva, não custo de conformidade.\n\n🔹 BH — 05 de novembro.\n🔹 SP — Outubro.\n🔹 Vagas limitadas por curadoria.\n\n✅ Garanta sua cadeira: [link]\n\n#CyberSecFest #CISO #CyberSecurity #Liderança #CyberRisk #Identity #CloudSecurity #DevSecOps #ZeroTrust #Resilience #CLevel #Tecnologia",
+    "image_path": "artes/blog-1782058741657/thumb.png",
+    "html_path": "artes/blog-1782058741657/arte.html",
+    "created_at": "2026-06-21T15:40:00.000Z"
+  },
+  {
+    "slug": "blog-1782058840735",
+    "tipo": "blog",
+    "headline": "A conversa que não cabe em reunião.",
+    "palavras_azuis": "CONVERSA",
+    "subtitulo": "Benchmarking real. Entre quem realmente decide.",
+    "cidade": "BH e SP",
+    "formato": "feed_vertical",
+    "layout": "M",
+    "legenda": "Tem perguntas que você não faz em reunião de board.\nTem decisões que só ganham clareza quando você conversa com quem já passou por isso.\n\nÉ pra isso que existe o CybersecFEST.\nNão é painel de especialistas falando para plateia.\nÉ confraria — onde CISO conversa com CISO, onde o problema real entra na mesa sem filtro.\n\n🔹 Uma edição em BH. Uma em SP.\n🔹 Vagas por curadoria.\n\n✅ Faça parte: [link]\n\n#CyberSecFest #CISO #CyberSecurity #Networking #Identity #CLevel #DevSecOps #CloudSecurity #Resilience #Tecnologia",
+    "image_path": "artes/blog-1782058840735/thumb.png",
+    "html_path": "artes/blog-1782058840735/arte.html",
+    "created_at": "2026-06-21T15:45:00.000Z"
+  }
+]
