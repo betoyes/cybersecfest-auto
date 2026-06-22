@@ -22,12 +22,14 @@ const TRANSPARENT_PNG = Buffer.from(
 );
 
 // ── Text generation — GPT-4o primário, Gemini fallback ────────────
-async function generateText(prompt, systemPrompt = '', temperature = 0.85) {
+async function generateText(prompt, systemPrompt = '', temperature = 0.85, maxTokens = null) {
   try {
     const messages = [];
     if (systemPrompt) messages.push({ role: 'system', content: systemPrompt });
     messages.push({ role: 'user', content: prompt });
-    const res = await openai.chat.completions.create({ model: 'gpt-4o', messages, temperature });
+    const opts = { model: 'gpt-4o', messages, temperature };
+    if (maxTokens) opts.max_tokens = maxTokens;
+    const res = await openai.chat.completions.create(opts);
     return res.choices[0].message.content.trim();
   } catch (e) {
     console.warn('⚠️  OpenAI text falhou → Gemini Flash:', e.message);
@@ -109,12 +111,12 @@ async function generateImageDalle(prompt) {
 }
 
 // ── Image generation — Nano Banana primário, DALL-E 3 fallback ──────
-async function generateImage(prompt, { tipo, layout, useReferences = true } = {}) {
+async function generateImage(prompt, { tipo, layout, useReferences = true, contextoVisual = '', cidade = '' } = {}) {
   let referenceParts = [];
   let refPaths = [];
 
   if (useReferences) {
-    const refs = getReferencePartsForGeneration({ tipo, layout, max: 3 });
+    const refs = getReferencePartsForGeneration({ tipo, layout, max: 3, contextoVisual, cidade });
     referenceParts = refs.parts;
     refPaths = refs.paths;
     if (refPaths.length) {

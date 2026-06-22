@@ -21,6 +21,7 @@
     "subtitulo": "Venha debater com quem está no campo. Uma edição. Um encontro que muda perspectiva.",
     "cidade": "",
     "formato": "feed_vertical",
+    "layout": "E",
     "legenda": "O cenário de ameaças muda mais rápido do que qualquer plano estratégico consegue acompanhar sozinho.\n\nO CybersecFEST existe para fechar esse gap — reunindo os profissionais que estão na linha de frente com os líderes que definem os orçamentos e as prioridades de segurança das maiores organizações do Brasil.\n\nVocê vai encontrar: palestras que provocam, debates que incomodam, e conexões que abrem portas que e-mail não abre.\n\nNão é sobre coletar caneta e crachá.\nÉ sobre sair diferente de como entrou.\n\nSe você é responsável por segurança, risco ou tecnologia na sua organização — sua cadeira já está reservada. A questão é se você vai ocupá-la. 🔒\n\n#CybersecFEST #CyberSecurity #Cibersegurança #CISO #ZeroTrust #SegurançaDaInformação #LiderançaTech #EventoTech #InfoSec #GestãoDeRisco #DevOpsSecurity #IAMTechDay",
     "image_path": "artes/evento-1782045624931/thumb.png",
     "html_path": "artes/evento-1782045624931/arte.html",
@@ -98,5 +99,48 @@
     "image_path": "artes/blog-1782087418412/thumb.png",
     "html_path": "artes/blog-1782087418412/arte.html",
     "created_at": "2026-06-22T00:16:58.412Z"
+  },
+  {
+    "slug": "blog-1782100791590",
+    "tipo": "blog",
+    "headline": "Mentes Inovadoras Transformam a Cibersegurança em SP",
+    "palavras_azuis": "Mentes, Cibersegurança",
+    "subtitulo": "Participe e redefina o futuro agora mesmo.",
+    "cidade": "BH e SP",
+    "formato": "feed_vertical",
+    "layout": "N",
+    "legenda": "🔒 Enquanto muitos dormem, as ameaças cibernéticas não param de evoluir. Você está preparado para enfrentá-las? O que diferencia um líder de um seguidor é a capacidade de inovar quando todos os olhos estão voltados para o desafio. Em São Paulo, as mentes mais brilhantes em cibersegurança já estão se reunindo para reescrever as regras do jogo, e você pode fazer parte dessa mudança histórica.\n\n✨ No CybersecFEST, o futuro é agora. Não deixe passar a chance de transformar sua visão em realidade, aprender com os melhores e fortalecer sua rede de contatos com os líderes que ditam o rumo da tecnologia.\n\n✅ Reserve já o seu lugar! [Link de Inscrição]  \n\n#CybersecFEST #InovaçãoCibernética #LiderançaDigital #TransformaçãoTecnológica #FuturoAgora #SegurançaDaInformação #SPTech #ExecutivosDeTI #FOMO #CibersegurançaSP #NetworkingEstratégico #MentesInovadoras #EventosExecutivos #TecnologiaEInovação #DesafiosCibernéticos #LiderançaCibernética",
+    "legenda_variante": "A",
+    "image_path": "artes/blog-1782100791590/thumb.png",
+    "html_path": "artes/blog-1782100791590/arte.html",
+    "created_at": "2026-06-22T03:59:51.590Z"
+  },
+  {
+    "slug": "blog-1782102928259",
+    "tipo": "blog",
+    "headline": "Desvende os Segredos da Cybersegurança",
+    "palavras_azuis": "Segredos, Cybersegurança",
+    "subtitulo": "Entre os poucos privilegiados",
+    "cidade": "SP",
+    "formato": "feed_vertical",
+    "layout": "M",
+    "legenda": "Você está prestes a fazer parte da elite da cibersegurança. No CybersecFEST 2026 em São Paulo, os líderes mais visionários se encontrarão para discutir tendências, estratégias inovadoras e os segredos que estão transformando o futuro da segurança digital. Não fique de fora dessa experiência única onde o networking e o acesso a informações privilegiadas são apenas o começo. Garanta seu lugar e seja um pioneiro na revolução digital. Seja visto, seja lembrado, seja exclusivo. ✅ \n\n#CybersecFEST2026 #ExclusividadeDigital #SegurançaInovadora",
+    "legenda_variante": "aprovada",
+    "contexto_visual": "vista noturna do MASP, luzes destacadas",
+    "publicacao": "normal",
+    "proposta_id": "prop-1782102571265-1bsnq",
+    "angulo_editorial": "FOMO de exclusividade",
+    "image_rules": {
+      "layout": "M",
+      "focus": "DIREITA",
+      "focus_en": "upper-center to right third — NOT the bottom pull-quote zone",
+      "clear_zones": [
+        "BOTTOM 35% center: pull quote + headline — MUST be empty of subjects.",
+        "Subject in UPPER portion, biased RIGHT; center-bottom stays dark for text."
+      ]
+    },
+    "image_path": "artes/blog-1782102928259/thumb.png",
+    "html_path": "artes/blog-1782102928259/arte.html",
+    "created_at": "2026-06-22T04:35:28.259Z"
   }
 ]

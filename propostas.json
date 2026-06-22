@@ -1,0 +1,140 @@
+{
+  "_meta": {
+    "versao": "1.0.0",
+    "descricao": "Propostas de texto (fase 1) e banco editorial antes da geração visual"
+  },
+  "banco": [],
+  "lotes": [
+    {
+      "id": "lote-1782101387453-ypu3a",
+      "status": "rejeitado",
+      "tipo_post": "blog",
+      "tema_briefing": "crie um post para o evento de São paulo",
+      "criado_em": "2026-06-22T04:09:47.453Z",
+      "propostas": [
+        {
+          "id": "prop-1782101387453-jptqq",
+          "angulo": "urgência do risco estratégico",
+          "recomendada": false,
+          "headline": "Prepare-se para o Impensável agora",
+          "palavras_azuis": "Prepare-se, Impensável",
+          "subtitulo": "Antecipe riscos com insights exclusivos",
+          "contexto_visual": "silhuetas de líderes em um auditório high-tech",
+          "legenda": "Num mundo de riscos crescentes, apenas os preparados sobreviverão. Aproveite a chance de discutir e aprender com mentes brilhantes em São Paulo, onde o futuro da cibersegurança é desvendado. Participe de painéis sobre Resiliência, Riscos Corporativos e mais, com líderes de marcas icônicas como Itaú e Natura. \n\n✅ Garanta seu lugar no CybersecFEST. \n\n#CybersecFEST2026 #RiscoEstratégico #LiderançaDigital",
+          "cidade": "SP"
+        },
+        {
+          "id": "prop-1782101387453-lalpp",
+          "angulo": "retorno sobre o investimento",
+          "recomendada": false,
+          "headline": "Investimento que Transforma Segurança em Lucro",
+          "palavras_azuis": "Investimento, Lucro",
+          "subtitulo": "Veja o ROI direto de cibersegurança",
+          "contexto_visual": "gráfico de crescimento em ambiente futurista",
+          "legenda": "Investir em cibersegurança não é mais opcional, é essencial. No CybersecFEST em São Paulo, descubra como as maiores empresas, como XP e Localiza, transformam segurança cibernética em benefícios financeiros tangíveis. Maximize o potencial do seu negócio com insights de ponta e veja o ROI imediato. \n\n✅ Inscreva-se agora e eleve sua estratégia digital. \n\n#CybersecFEST2026 #ROICibersegurança #InovaçãoeLucro",
+          "cidade": "SP"
+        },
+        {
+          "id": "prop-1782101387453-jdzzl",
+          "angulo": "exclusividade e acesso restrito",
+          "recomendada": true,
+          "headline": "Acesso Restrito às Mentes Brilhantes",
+          "palavras_azuis": "Acesso, Restrito",
+          "subtitulo": "Networking além das barreiras comuns",
+          "contexto_visual": "ambiente exclusivo de networking estilo lounge VIP",
+          "legenda": "Entre para o seleto grupo que terá acesso aos mais influentes líderes de cibersegurança no CybersecFEST São Paulo. Com marcas de renome como UnimedBH e Drogaria Araujo presentes, esta é a oportunidade perfeita para expandir sua rede de contatos e trocar ideias inovadoras. Não perca a chance de redefinir seu caminho no mercado com exclusividade e prestígio. \n\n✅ Inscreva-se e garanta seu ingresso. \n\n#CybersecFEST2026 #ExclusividadeVIP #NetworkingDeElite",
+          "cidade": "SP"
+        }
+      ],
+      "rejeitado_em": "2026-06-22T04:20:50.246Z"
+    },
+    {
+      "id": "lote-1782102093976-8tdh4",
+      "status": "rejeitado",
+      "tipo_post": "blog",
+      "tema_briefing": "Crie um post para São Paulo: Sugestão de imagem, um ponto turistico de São Paulo",
+      "criado_em": "2026-06-22T04:21:33.976Z",
+      "propostas": [
+        {
+          "id": "prop-1782102093975-ox6je",
+          "angulo": "Exclusividade e FOMO",
+          "recomendada": true,
+          "headline": "Entre na Temida Elite da Segurança",
+          "palavras_azuis": "Elite, Segurança",
+          "subtitulo": "Apenas os melhores em São Paulo",
+          "contexto_visual": "céu noturno de São Paulo, vista do MASP, luzes da cidade",
+          "legenda": "Você é convidado para se juntar à elite em cibersegurança, onde decisões transformadoras são feitas. Experimente o privilégio exclusivo de discutir estratégias com líderes visionários na vibrante São Paulo. \n\nAproveite a chance de elevar sua rede de contatos ao próximo nível e revolucionar seu planejamento estratégico. \n\n✅ Garanta seu lugar no pódio dos inovadores. \n\n#CybersecFEST #EliteEmSãoPaulo #LiderançaDigital",
+          "cidade": "SP"
+        },
+        {
+          "id": "prop-1782102093976-duucl",
+          "angulo": "Confraria vs Palco",
+          "recomendada": false,
+          "headline": "Confraria Excepcional ou Palco de Ideias?",
+          "palavras_azuis": "Confraria, Ideias",
+          "subtitulo": "Onde líderes definem o futuro",
+          "contexto_visual": "interior do Theatro Municipal, escuridão, luzes de palco focadas",
+          "legenda": "Descubra o ponto de convergência entre a tradição e a inovação no CybersecFEST São Paulo. Um cenário único onde as mentes mais afiadas se encontram para transformar desafios em oportunidades. \n\nVeja o futuro da cibersegurança tomando forma diante de seus olhos. Conheça histórias poderosas que não são contadas em nenhum lugar além deste palco. \n\n✅ Participe da evolução. Seu lugar já está reservado. \n\n#CybersecFEST #TeatroDeInovações #FuturoAgora",
+          "cidade": "SP"
+        },
+        {
+          "id": "prop-1782102093976-n0fft",
+          "angulo": "ROI para Patrocinador",
+          "recomendada": false,
+          "headline": "Seja a Marca que Transforma",
+          "palavras_azuis": "Marca, Transforma",
+          "subtitulo": "Maximize seu retorno no CybersecFEST",
+          "contexto_visual": "vista aérea do Edifício Copan à noite, iluminação impactante",
+          "legenda": "Gere um impacto duradouro associa-se ao CybersecFEST em São Paulo. Sua marca estará no epicentro de interações que moldam o cenário da cibersegurança. Aproveite insights únicos que converterão suas ideias em ações lucrativas. \n\nAumente sua visibilidade e reafirme seu compromisso com a inovação em segurança digital. Entre faça parte das histórias de sucesso das maiores marcas do Brasil. \n\n✅ Assegure seu espaço no círculo mais influente. \n\n#CybersecFEST #ROIExcepcional #MarcasQueBrilham",
+          "cidade": "SP"
+        }
+      ],
+      "rejeitado_em": "2026-06-22T04:25:55.696Z"
+    },
+    {
+      "id": "lote-1782102571265-y45wn",
+      "status": "concluido",
+      "tipo_post": "blog",
+      "tema_briefing": "Crie um post para São Paulo usando uma imagem de algum ponto turistico de São Paulo como imagem principal",
+      "criado_em": "2026-06-22T04:29:31.265Z",
+      "propostas": [
+        {
+          "id": "prop-1782102571265-1bsnq",
+          "angulo": "FOMO de exclusividade",
+          "recomendada": true,
+          "headline": "Desvende os Segredos da Cybersegurança",
+          "palavras_azuis": "Segredos, Cybersegurança",
+          "subtitulo": "Entre os poucos privilegiados",
+          "contexto_visual": "vista noturna do MASP, luzes destacadas",
+          "legenda": "Você está prestes a fazer parte da elite da cibersegurança. No CybersecFEST 2026 em São Paulo, os líderes mais visionários se encontrarão para discutir tendências, estratégias inovadoras e os segredos que estão transformando o futuro da segurança digital. Não fique de fora dessa experiência única onde o networking e o acesso a informações privilegiadas são apenas o começo. Garanta seu lugar e seja um pioneiro na revolução digital. Seja visto, seja lembrado, seja exclusivo. ✅ \n\n#CybersecFEST2026 #ExclusividadeDigital #SegurançaInovadora",
+          "cidade": "SP"
+        },
+        {
+          "id": "prop-1782102571265-xqpby",
+          "angulo": "confraria vs palco",
+          "recomendada": false,
+          "headline": "Transforme Palco em Confraria Excepcional",
+          "palavras_azuis": "Palco, Confraria",
+          "subtitulo": "Encontre mentes brilhantes",
+          "contexto_visual": "interior do Teatro Municipal, iluminação dramática",
+          "legenda": "No coração de São Paulo, onde a modernidade e a tradição se encontram, o CybersecFEST 2026 te convida a transformar o palco em uma confraria de mentes brilhantes. Este não é apenas mais um evento; é a reunião dos maiores talentos e líderes em cibersegurança, onde a troca de ideias, experiências e visões futuras vai redefinir seu papel no mundo digital. Junte-se à conversa que fará história e expanda seus horizontes com insights inigualáveis. Participe desta confraria e inspire-se com as maiores mentes da indústria. ✅ \n\n#CybersecFEST2026 #ConfrariaDigital #InovaçãoSP",
+          "cidade": "SP"
+        },
+        {
+          "id": "prop-1782102571265-3s3w5",
+          "angulo": "ROI para patrocinador",
+          "recomendada": false,
+          "headline": "Maximize Seu Impacto com Parcerias Estratégicas",
+          "palavras_azuis": "Impacto, Estratégicas",
+          "subtitulo": "Patrocine o futuro da segurança",
+          "contexto_visual": "vista aérea do Parque do Ibirapuera, skyline ao fundo",
+          "legenda": "Sua marca merece destaque entre as maiores do setor de cibersegurança. No CybersecFEST 2026, em São Paulo, você poderá associar sua marca a um evento conhecido por sua excelência e inovação. Como patrocinador, você não apenas maximiza sua visibilidade, mas também conecta sua marca diretamente aos líderes e tomadores de decisão que estão moldando o futuro da segurança digital. Aproveite essa oportunidade para impulsionar seu ROI e garantir que sua marca seja sinônimo de inovação e liderança de mercado. Faça sua marca brilhar no palco da revolução digital. ✅ \n\n#CybersecFEST2026 #ParceriaEstratégica #LiderançaSegura",
+          "cidade": "SP"
+        }
+      ],
+      "concluido_em": "2026-06-22T04:35:42.507Z",
+      "principal_id": "prop-1782102571265-1bsnq",
+      "slug_gerado": "blog-1782102928259"
+    }
+  ]
+}

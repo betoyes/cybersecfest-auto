@@ -5,16 +5,17 @@
 
 require('./load-env.js');
 
-const path = require('path');
 const fs   = require('fs');
+const path = require('path');
 
-const { getJSON, putFile, putBinary, putJSON, REPO, REPO_ROOT, isLocal } = require('./utils/storage.js');
+const { getJSON, putFile, putBinary, putJSON, REPO, REPO_ROOT, isLocal, ensureDir } = require('./utils/storage.js');
 const { generateText, generateImage }                = require('./utils/llm.js');
 const { buildImagePrompt, getLayoutImageRules, validateLayout, REFERENCE_ARTES } = require('./utils/imagem-prompt.js');
 const { renderLayout }                               = require('./utils/layouts.js');
 const { wrapWithEditor }                             = require('./utils/editor-wrap.js');
 const { gerarThumbComposto }                         = require('./utils/thumb-composto.js');
 const { pickNextLayout }                             = require('./utils/layout-rotacao.js');
+const { buildReferenciaCopyBlock, REGRAS_LEGENDA } = require('./utils/referencia-copy.js');
 
 // ── Score de legenda via LLM ─────────────────────────────────────
 async function scoreLegenda(legenda) {
@@ -31,32 +32,35 @@ ${legenda}`;
 
 // ── Gerar uma legenda ────────────────────────────────────────────
 async function gerarLegenda(angulo, briefing, tipoPost) {
+  const refBlock = buildReferenciaCopyBlock(tipoPost);
   const system = `Você é copywriter sênior do CybersecFEST — evento executivo de cibersegurança do Brasil.
 Tom: aspiracional, FOMO, gatilhos de pertencimento. Público: CISOs, CIOs, CTOs, CEOs, VPs.
-REGRAS: posts curtos (6-12 linhas). Nunca começar com "O CybersecFEST". Sem clichês técnicos.
-Estrutura: gancho → tensão → CybersecFEST como resposta → CTA + link + hashtags (10-15 tags).`;
+REGRAS: legendas no padrão mediano dos exemplos abaixo (${REGRAS_LEGENDA.linhasCorpoIdeal[0]}–${REGRAS_LEGENDA.linhasCorpoIdeal[1]} linhas de corpo). Nunca começar com "O CybersecFEST". Sem clichês técnicos.`;
 
-  const prompt = `Crie uma legenda ${angulo === 'FOMO' ? 'com gancho emocional/urgência (FOMO)' : 'com gancho aspiracional/conquista'} para o seguinte briefing:
+  const prompt = `${refBlock}
+
+Crie uma legenda ${angulo === 'FOMO' ? 'com gancho emocional/urgência (FOMO)' : 'com gancho aspiracional/conquista'} para o briefing:
 
 ${briefing}
 
-Formato: corpo do post + linha em branco + CTA com ✅ + linha em branco + hashtags.
-Máximo 12 linhas de corpo.`;
+Mesmo tamanho dos exemplos ouro (${REGRAS_LEGENDA.linhasCorpoIdeal[0]}–${REGRAS_LEGENDA.linhasCorpoIdeal[1]} linhas de corpo, frases curtas). CTA ✅ + hashtags.
+Retorne APENAS a legenda.`;
 
-  return generateText(prompt, system, 0.85);
+  return generateText(prompt, system, 0.85, 2048);
 }
 
 // ── Gerar imagem IA — SOMENTE cena visual, nunca headline/copy ───
-async function gerarImagemPrompt(tipoPost, layoutLetter, contextoVisual, slug = '') {
-  return buildImagePrompt({ tipo: tipoPost, layout: layoutLetter, contextoVisual, slug });
+async function gerarImagemPrompt(tipoPost, layoutLetter, contextoVisual, slug = '', cidade = '') {
+  return buildImagePrompt({ tipo: tipoPost, layout: layoutLetter, contextoVisual, slug, cidade });
 }
 
-// ── Main: gerar arte completa ─────────────────────────────────────
+// ── Main: gerar arte completa (fase 2 — visual) ─────────────────
 async function gerarArte({ tipoPost, headline, subtitulo, palavrasAzuis,
   nomePalestrante, cargoEmpresa, contextoVisual, cidade,
-  layoutOverride = null, briefingCompleto = null }) {
+  layoutOverride = null, briefingCompleto = null,
+  legendaAprovada = null, publicacao = 'normal', propostaId = null, angulo = null }) {
 
-  console.log(`\n🎨 Gerador de Artes — tipo: ${tipoPost}`);
+  console.log(`\n🎨 Gerador de Artes — fase visual · tipo: ${tipoPost}${publicacao === 'backup' ? ' · backup' : ''}`);
 
   // 1. Carregar temas.json
   const temasFile = await getJSON('temas.json');
@@ -94,44 +98,62 @@ async function gerarArte({ tipoPost, headline, subtitulo, palavrasAzuis,
   const basePath  = `artes/${slug}`;
   const timestamp = new Date().toISOString();
 
+  if (isLocal && ensureDir) {
+    ensureDir(basePath);
+    console.log(`📁 Pasta criada: ${basePath}/`);
+  }
+
   // 3. Gerar imagem IA (regras rígidas por layout)
   console.log('🖼️  Gerando imagem IA (regras rígidas A–N + Lei do Azul #14A8F4)...');
   console.log(`   Grande referência DS: ${REFERENCE_ARTES.join(' + ')}`);
-  const imgPrompt = await gerarImagemPrompt(tipoPost, layout, contextoVisual, slug);
+  const imgPrompt = await gerarImagemPrompt(tipoPost, layout, contextoVisual, slug, cidade);
   console.log(`   Zonas livres: ${imageRules.clearZones.length} regra(s) aplicadas`);
-  const imgBuffer = await generateImage(imgPrompt, { tipo: tipoPost, layout });
+  if (contextoVisual?.trim()) console.log(`   Contexto visual: ${contextoVisual.trim().slice(0, 120)}`);
+  if (cidade?.trim()) console.log(`   Cidade: ${cidade.trim()}`);
+  const imgBuffer = await generateImage(imgPrompt, { tipo: tipoPost, layout, contextoVisual, cidade });
+  if (!imgBuffer?.length || imgBuffer.length < 500) {
+    throw new Error(`Imagem IA inválida (${imgBuffer?.length || 0} bytes) — verifique API keys`);
+  }
   const imageBase64 = imgBuffer.toString('base64');
 
-  // fundo cru separado — thumb composto é gerado depois
-  const fundoPath = path.join(REPO_ROOT, basePath, 'fundo.png');
-  fs.writeFileSync(fundoPath, imgBuffer);
+  console.log(`💾 Salvando fundo.png (${Math.round(imgBuffer.length / 1024)} KB)...`);
+  await putBinary(`${basePath}/fundo.png`, imgBuffer, `[SuperAgent] fundo: ${slug}`);
 
-  // 4. Gerar legendas A/B
-  console.log('✍️  Gerando legendas A/B...');
-  const briefingCtx = briefingCompleto || `${headline}\n${subtitulo || ''}`;
+  // 4. Legenda — aprovada pelo humano ou A/B automático (legado)
+  let legendaSelecionada;
+  let varianteSelecionada;
+  let scoreA = null;
+  let scoreB = null;
 
-  let legendaA = await gerarLegenda('FOMO', briefingCtx, tipoPost);
-  let legendaB = await gerarLegenda('aspiracional', briefingCtx, tipoPost);
+  if (legendaAprovada && legendaAprovada.trim()) {
+    console.log('✍️  Legenda pré-aprovada (sem A/B automático)');
+    legendaSelecionada  = legendaAprovada.trim();
+    varianteSelecionada = 'aprovada';
+  } else {
+    console.log('✍️  Gerando legendas A/B...');
+    const briefingCtx = briefingCompleto || `${headline}\n${subtitulo || ''}`;
 
-  let scoreA = await scoreLegenda(legendaA);
-  let scoreB = await scoreLegenda(legendaB);
+    let legendaA = await gerarLegenda('FOMO', briefingCtx, tipoPost);
+    let legendaB = await gerarLegenda('aspiracional', briefingCtx, tipoPost);
 
-  // Reescrever se score < 7
-  if (scoreA < 7) {
-    console.log(`⚠️  Score A = ${scoreA} < 7 — reescrevendo...`);
-    legendaA = await gerarLegenda('FOMO', briefingCtx, tipoPost);
-    scoreA   = await scoreLegenda(legendaA);
+    scoreA = await scoreLegenda(legendaA);
+    scoreB = await scoreLegenda(legendaB);
+
+    if (scoreA < 7) {
+      console.log(`⚠️  Score A = ${scoreA} < 7 — reescrevendo...`);
+      legendaA = await gerarLegenda('FOMO', briefingCtx, tipoPost);
+      scoreA   = await scoreLegenda(legendaA);
+    }
+    if (scoreB < 7) {
+      console.log(`⚠️  Score B = ${scoreB} < 7 — reescrevendo...`);
+      legendaB = await gerarLegenda('aspiracional', briefingCtx, tipoPost);
+      scoreB   = await scoreLegenda(legendaB);
+    }
+
+    varianteSelecionada = scoreA >= scoreB ? 'A' : 'B';
+    legendaSelecionada  = scoreA >= scoreB ? legendaA : legendaB;
+    console.log(`✅ Legenda ${varianteSelecionada} selecionada (A:${scoreA} B:${scoreB})`);
   }
-  if (scoreB < 7) {
-    console.log(`⚠️  Score B = ${scoreB} < 7 — reescrevendo...`);
-    legendaB = await gerarLegenda('aspiracional', briefingCtx, tipoPost);
-    scoreB   = await scoreLegenda(legendaB);
-  }
-
-  // Auto-selecionar legenda com maior score
-  const varianteSelecionada = scoreA >= scoreB ? 'A' : 'B';
-  const legendaSelecionada  = scoreA >= scoreB ? legendaA : legendaB;
-  console.log(`✅ Legenda ${varianteSelecionada} selecionada (A:${scoreA} B:${scoreB})`);
 
   // 5. Gerar HTML
   console.log('🏗️  Gerando HTML...');
@@ -187,6 +209,9 @@ a{color:#14A8F4;text-decoration:none;margin-top:16px;display:block;text-align:ce
     subtitulo: subtitulo || '', cidade: cidade || '', formato: 'feed_vertical',
     layout, legenda: legendaSelecionada, legenda_variante: varianteSelecionada,
     contexto_visual: contextoVisual || '',
+    publicacao: publicacao === 'backup' ? 'backup' : 'normal',
+    ...(propostaId ? { proposta_id: propostaId } : {}),
+    ...(angulo ? { angulo_editorial: angulo } : {}),
     image_rules: {
       layout,
       focus: imageRules.focusId,
@@ -210,7 +235,7 @@ a{color:#14A8F4;text-decoration:none;margin-top:16px;display:block;text-align:ce
   console.log(`\n🎉 Arte ${isLocal ? 'salva localmente' : 'publicada'}!`);
   console.log(`   Slug:    ${slug}`);
   console.log(`   Layout:  ${layout}`);
-  console.log(`   Legenda: ${varianteSelecionada} (score ${Math.max(scoreA,scoreB)}/10)`);
+  console.log(`   Legenda: ${varianteSelecionada}${scoreA != null ? ` (A:${scoreA} B:${scoreB})` : ''}`);
   if (isLocal) {
     console.log(`   Galeria: http://localhost:${process.env.PORT || 8765}/`);
     console.log(`   Arquivo: ${REPO_ROOT}/artes/${slug}/`);

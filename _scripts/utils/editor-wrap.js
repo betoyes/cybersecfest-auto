@@ -1,14 +1,9 @@
 'use strict';
 
 const { editorV3Script } = require('./editor-v3-script.js');
-
-const LAYOUT_NAMES = {
-  A:'Banda Superior', B:'Mirror Split', C:'Subtítulo ao Lado',
-  D:'Diagonal', E:'CTA Pill', F:'Coluna Lateral',
-  G:'Magazine Cover', H:'Rodapé Luminoso', I:'Coluna Direita',
-  J:'3 Blocos', K:'Tríptico', L:'L Invertido',
-  M:'Pull Quote', N:'Acento Diagonal'
-};
+const { LAYOUT_NAMES } = require('./layout-names.js');
+const { extractEditorState } = require('./editor-state.js');
+const { getLayoutCss } = require('./layouts.js');
 
 const EDITOR_CSS = `
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
@@ -20,6 +15,9 @@ html,body{height:100%;overflow:hidden;background:#02050a;font-family:'Montserrat
 .tb-export{display:inline-flex;align-items:center;gap:6px;background:rgba(20,168,244,.15);border:1px solid rgba(20,168,244,.35);color:#14A8F4;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:6px 16px;cursor:pointer;font-family:inherit;transition:all .15s}
 .tb-export:hover{background:rgba(20,168,244,.28)}
 .tb-export.busy{opacity:.45;cursor:wait;pointer-events:none}
+.tb-save{display:inline-flex;align-items:center;gap:6px;background:rgba(46,204,113,.12);border:1px solid rgba(46,204,113,.35);color:#2ecc71;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:6px 16px;cursor:pointer;font-family:inherit;transition:all .15s;margin-right:6px}
+.tb-save:hover{background:rgba(46,204,113,.22)}
+.tb-save.busy{opacity:.45;cursor:wait;pointer-events:none}
 .tb-badge{font-size:9px;color:rgba(255,255,255,.18);letter-spacing:.06em;flex-shrink:0}
 #main-area{flex:1;display:flex;overflow:hidden}
 .ep{width:260px;min-width:260px;background:#06060e;overflow-y:auto;display:flex;flex-direction:column;scrollbar-width:thin;scrollbar-color:rgba(20,168,244,.18) transparent}
@@ -89,7 +87,6 @@ const PANEL_LEFT = `
     <div class="ep-s">
       <div class="ep-st">Tipografia Global</div>
       <div class="ep-c"><div class="ep-l">Peso (headline)</div><div class="ep-seg" id="fwseg"><button class="ep-sb" data-v="400">400</button><button class="ep-sb" data-v="500">500</button><button class="ep-sb on" data-v="700">700</button></div></div>
-      <div class="ep-c"><div class="ep-l">Alinhamento</div><div class="ep-seg" id="taseg"><button class="ep-sb on" data-v="left">◀ Esq</button><button class="ep-sb" data-v="center">Ctr</button><button class="ep-sb" data-v="right">Dir ▶</button></div></div>
     </div>
     <button class="ep-rst" id="rstAll">↺ Resetar fundo</button>
   </div>`;
@@ -106,12 +103,14 @@ const PANEL_RIGHT = `
     </div>
     <div class="ep-s">
       <div class="ep-tag">Título</div>
+      <div class="ep-c"><div class="ep-l">Alinhamento</div><div class="ep-seg" id="ttaseg"><button class="ep-sb" data-v="left">◀ Esq</button><button class="ep-sb on" data-v="center">Ctr</button><button class="ep-sb" data-v="right">Dir ▶</button></div></div>
       <div class="ep-c"><div class="ep-l">Deslocar ←→ <em id="vtx">0px</em></div><input type="range" id="stx" min="-250" max="250" value="0"></div>
       <div class="ep-c"><div class="ep-l">Deslocar ↑↓ <em id="vty">0px</em></div><input type="range" id="sty" min="-250" max="250" value="0"></div>
       <div class="ep-c"><div class="ep-l">Escala <em id="vts">100%</em></div><input type="range" id="sts" min="40" max="200" value="100"></div>
     </div>
     <div class="ep-s">
       <div class="ep-tag">Subtítulo</div>
+      <div class="ep-c"><div class="ep-l">Alinhamento</div><div class="ep-seg" id="staseg"><button class="ep-sb" data-v="left">◀ Esq</button><button class="ep-sb on" data-v="center">Ctr</button><button class="ep-sb" data-v="right">Dir ▶</button></div></div>
       <div class="ep-c"><div class="ep-l">Deslocar ←→ <em id="vsx">0px</em></div><input type="range" id="ssx" min="-250" max="250" value="0"></div>
       <div class="ep-c"><div class="ep-l">Deslocar ↑↓ <em id="vsy">0px</em></div><input type="range" id="ssy" min="-250" max="250" value="0"></div>
     </div>
@@ -124,9 +123,30 @@ const PANEL_RIGHT = `
     <button class="ep-rst" id="rstEl">↺ Resetar elementos</button>
   </div>`;
 
+function extractBalancedDivInner(html, openRe) {
+  const open = html.search(openRe);
+  if (open < 0) return '';
+  const start = html.indexOf('>', open) + 1;
+  let depth = 1;
+  let i = start;
+  while (i < html.length && depth > 0) {
+    const nextOpen  = html.indexOf('<div', i);
+    const nextClose = html.indexOf('</div>', i);
+    if (nextClose < 0) break;
+    if (nextOpen >= 0 && nextOpen < nextClose) {
+      depth += 1;
+      i = nextOpen + 4;
+    } else {
+      depth -= 1;
+      if (depth === 0) return html.slice(start, nextClose).trim();
+      i = nextClose + 6;
+    }
+  }
+  return '';
+}
+
 function extractCanvasInner(html) {
-  const m = html.match(/<div class="canvas">([\s\S]*?)<\/div>\s*(?:<\/body>|$)/i);
-  return m ? m[1].trim() : '';
+  return extractBalancedDivInner(html, /<div class="canvas">/i);
 }
 
 function extractLayoutCss(html) {
@@ -140,8 +160,29 @@ function extractLayoutCss(html) {
 }
 
 function extractCanvasFromEditor(html) {
-  const m = html.match(/<div class="art-canvas" id="the-canvas">([\s\S]*?)<\/div>\s*<div class="ci"/i);
-  return m ? m[1].trim() : '';
+  return extractBalancedDivInner(html, /<div class="art-canvas" id="the-canvas">/i);
+}
+
+function resolveLayoutCss(html, layout) {
+  const editorMatch = html.match(/\/\* Layout [A-N] \*\/([\s\S]*?)(?:@media print|html\.embed)/i);
+  if (editorMatch && editorMatch[1].trim()) return editorMatch[1].trim();
+  const simple = extractLayoutCss(html);
+  if (simple && /\.(hl|ct|bc|bb|lc)\{/.test(simple)) return simple;
+  if (layout) return getLayoutCss(layout);
+  return '';
+}
+
+function canvasLooksValid(inner, layout) {
+  if (!inner || inner.length < 80) return false;
+  if (!inner.includes('art-bg') && !inner.includes('class="bg"')) return false;
+  const letter = String(layout || '').toUpperCase();
+  if (['M', 'N', 'C', 'G'].includes(letter)
+    && !inner.includes('class="ct"')
+    && !inner.includes('art-content ct')
+    && !inner.includes('class="bc"')) {
+    return false;
+  }
+  return inner.includes('el-title') || inner.includes('class="hl"');
 }
 
 /** Normaliza canvas para estrutura compatível com editor v3 (referência) */
@@ -223,7 +264,11 @@ function annotateCanvas(inner, layout) {
   return normalizeCanvas(inner, layout);
 }
 
-function buildEditorHtml({ inner, layoutCss, layout, layoutN, title, back, slug }) {
+function buildEditorHtml({ inner, layoutCss, layout, layoutN, title, back, slug, editorState }) {
+  const css = layoutCss || (layout ? getLayoutCss(layout) : '');
+  const stateBlock = editorState
+    ? `<script type="application/json" id="editor-state">${JSON.stringify(editorState)}</script>\n`
+    : '';
   return `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -233,7 +278,7 @@ function buildEditorHtml({ inner, layoutCss, layout, layoutN, title, back, slug 
 <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/dom-to-image-more@3.3.1/dist/dom-to-image-more.min.js"><\/script>
 <style>${EDITOR_CSS}
-${layoutCss ? `\n/* Layout ${layout} */\n${layoutCss}` : ''}
+${css ? `\n/* Layout ${layout} */\n${css}` : ''}
 </style>
 <script>if(location.search.includes('embed'))document.documentElement.classList.add('embed');<\/script>
 </head>
@@ -241,6 +286,7 @@ ${layoutCss ? `\n/* Layout ${layout} */\n${layoutCss}` : ''}
 <div id="topbar">
   <a class="tb-back" href="${back}">← Galeria</a>
   <span class="tb-title">${title}</span>
+  <button class="tb-save" id="btnSave">💾 Salvar</button>
   <button class="tb-export" id="btnExport">⬇ Exportar PNG</button>
   <span class="tb-badge">Layout ${layout} · v3.0</span>
 </div>
@@ -255,32 +301,39 @@ ${PANEL_LEFT}
   </div>
 ${PANEL_RIGHT}
 </div>
-<script>${editorV3Script(slug)}<\/script>
+${stateBlock}<script>${editorV3Script(slug)}<\/script>
 </body>
 </html>`;
 }
 
-function wrapWithEditor(simpleHtml, { layout, headline, slug }) {
+function wrapWithEditor(simpleHtml, { layout, headline, slug, editorState: stateOverride = null }) {
   const layoutN = LAYOUT_NAMES[layout] || layout;
   const title   = (headline || 'Arte CybersecFEST').replace(/"/g, '&quot;').slice(0, 80);
   const back    = `../../index.html#arte=${slug}`;
+  const editorState = stateOverride ?? extractEditorState(simpleHtml);
 
-  // Já tem editor v3 completo
-  if (simpleHtml.includes('id="topbar"') && simpleHtml.includes('ep-tag')) {
+  const isV3Complete = simpleHtml.includes('id="topbar"') && simpleHtml.includes('ep-tag')
+    && simpleHtml.includes('btnSave') && simpleHtml.includes('ttaseg')
+    && /\/\* Layout [A-N] \*\//.test(simpleHtml);
+
+  if (isV3Complete) {
     return simpleHtml;
   }
 
-  // Upgrade editor incompleto — preserva canvas
   if (simpleHtml.includes('id="topbar"')) {
     const canvas = extractCanvasFromEditor(simpleHtml);
-    const layoutCss = (simpleHtml.match(/\/\* Layout [A-N] \*\/([\s\S]*?)(?:@media print|html\.embed)/) || ['',''])[1].trim();
-    const inner = normalizeCanvas(canvas, layout);
-    return buildEditorHtml({ inner, layoutCss, layout, layoutN, title, back, slug });
+    const layoutCss = resolveLayoutCss(simpleHtml, layout);
+    if (canvasLooksValid(canvas, layout)) {
+      const inner = normalizeCanvas(canvas, layout);
+      return buildEditorHtml({ inner, layoutCss, layout, layoutN, title, back, slug, editorState });
+    }
+    // Canvas corrompido — caller deve re-renderizar via renderLayout
+    return null;
   }
 
   const inner     = annotateCanvas(extractCanvasInner(simpleHtml), layout);
-  const layoutCss = extractLayoutCss(simpleHtml);
-  return buildEditorHtml({ inner, layoutCss, layout, layoutN, title, back, slug });
+  const layoutCss = resolveLayoutCss(simpleHtml, layout);
+  return buildEditorHtml({ inner, layoutCss, layout, layoutN, title, back, slug, editorState });
 }
 
-module.exports = { wrapWithEditor, normalizeCanvas, buildEditorHtml };
+module.exports = { wrapWithEditor, normalizeCanvas, buildEditorHtml, extractCanvasFromEditor, resolveLayoutCss, canvasLooksValid };

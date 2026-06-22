@@ -258,7 +258,12 @@
       "historico": []
     }
   ],
-  "layout_ciclos": {},
+  "layout_ciclos": {
+    "blog": [
+      "C",
+      "N"
+    ]
+  },
   "rotacao_layouts": {
     "blog": [
       "C",
@@ -329,6 +334,18 @@
       "tipo_post": "blog",
       "layout": "M",
       "slug": "blog-1782087418412",
+      "data": "2026-06-22"
+    },
+    {
+      "tipo_post": "blog",
+      "layout": "N",
+      "slug": "blog-1782100791590",
+      "data": "2026-06-22"
+    },
+    {
+      "tipo_post": "blog",
+      "layout": "M",
+      "slug": "blog-1782102928259",
       "data": "2026-06-22"
     }
   ],

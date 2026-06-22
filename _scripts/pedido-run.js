@@ -4,7 +4,9 @@ require('./load-env.js');
 
 const { getJSON } = require('./utils/storage.js');
 const { generateText } = require('./utils/llm.js');
-const { gerarArte }    = require('./gerador-artes.js');
+const { criarLotePropostas } = require('./gerar-propostas.js');
+const { consumirBanco, getEstadoPropostas } = require('./aprovar-propostas.js');
+const { getLoteAguardando, countBanco, loadStore } = require('./utils/propostas-store.js');
 
 function tipoPostDoDia(dataBRT = new Date()) {
   const dia = dataBRT.getDay();
@@ -62,14 +64,14 @@ RETORNE EXATAMENTE neste formato JSON (sem markdown, apenas JSON puro):
 }
 
 /**
+ * Fluxo editorial v2:
+ * 1. Se banco tem texto aprovado → fase 2 (visual) e retorna
+ * 2. Se lote pendente → não gera duplicata
+ * 3. Senão → gera 3 propostas de texto (fase 1)
+ *
  * @param {object} opts
- * @param {string} [opts.tipoPost]
- * @param {string} [opts.tema]          — direção editorial livre
- * @param {string} [opts.headline]
- * @param {string} [opts.subtitulo]
- * @param {string} [opts.palavrasAzuis]
- * @param {string} [opts.contextoVisual]
- * @param {string} [opts.cidade]
+ * @param {boolean} [opts.forcarPropostas] — ignora banco e gera propostas
+ * @param {boolean} [opts.pularBanco] — não consome banco (só propostas)
  */
 async function executarPedido(opts = {}) {
   const override = process.env.TIPO_POST_OVERRIDE;
@@ -82,30 +84,51 @@ async function executarPedido(opts = {}) {
   if (!temasFile) throw new Error('temas.json não encontrado');
   const temas = temasFile.data;
 
-  let briefing;
-  if (opts.headline?.trim()) {
-    briefing = {
-      headline:       opts.headline.trim(),
-      subtitulo:      opts.subtitulo?.trim() || '',
-      palavras_azuis: opts.palavrasAzuis?.trim() || '',
-      contexto_visual: opts.contextoVisual?.trim() || opts.tema?.trim() || 'Executivos em ambiente corporativo dark, iluminação azul',
-      cidade:         opts.cidade?.trim() || 'BH e SP',
-    };
-  } else {
-    briefing = await gerarBriefing(tipoPost, temas, opts.tema?.trim() || '');
+  // 1 — Consumir banco (cron / pedido normal)
+  if (!opts.forcarPropostas && !opts.pularBanco) {
+    const doBanco = await consumirBanco();
+    if (doBanco) {
+      return {
+        modo: 'visual_banco',
+        slug: doBanco.slug,
+        layout: doBanco.layout,
+        tipoPost,
+        fromBanco: true,
+      };
+    }
   }
 
-  const resultado = await gerarArte({
+  const { data } = await loadStore();
+  const pendente = getLoteAguardando(data);
+  if (pendente && !opts.descartarPendente) {
+    return {
+      modo: 'aguardando_aprovacao',
+      loteId: pendente.id,
+      lote: pendente,
+      tipoPost,
+      bancoCount: countBanco(data),
+    };
+  }
+
+  // 2 — Fase 1: 3 rotas de texto
+  const lote = await criarLotePropostas({
     tipoPost,
-    headline:         briefing.headline,
-    subtitulo:        briefing.subtitulo,
-    palavrasAzuis:    briefing.palavras_azuis,
-    contextoVisual:   briefing.contexto_visual,
-    cidade:           briefing.cidade || 'BH e SP',
-    briefingCompleto: `${briefing.headline}\n${briefing.subtitulo}`,
+    tema: opts.tema?.trim() || '',
+    temas,
   });
 
-  return { ...resultado, tipoPost, briefing };
+  return {
+    modo: 'propostas',
+    loteId: lote.id,
+    lote,
+    tipoPost,
+    bancoCount: countBanco(data),
+  };
 }
 
-module.exports = { executarPedido, gerarBriefing, tipoPostDoDia };
+module.exports = {
+  executarPedido,
+  gerarBriefing,
+  tipoPostDoDia,
+  getEstadoPropostas,
+};

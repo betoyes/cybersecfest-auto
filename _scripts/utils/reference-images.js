@@ -75,27 +75,35 @@ function pickGrandeReferencia({ tipo = 'blog', layout = 'C' } = {}) {
 }
 
 /** Ref complementar por tipo/layout — moodboard legado (cidade/metafora/executivo/ouro) */
-function pickSupplementalRef({ tipo = 'blog', layout = 'C' } = {}) {
+const { detectLandmarkIntent } = require('./imagem-prompt.js');
+
+function pickSupplementalRef({ tipo = 'blog', layout = 'C', contextoVisual = '', cidade = '' } = {}) {
   const L = String(layout).toUpperCase();
-  const cidade    = listPng(path.join(REF_ROOT, 'cidade'));
+  const cidadeDir = listPng(path.join(REF_ROOT, 'cidade'));
   const metafora  = listPng(path.join(REF_ROOT, 'metafora'));
   const executivo = listPng(path.join(REF_ROOT, 'executivo'));
   const ouroLegado = listPng(path.join(REF_ROOT, 'ouro'))
     .filter(f => !f.includes('arte-patrocinador') && !f.includes('arte-evento'));
 
+  const wantCity = detectLandmarkIntent(`${contextoVisual} ${cidade}`);
+  if (wantCity && cidadeDir.length) return cidadeDir[0];
+
   if (tipo === 'patrocinador' || L === 'F') return metafora[0] || ouroLegado[0];
-  if (tipo === 'evento' || ['E', 'A', 'H'].includes(L)) return cidade[0] || cidade[1];
-  if (['C', 'D', 'G', 'K', 'M', 'N'].includes(L)) return executivo[0] || cidade[0];
-  if (['B', 'I', 'J', 'L'].includes(L)) return cidade[0] || executivo[0];
-  return ouroLegado[0] || cidade[0] || metafora[0];
+  if (tipo === 'evento' || ['E', 'A', 'H'].includes(L)) return cidadeDir[0] || cidadeDir[1];
+  if (['C', 'D', 'G', 'K', 'M', 'N'].includes(L)) return executivo[0] || cidadeDir[0];
+  if (['B', 'I', 'J', 'L'].includes(L)) return cidadeDir[0] || executivo[0];
+  return ouroLegado[0] || cidadeDir[0] || metafora[0];
 }
 
 /**
  * Slots: 1–2 = grande referência #1/#2 | 3 = moodboard legado (cidade/metafora/executivo/ouro)
  */
-function pickReferencePaths({ tipo = 'blog', layout = 'C', max = 3 } = {}) {
+function pickReferencePaths({ tipo = 'blog', layout = 'C', max = 3, contextoVisual = '', cidade = '' } = {}) {
   const picked = [];
-  const grande = pickGrandeReferencia({ tipo, layout });
+  const wantCity = detectLandmarkIntent(`${contextoVisual} ${cidade}`);
+  const grande = wantCity
+    ? (pickGrandeReferencia({ tipo: 'evento', layout: 'H' }) || pickGrandeReferencia({ tipo, layout }))
+    : pickGrandeReferencia({ tipo, layout });
   if (fs.existsSync(grande)) picked.push(grande);
 
   const otherGrande = grande === GRANDE_REFERENCIA.patrocinador
@@ -103,22 +111,22 @@ function pickReferencePaths({ tipo = 'blog', layout = 'C', max = 3 } = {}) {
     : GRANDE_REFERENCIA.patrocinador;
 
   if (max >= 2 && fs.existsSync(otherGrande)) {
-    if (tipo === 'blog' || tipo === 'evento') picked.push(otherGrande);
+    if (wantCity || tipo === 'blog' || tipo === 'evento') picked.push(otherGrande);
   }
 
   if (max >= 3) {
-    const sup = pickSupplementalRef({ tipo, layout });
+    const sup = pickSupplementalRef({ tipo, layout, contextoVisual, cidade });
     if (sup && fs.existsSync(sup)) picked.push(sup);
   } else if (max === 2 && picked.length < 2) {
-    const sup = pickSupplementalRef({ tipo, layout });
+    const sup = pickSupplementalRef({ tipo, layout, contextoVisual, cidade });
     if (sup && fs.existsSync(sup)) picked.push(sup);
   }
 
   return [...new Set(picked)].slice(0, max);
 }
 
-function getReferencePartsForGeneration({ tipo, layout, max = 3 } = {}) {
-  const paths = pickReferencePaths({ tipo, layout, max });
+function getReferencePartsForGeneration({ tipo, layout, max = 3, contextoVisual = '', cidade = '' } = {}) {
+  const paths = pickReferencePaths({ tipo, layout, max, contextoVisual, cidade });
   const parts = loadReferenceParts(paths, max);
   return { paths, parts };
 }

@@ -246,7 +246,7 @@ function sanitizeContextoVisual(raw = '') {
     return { ok: false, reason: 'contexto_visual muito curto ou vazio após sanitização', cleaned: '' };
   }
 
-  return { ok: true, cleaned: text.slice(0, 200) };
+  return { ok: true, cleaned: text.slice(0, 400) };
 }
 
 function pickScene(tipo, layout, seed = '') {
@@ -261,19 +261,64 @@ function pickScene(tipo, layout, seed = '') {
   return scene || LAYOUT_SCENE_FALLBACK[L];
 }
 
+function detectLandmarkIntent(text = '') {
+  const t = String(text).toLowerCase();
+  return /\b(masp|ibirapuera|copan|paulista|tur[ií]stic|landmark|monument|monumento|skyline|marco|ponto tur|teatro municipal|pinacoteca|farol|s[aã]o paulo|belo horizonte|bh\b|sp\b|cidade|urban|urbano|arquitetura)\b/i.test(t);
+}
+
+function cityHint(cidade = '') {
+  const c = String(cidade).toLowerCase();
+  if (/sp|s[aã]o paulo/i.test(c)) {
+    return 'São Paulo, Brazil — recognizable SP landmark or iconic architecture must dominate the frame (e.g. MASP red pillars on Paulista, Copan curve, Ibirapuera, Municipal Theatre facade). Night/dusk, cyan city lights.';
+  }
+  if (/bh|belo horizonte/i.test(c)) {
+    return 'Belo Horizonte, Brazil — recognizable BH landmark or modern architecture (e.g. Pampulha, Savassi skyline). Night/dusk, cyan accent lights.';
+  }
+  if (c.trim()) return `${cidade} — local landmark or distinctive city architecture as hero background.`;
+  return '';
+}
+
+function buildSceneDescription(contextoVisual = '', cidade = '', layout = 'C', tipo = 'blog') {
+  const sanitized = sanitizeContextoVisual(contextoVisual);
+  const landmark = detectLandmarkIntent(`${contextoVisual} ${cidade}`);
+  const cityLine = cityHint(cidade);
+
+  let scene = sanitized.ok && sanitized.cleaned
+    ? sanitized.cleaned
+    : pickScene(tipo, layout, contextoVisual);
+
+  if (!sanitized.ok && contextoVisual?.trim()) {
+    console.warn(`⚠️  contexto_visual ignorado (${sanitized.reason}) — usando cena padrão layout ${layout}`);
+  }
+
+  if (landmark || cityLine) {
+    const parts = [];
+    if (cityLine) parts.push(`MANDATORY LOCATION: ${cityLine}`);
+    if (sanitized.ok && sanitized.cleaned) {
+      parts.push(`USER SCENE (must obey): ${sanitized.cleaned}`);
+    }
+    parts.push(
+      'The LANDMARK / CITY ARCHITECTURE is the visual hero — wide or medium-wide shot, instantly recognizable silhouette.',
+      'Optional: small executive figure in foreground ONLY if layout allows — building/monument must remain dominant and readable.',
+      'NO generic office lobby, NO anonymous boardroom, NO stock portrait that hides the location.',
+    );
+    scene = parts.join(' ');
+  } else if (sanitized.ok && sanitized.cleaned.length < 80) {
+    scene = `${sanitized.cleaned}. Cinematic photorealistic environment, premium dark mood, cyan #14A8F4 accent lights in scene.`;
+  }
+
+  return { scene: scene.slice(0, 500), landmark, sanitizedOk: sanitized.ok };
+}
+
 /**
  * Monta prompt de imagem com regras rígidas do layout.
  * @throws se layout ∉ A–N
  */
-function buildImagePrompt({ tipo = 'blog', layout = 'C', contextoVisual = '', slug = '' } = {}) {
+function buildImagePrompt({ tipo = 'blog', layout = 'C', contextoVisual = '', cidade = '', slug = '' } = {}) {
   const L = validateLayout(layout);
   const rules = LAYOUT_IMAGE_RULES[L];
-  const sanitized = sanitizeContextoVisual(contextoVisual);
-  const scene = sanitized.ok ? sanitized.cleaned : pickScene(tipo, L, slug);
-
-  if (!sanitized.ok && contextoVisual?.trim()) {
-    console.warn(`⚠️  contexto_visual ignorado (${sanitized.reason}) — usando cena padrão layout ${L}`);
-  }
+  const { scene, landmark } = buildSceneDescription(contextoVisual, cidade, L, tipo);
+  void slug;
 
   return [
     '=== MANDATORY BACKGROUND PLATE RULES (VIOLATION = INVALID OUTPUT) ===',
@@ -286,6 +331,13 @@ function buildImagePrompt({ tipo = 'blog', layout = 'C', contextoVisual = '', sl
     'SCENE (visual content only):',
     scene,
     '',
+    ...(landmark ? [
+      'LOCATION LAW (user requested city/landmark — NON-NEGOTIABLE):',
+      '• Architecture / monument / skyline MUST be clearly readable — not generic blur',
+      '• Do NOT replace with executive portrait, lobby, or abstract tech background',
+      '• São Paulo / BH cues: real urban landmark silhouette, Paulista avenue energy, night city glow',
+      '',
+    ] : []),
     'GLOBAL STYLE (non-negotiable):',
     '• Dark cinematic executive photography — photorealistic, premium corporate Brazil',
     '• Readable exposure on subject — NOT crushed black silhouette',
@@ -313,6 +365,8 @@ module.exports = {
   getLayoutImageRules,
   validateLayout,
   sanitizeContextoVisual,
+  detectLandmarkIntent,
+  buildSceneDescription,
   LAYOUT_IMAGE_RULES,
   SCENE_DEFAULTS,
   LAYOUT_SCENE_FALLBACK,

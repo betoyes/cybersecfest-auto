@@ -4,8 +4,8 @@
   "description": "CybersecFEST — Pipeline autônomo standalone",
   "type": "commonjs",
   "scripts": {
-    "dev": "node dev-server.js",
-    "gallery": "node dev-server.js",
+    "dev": "LOCAL_MODE=1 node dev-server.js",
+    "gallery": "LOCAL_MODE=1 node dev-server.js",
     "pedido": "node pedido-cli.js",
     "pipeline": "node pipeline.js",
     "pipeline:remote": "LOCAL_MODE=0 node pipeline.js",

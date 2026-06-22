@@ -1,17 +1,21 @@
 'use strict';
 
 /**
- * Aplica editor visual v3 (referência blog-1782058741657) em artes com painel incompleto.
+ * Aplica / repara editor visual v3.1 (alinhamento + salvar).
+ * Re-renderiza HTML a partir do layout quando o canvas foi corrompido no upgrade.
  */
 
 const fs   = require('fs');
 const path = require('path');
 
+const { renderLayout }       = require('./utils/layouts.js');
 const { wrapWithEditor }     = require('./utils/editor-wrap.js');
+const { extractEditorState } = require('./utils/editor-state.js');
 const { gerarThumbComposto } = require('./utils/thumb-composto.js');
+const { isReferenciaOuro }   = require('./utils/referencia-artes.js');
 
-const ROOT      = path.join(__dirname, '..');
-const ARTES_DIR = path.join(ROOT, 'artes');
+const ROOT       = path.join(__dirname, '..');
+const ARTES_DIR  = path.join(ROOT, 'artes');
 const ARTes_JSON = path.join(ROOT, 'artes.json');
 
 function detectLayout(arte, html) {
@@ -23,29 +27,80 @@ function detectLayout(arte, html) {
   return 'C';
 }
 
+function readFundoBase64(slugDir) {
+  const fundo = path.join(slugDir, 'fundo.png');
+  if (fs.existsSync(fundo)) {
+    return fs.readFileSync(fundo).toString('base64');
+  }
+  const html = fs.readFileSync(path.join(slugDir, 'arte.html'), 'utf8');
+  let m = html.match(/background-image:url\('data:image\/[^;]+;base64,([^']+)'\)/);
+  if (m) return m[1];
+  m = html.match(/id="art-bg-img"[^>]+src="data:image\/[^;]+;base64,([^"]+)"/);
+  if (m) return m[1];
+  throw new Error('fundo.png ou base64 no arte.html não encontrado');
+}
+
+function needsUpgrade(html) {
+  if (!html.includes('btnSave') || !html.includes('ttaseg')) return true;
+  if (!/\/\* Layout [A-N] \*\//.test(html)) return true;
+  return false;
+}
+
+function rebuildArteHtml(arte, slugDir) {
+  const layout = detectLayout(arte, '');
+  const b64    = readFundoBase64(slugDir);
+  const oldHtml = fs.readFileSync(path.join(slugDir, 'arte.html'), 'utf8');
+  const editorState = extractEditorState(oldHtml);
+
+  const simpleHtml = renderLayout(layout, {
+    imageBase64:     b64,
+    headline:        arte.headline,
+    subtitulo:       arte.subtitulo || '',
+    palavrasAzuis:   arte.palavras_azuis || '',
+    nomePalestrante: arte.nome_palestrante || '',
+    cargoEmpresa:    arte.cargo_empresa || '',
+  });
+
+  const html = wrapWithEditor(simpleHtml, {
+    layout,
+    headline: arte.headline,
+    slug:     arte.slug,
+    editorState,
+  });
+
+  if (!html) throw new Error('wrapWithEditor falhou');
+  return html;
+}
+
 async function main() {
   const artes = JSON.parse(fs.readFileSync(ARTes_JSON, 'utf8'));
   const regenThumb = process.argv.includes('--thumb');
+  const force = process.argv.includes('--force');
 
   for (const arte of artes) {
     const slug     = arte.slug;
-    const artePath = path.join(ARTES_DIR, slug, 'arte.html');
+    const slugDir  = path.join(ARTES_DIR, slug);
+    const artePath = path.join(slugDir, 'arte.html');
     if (!fs.existsSync(artePath)) continue;
 
-    let html = fs.readFileSync(artePath, 'utf8');
-    if (html.includes('ep-tag')) {
-      console.log(`✅ já v3: ${slug}`);
+    if (isReferenciaOuro(slug)) {
+      console.log(`⏭ ouro (skip): ${slug}`);
       continue;
     }
 
-    const layout = detectLayout(arte, html);
-    html = wrapWithEditor(html, { layout, headline: arte.headline, slug });
+    let html = fs.readFileSync(artePath, 'utf8');
+    if (!force && !needsUpgrade(html)) {
+      console.log(`✅ ok: ${slug}`);
+      continue;
+    }
+
+    html = rebuildArteHtml(arte, slugDir);
     fs.writeFileSync(artePath, html);
-    console.log(`🔧 editor v3 aplicado: ${slug} (layout ${layout})`);
+    console.log(`🔧 editor v3.1 re-render: ${slug} (layout ${detectLayout(arte, html)})`);
 
     if (regenThumb) {
       try {
-        await gerarThumbComposto(artePath, path.join(ARTES_DIR, slug, 'thumb.png'));
+        await gerarThumbComposto(artePath, path.join(slugDir, 'thumb.png'));
         console.log(`📸 thumb: ${slug}`);
       } catch (e) {
         console.warn(`⚠️  thumb ${slug}:`, e.message);
@@ -53,7 +108,7 @@ async function main() {
     }
   }
 
-  console.log('\n✅ Editor v3 aplicado');
+  console.log('\n✅ Editor v3.1 aplicado');
 }
 
 main().catch(e => { console.error('❌', e.message); process.exit(1); });

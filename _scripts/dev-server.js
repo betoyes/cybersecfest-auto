@@ -1,9 +1,16 @@
 'use strict';
 
+// Dev local sempre grava no disco — antes de carregar storage
+process.env.LOCAL_MODE = process.env.LOCAL_MODE || '1';
+require('./load-env.js');
+
 const http = require('http');
 const fs   = require('fs');
 const path = require('path');
-const { executarPedido } = require('./pedido-run.js');
+const { executarPedido, getEstadoPropostas } = require('./pedido-run.js');
+const { aprovarLote, rejeitarLote, consumirBanco } = require('./aprovar-propostas.js');
+const { upsertEditorState } = require('./utils/editor-state.js');
+const { gerarThumbComposto } = require('./utils/thumb-composto.js');
 
 const ROOT = path.join(__dirname, '..');
 const PORT = Number(process.env.PORT || 8765);
@@ -28,6 +35,16 @@ function json(res, code, data) {
   res.end(JSON.stringify(data));
 }
 
+async function readBody(req) {
+  let body = '';
+  for await (const chunk of req) body += chunk;
+  try {
+    return JSON.parse(body || '{}');
+  } catch {
+    return null;
+  }
+}
+
 function serveStatic(req, res, urlPath) {
   const rel  = urlPath === '/' ? 'index.html' : urlPath.replace(/^\//, '');
   const file = path.join(ROOT, rel);
@@ -48,42 +65,25 @@ function serveStatic(req, res, urlPath) {
 
 async function handlePedido(req, res) {
   if (gerando) {
-    return json(res, 409, { ok: false, erro: 'Já existe um post sendo gerado. Aguarde.' });
+    return json(res, 409, { ok: false, erro: 'Já existe uma operação em andamento. Aguarde.' });
   }
 
-  let body = '';
-  for await (const chunk of req) body += chunk;
-
-  let payload = {};
-  try {
-    payload = JSON.parse(body || '{}');
-  } catch {
-    return json(res, 400, { ok: false, erro: 'JSON inválido' });
-  }
+  const payload = await readBody(req);
+  if (!payload) return json(res, 400, { ok: false, erro: 'JSON inválido' });
 
   gerando = true;
-  console.log('\n📨 Pedido recebido:', payload.tipoPost || 'auto', payload.tema?.slice(0, 40) || '(sem tema)');
+  console.log('\n📨 Pedido:', payload.forcarPropostas ? 'forçar propostas' : 'fluxo normal', payload.tema?.slice(0, 40) || '');
 
   try {
     const resultado = await executarPedido({
       tipoPost:       payload.tipoPost,
       tema:           payload.tema,
-      headline:       payload.headline,
-      subtitulo:      payload.subtitulo,
-      palavrasAzuis:  payload.palavrasAzuis,
-      contextoVisual: payload.contextoVisual,
-      cidade:         payload.cidade,
+      forcarPropostas: !!payload.forcarPropostas,
+      pularBanco:     !!payload.forcarPropostas,
     });
 
-    console.log(`✅ Pedido concluído: ${resultado.slug}`);
-    json(res, 200, {
-      ok: true,
-      slug:     resultado.slug,
-      layout:   resultado.layout,
-      tipoPost: resultado.tipoPost,
-      headline: resultado.briefing.headline,
-      legenda:  resultado.varianteSelecionada,
-    });
+    console.log(`✅ Pedido: modo=${resultado.modo}`);
+    json(res, 200, { ok: true, ...resultado });
   } catch (e) {
     console.error('❌ Pedido falhou:', e.message);
     json(res, 500, { ok: false, erro: e.message });
@@ -92,15 +92,122 @@ async function handlePedido(req, res) {
   }
 }
 
+async function handlePropostasGet(_req, res) {
+  try {
+    const estado = await getEstadoPropostas();
+    json(res, 200, { ok: true, ...estado });
+  } catch (e) {
+    json(res, 500, { ok: false, erro: e.message });
+  }
+}
+
+async function handleAprovar(req, res) {
+  if (gerando) return json(res, 409, { ok: false, erro: 'Operação em andamento' });
+  const payload = await readBody(req);
+  if (!payload?.loteId || !payload?.principalId) {
+    return json(res, 400, { ok: false, erro: 'loteId e principalId são obrigatórios' });
+  }
+
+  gerando = true;
+  try {
+    const resultado = await aprovarLote({
+      loteId: payload.loteId,
+      principalId: payload.principalId,
+      bancoIds: payload.bancoIds || [],
+      edicoes: payload.edicoes || {},
+      gerarBackupVisual: !!payload.gerarBackupVisual,
+    });
+    json(res, 200, { ok: true, modo: 'visual_aprovado', ...resultado });
+  } catch (e) {
+    json(res, 500, { ok: false, erro: e.message });
+  } finally {
+    gerando = false;
+  }
+}
+
+async function handleRejeitar(req, res) {
+  const payload = await readBody(req);
+  if (!payload?.loteId) return json(res, 400, { ok: false, erro: 'loteId obrigatório' });
+  try {
+    await rejeitarLote(payload.loteId);
+    json(res, 200, { ok: true });
+  } catch (e) {
+    json(res, 500, { ok: false, erro: e.message });
+  }
+}
+
+async function handleConsumirBanco(_req, res) {
+  if (gerando) return json(res, 409, { ok: false, erro: 'Operação em andamento' });
+  gerando = true;
+  try {
+    const resultado = await consumirBanco({ gerarBackupVisual: false });
+    if (!resultado) return json(res, 404, { ok: false, erro: 'Banco vazio' });
+    json(res, 200, { ok: true, modo: 'visual_banco', ...resultado });
+  } catch (e) {
+    json(res, 500, { ok: false, erro: e.message });
+  } finally {
+    gerando = false;
+  }
+}
+
+async function handleSalvarArte(req, res) {
+  const payload = await readBody(req);
+  if (!payload) return json(res, 400, { ok: false, erro: 'JSON inválido' });
+
+  const slug = String(payload.slug || '').trim();
+  const state = payload.state;
+  if (!slug || !state || typeof state !== 'object') {
+    return json(res, 400, { ok: false, erro: 'slug e state são obrigatórios' });
+  }
+  if (!/^[\w-]+$/.test(slug)) {
+    return json(res, 400, { ok: false, erro: 'slug inválido' });
+  }
+
+  const artePath = path.join(ROOT, 'artes', slug, 'arte.html');
+  if (!fs.existsSync(artePath)) {
+    return json(res, 404, { ok: false, erro: `Arte não encontrada: ${slug}` });
+  }
+
+  try {
+    const html = fs.readFileSync(artePath, 'utf8');
+    const updated = upsertEditorState(html, state);
+    fs.writeFileSync(artePath, updated);
+
+    let thumbOk = false;
+    let thumbAviso = null;
+    const thumbPath = path.join(ROOT, 'artes', slug, 'thumb.png');
+    try {
+      await gerarThumbComposto(artePath, thumbPath);
+      thumbOk = true;
+    } catch (e) {
+      thumbAviso = e.message;
+    }
+
+    console.log(`💾 Editor salvo: ${slug}${thumbOk ? ' + thumb' : ''}`);
+    json(res, 200, { ok: true, slug, thumb: thumbOk, thumbAviso });
+  } catch (e) {
+    console.error('❌ Salvar arte:', e.message);
+    json(res, 500, { ok: false, erro: e.message });
+  }
+}
+
 const server = http.createServer((req, res) => {
   const urlPath = decodeURIComponent((req.url || '/').split('?')[0]);
 
-  if (req.method === 'POST' && urlPath === '/api/pedido') {
-    return handlePedido(req, res);
-  }
-
-  if (req.method === 'GET' && urlPath === '/api/status') {
-    return json(res, 200, { ok: true, gerando });
+  if (req.method === 'POST' && urlPath === '/api/pedido') return handlePedido(req, res);
+  if (req.method === 'GET'  && urlPath === '/api/propostas') return handlePropostasGet(req, res);
+  if (req.method === 'POST' && urlPath === '/api/propostas/aprovar') return handleAprovar(req, res);
+  if (req.method === 'POST' && urlPath === '/api/propostas/rejeitar') return handleRejeitar(req, res);
+  if (req.method === 'POST' && urlPath === '/api/banco/consumir') return handleConsumirBanco(req, res);
+  if (req.method === 'POST' && urlPath === '/api/arte/salvar') return handleSalvarArte(req, res);
+  if (req.method === 'GET'  && urlPath === '/api/status') {
+    return json(res, 200, {
+      ok: true,
+      gerando,
+      fluxo: 'v2-propostas',
+      build: '2026-06-22-editor-save',
+      apis: ['pedido', 'propostas', 'aprovar', 'banco', 'arte/salvar'],
+    });
   }
 
   if (req.method !== 'GET' && req.method !== 'HEAD') {
@@ -114,7 +221,7 @@ server.listen(PORT, HOST, () => {
   const local = ['1', 'true', 'yes'].includes(String(process.env.LOCAL_MODE || '').toLowerCase());
   console.log(`\n🚀 CybersecFEST — Dev Server`);
   console.log(`   Galeria:  http://${HOST}:${PORT}/`);
-  console.log(`   API:      POST http://${HOST}:${PORT}/api/pedido`);
+  console.log(`   API:      POST /api/pedido · GET /api/propostas · POST /api/arte/salvar`);
   console.log(`   Modo:     ${local ? 'LOCAL (grava no disco)' : 'REMOTO (GitHub API)'}`);
   console.log(`   Raiz:     ${ROOT}\n`);
 });

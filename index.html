@@ -29,108 +29,55 @@
   <span class="header-right">Portal · 2026</span>
 </header>
 
-<!-- ══ HERO ══ -->
-<div class="hero">
-  <div class="hero-left">
-    <div class="hero-overline">
-      <div class="hero-overline-line"></div>
-      <span class="hero-overline-text">Portal Interno de Criação</span>
-    </div>
-    <h1 class="hero-title">Galeria de<br><em>Artes</em> Geradas</h1>
-    <p class="hero-desc">Clique em uma arte para ver a legenda completa. Use o editor para ajustes visuais e exportar PNG.</p>
-  </div>
-
-  <div class="hero-right" id="stats-bar">
-    <div class="stat-card">
-      <div class="stat-num" id="total-count">—</div>
-      <div class="stat-label">Artes Geradas</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-num" id="tipo-count">—</div>
-      <div class="stat-label">Tipo mais frequente</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-num" id="last-date">—</div>
-      <div class="stat-label">Última arte</div>
-    </div>
-  </div>
+<!-- ══ AVISO SERVIDOR ANTIGO ══ -->
+<div class="server-warn" id="server-warn" hidden>
+  <span>Servidor desatualizado — reinicie com <code>cd _scripts && npm run dev</code> para o fluxo de aprovação (3 propostas → você escolhe → imagem).</span>
+  <button type="button" class="server-warn-close" onclick="document.getElementById('server-warn').hidden=true" aria-label="Fechar">✕</button>
 </div>
 
 <!-- ══ PAINEL DE PEDIDO (dev local) ══ -->
 <div class="pedido-panel" id="pedido-panel">
-  <div class="pedido-head">
-    <div>
-      <div class="pedido-title">✦ Novo Post — Pedido aos Agentes</div>
-      <div class="pedido-hint">Orquestrador + Gerador de Artes · salva localmente (LOCAL_MODE)</div>
-    </div>
+  <div class="pedido-field">
+    <textarea class="pedido-textarea" id="pedido-tema" rows="2" placeholder="Briefing — ex.: Post SP com MASP de fundo, tom FOMO. Pode incluir sugestão de imagem (ponto turístico, marco, skyline). Vazio = calendário automático."></textarea>
+    <button class="pedido-btn" id="pedido-btn" type="button" title="Gerar post" aria-label="Gerar post">✦</button>
   </div>
-  <div class="pedido-grid">
-    <div class="pedido-field">
-      <label class="pedido-label" for="pedido-tipo">Tipo de post</label>
-      <select class="pedido-select" id="pedido-tipo">
-        <option value="">Automático (calendário)</option>
-        <option value="blog">Blog</option>
-        <option value="evento">Evento</option>
-        <option value="palestrante">Palestrante</option>
-        <option value="patrocinador">Patrocinador</option>
-        <option value="cidade">Cidade</option>
-      </select>
-    </div>
-    <div class="pedido-field span-2">
-      <label class="pedido-label" for="pedido-tema">Tema / briefing (opcional)</label>
-      <textarea class="pedido-textarea" id="pedido-tema" placeholder="Ex: Zero Trust para CISOs — tom FOMO, foco em decisores que perdem vantagem competitiva"></textarea>
-    </div>
-    <div class="pedido-field">
-      <label class="pedido-label" for="pedido-headline">Headline (opcional)</label>
-      <input class="pedido-input" id="pedido-headline" type="text" placeholder="Se vazio, a IA cria">
-    </div>
-    <div class="pedido-field">
-      <label class="pedido-label" for="pedido-subtitulo">Subtítulo (opcional)</label>
-      <input class="pedido-input" id="pedido-subtitulo" type="text" placeholder="Complemento da headline">
-    </div>
-    <div class="pedido-field">
-      <label class="pedido-label" for="pedido-contexto">Cena visual (opcional)</label>
-      <input class="pedido-input" id="pedido-contexto" type="text" placeholder="Auditório executivo dark, luz azul">
-    </div>
-    <div class="pedido-actions">
-      <button class="pedido-btn" id="pedido-btn" type="button">🚀 Gerar post completo</button>
-      <div class="pedido-status" id="pedido-status"></div>
-    </div>
+  <div class="pedido-status" id="pedido-status"></div>
+  <div class="pedido-pending" id="pedido-pending" hidden>
+    <button type="button" class="pedido-revisar-btn" id="pedido-revisar-btn">Revisar 3 propostas pendentes</button>
   </div>
 </div>
 
-<!-- ══ TOOLBAR ══ -->
-<div class="toolbar" id="filters-bar">
-  <div class="toolbar-row">
-    <span class="toolbar-label">Tipo</span>
-    <div class="toolbar-sep-v"></div>
-    <div id="filters-tipo" style="display:contents">
-      <button class="filter-btn active" data-filter="all"         onclick="setFilter('all', this)">Todos</button>
-      <button class="filter-btn"        data-filter="blog"        onclick="setFilter('blog', this)">Blog</button>
-      <button class="filter-btn"        data-filter="evento"      onclick="setFilter('evento', this)">Evento</button>
-      <button class="filter-btn"        data-filter="palestrante" onclick="setFilter('palestrante', this)">Palestrante</button>
-      <button class="filter-btn"        data-filter="patrocinador"onclick="setFilter('patrocinador', this)">Patrocinador</button>
-      <button class="filter-btn"        data-filter="cidade"      onclick="setFilter('cidade', this)">Cidade</button>
+<!-- ══ APROVAÇÃO DE PROPOSTAS (fase 1) ══ -->
+<div class="propostas-overlay" id="propostas-overlay" aria-hidden="true">
+  <div class="propostas-sheet" onclick="event.stopPropagation()">
+    <div class="propostas-head">
+      <div>
+        <div class="propostas-title">Escolha a rota editorial</div>
+        <div class="propostas-sub" id="propostas-sub">3 propostas · só texto · aprovada gera imagem + HTML</div>
+      </div>
+      <button type="button" class="propostas-close" onclick="closePropostasOverlay()" aria-label="Fechar">✕</button>
     </div>
-    <div class="toolbar-result-count" id="result-count"><span id="result-num">0</span> artes</div>
-  </div>
-  <div class="toolbar-row-2" id="filters-cidade">
-    <span class="toolbar-label">Cidade</span>
-    <div class="toolbar-sep-v"></div>
-    <button class="filter-btn filter-btn-cidade active" data-cidade="all" onclick="setCidadeFilter('all', this)">Todas</button>
-  </div>
-  <div class="toolbar-row-2" id="filters-layout" style="display:none">
-    <span class="toolbar-label">Layout</span>
-    <div class="toolbar-sep-v"></div>
-    <button class="filter-btn filter-btn-layout active" data-layout="all" onclick="setLayoutFilter('all', this)">Todos</button>
+    <div class="propostas-grid" id="propostas-grid"></div>
+    <div class="propostas-foot">
+      <label class="propostas-opt propostas-visual-sug">
+        <span class="propostas-visual-label">Sugestão de imagem (opcional)</span>
+        <textarea class="propostas-visual-input" id="propostas-sugestao-visual" rows="2" placeholder="Ex.: MASP à noite na Av. Paulista, Copan, Ibirapuera, Theatro Municipal — descreva o fundo que você quer"></textarea>
+      </label>
+      <label class="propostas-opt">
+        <input type="checkbox" id="propostas-backup-visual">
+        <span>Gerar visual imediato também para itens do banco (backup)</span>
+      </label>
+      <div class="propostas-actions">
+        <button type="button" class="propostas-btn ghost" id="propostas-rejeitar">Rejeitar lote</button>
+        <button type="button" class="propostas-btn primary" id="propostas-aprovar">Gerar imagem</button>
+      </div>
+      <div class="propostas-status" id="propostas-status"></div>
+    </div>
   </div>
 </div>
 
 <!-- ══ GALERIA ══ -->
 <div class="gallery-wrap">
-  <div class="gallery-header">
-    <span class="gallery-title">Mais recentes primeiro</span>
-  </div>
   <div class="grid" id="grid">
     <div class="empty">
       <div class="empty-icon">✦</div>
@@ -177,31 +124,36 @@
   </div>
 </div>
 
-<!-- ══ FOOTER ══ -->
-<div class="dashboard" id="dashboard">
-  <div class="dashboard-header">
-    <span class="live-dot"></span>
-    <span class="dashboard-title">Distribuição do Acervo</span>
+<!-- ══ PAINEL LATERAL — DISTRIBUIÇÃO DO ACERVO ══ -->
+<div class="side-drawer-backdrop" id="side-drawer-backdrop" onclick="closeSideDrawer()"></div>
+<aside class="side-drawer" id="side-drawer" aria-hidden="true">
+  <button type="button" class="side-tab-btn" id="side-tab-btn" hidden title="Distribuição do acervo" aria-expanded="false" aria-controls="side-drawer-panel">
+    <span class="side-tab-label">Acervo</span>
+  </button>
+  <div class="side-drawer-panel" id="side-drawer-panel">
+    <div class="side-drawer-head">
+      <span class="side-drawer-title">Distribuição do Acervo</span>
+      <button type="button" class="side-revisar-btn" id="propostas-revisar-btn" hidden onclick="propostasEstado.lotePendente && openPropostasOverlay(propostasEstado.lotePendente)">Revisar propostas</button>
+      <button type="button" class="side-drawer-close" onclick="closeSideDrawer()" aria-label="Fechar">✕</button>
+    </div>
+    <div class="side-tabs" role="tablist">
+      <button type="button" class="side-tabs-btn active" role="tab" aria-selected="true" data-tab="layout">Diagramação</button>
+      <button type="button" class="side-tabs-btn" role="tab" aria-selected="false" data-tab="cidade">Cidade</button>
+      <button type="button" class="side-tabs-btn" role="tab" aria-selected="false" data-tab="ab">Legenda A/B</button>
+      <button type="button" class="side-tabs-btn" role="tab" aria-selected="false" data-tab="banco">Banco <span class="side-tab-count" id="banco-count"></span></button>
+    </div>
+    <div class="side-drawer-body">
+      <div class="side-tab-panel active" id="tab-layout" role="tabpanel"><div id="dash-layout"></div></div>
+      <div class="side-tab-panel" id="tab-cidade" role="tabpanel"><div id="dash-cidade"></div></div>
+      <div class="side-tab-panel" id="tab-ab" role="tabpanel"><div id="dash-ab"></div></div>
+      <div class="side-tab-panel" id="tab-banco" role="tabpanel">
+        <div id="dash-banco"></div>
+        <button type="button" class="banco-consumir-btn" id="banco-consumir-btn" hidden>Gerar visual do próximo</button>
+      </div>
+    </div>
   </div>
-  <div class="dashboard-grid">
-    <div class="dashboard-panel">
-      <div class="dashboard-panel-title">Por Tipo de Post</div>
-      <div id="dash-tipo"></div>
-    </div>
-    <div class="dashboard-panel">
-      <div class="dashboard-panel-title">Por Layout</div>
-      <div id="dash-layout"></div>
-    </div>
-    <div class="dashboard-panel">
-      <div class="dashboard-panel-title">Por Cidade</div>
-      <div id="dash-cidade"></div>
-    </div>
-    <div class="dashboard-panel">
-      <div class="dashboard-panel-title">Legenda A/B</div>
-      <div id="dash-ab"></div>
-    </div>
-  </div>
-</div>
+</aside>
+
 <footer>
   <span class="footer-text">© CybersecFEST 2026 — a maior confraria estratégica de Cyber Security do Brasil</span>
   <div class="footer-eco">
@@ -215,22 +167,8 @@
 let allArtes = [];
 let arteMap = {};
 let creationOrderMap = {};
-let currentFilter = 'all';
-let currentCidade = 'all';
-let currentLayout = 'all';
-
-const LAYOUT_NAMES = {
-  A:'Banda Superior', B:'Mirror Split', C:'Subtítulo ao Lado',
-  D:'Diagonal', E:'CTA Pill', F:'Coluna Lateral',
-  G:'Magazine Cover', H:'Rodapé Luminoso', I:'Coluna Direita',
-  J:'3 Blocos', K:'Tríptico', L:'L Invertido',
-  M:'Pull Quote', N:'Acento Diagonal'
-};
-
-const TIPO_LABELS = {
-  blog: 'Blog', evento: 'Evento', palestrante: 'Palestrante',
-  patrocinador: 'Patrocinador', cidade: 'Cidade'
-};
+let LAYOUT_NAMES = {};
+let propostasEstado = { lotePendente: null, banco: [], bancoCount: 0 };
 
 function buildCreationOrder(artes) {
   creationOrderMap = {};
@@ -243,8 +181,16 @@ function getCreationNum(slug) {
   return creationOrderMap[slug] || null;
 }
 
+async function loadLayoutNames() {
+  try {
+    const res = await fetch('assets/layout-names.json?v=' + Date.now());
+    if (res.ok) LAYOUT_NAMES = await res.json();
+  } catch (_) {}
+}
+
 async function loadArtes() {
   try {
+    await loadLayoutNames();
     const res = await fetch('artes.json?v=' + Date.now());
     if (!res.ok) return;
     allArtes = await res.json();
@@ -252,10 +198,8 @@ async function loadArtes() {
     allArtes.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
     arteMap = Object.fromEntries(allArtes.map(a => [a.slug, a]));
     renderStats();
-    renderCidadeFilters();
-    renderLayoutFilters();
     renderDashboard();
-    renderGrid(allArtes);
+    renderGallery();
   } catch(e) {
     console.warn('artes.json não encontrado ainda.');
   }
@@ -263,56 +207,21 @@ async function loadArtes() {
 
 function renderStats() {
   const total = allArtes.length;
-  document.getElementById('total-count').textContent = total;
-  document.getElementById('header-count').textContent = total + ' arte' + (total !== 1 ? 's' : '');
-  document.getElementById('result-num').textContent = total;
-  if (total > 0) {
-    const freq = {};
-    allArtes.forEach(a => freq[a.tipo] = (freq[a.tipo] || 0) + 1);
-    const top = Object.entries(freq).sort((a,b) => b[1]-a[1])[0];
-    document.getElementById('tipo-count').textContent = TIPO_LABELS[top[0]] || top[0];
-    const d = new Date(Math.max(...allArtes.map(a => new Date(a.created_at))));
-    document.getElementById('last-date').textContent = d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
+  const headerCount = document.getElementById('header-count');
+  if (headerCount) {
+    headerCount.textContent = total + ' arte' + (total !== 1 ? 's' : '');
   }
 }
 
-function renderCidadeFilters() {
-  const cidades = [...new Set(allArtes.map(a => a.cidade).filter(c => c && c.trim() !== ''))].sort();
-  const bar = document.getElementById('filters-cidade');
-  if (cidades.length === 0) { bar.classList.remove('visible'); return; }
-  bar.classList.add('visible');
-  [...bar.querySelectorAll('[data-cidade]:not([data-cidade="all"])')].forEach(b => b.remove());
-  cidades.forEach(cidade => {
-    const btn = document.createElement('button');
-    btn.className = 'filter-btn filter-btn-cidade';
-    btn.dataset.cidade = cidade;
-    btn.textContent = cidade;
-    btn.onclick = () => setCidadeFilter(cidade, btn);
-    bar.appendChild(btn);
-  });
-}
-
-function setCidadeFilter(cidade, btn) {
-  currentCidade = cidade;
-  document.querySelectorAll('[data-cidade]').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  applyFilters();
-}
-
-function applyFilters() {
-  let filtered = allArtes;
-  if (currentFilter !== 'all') filtered = filtered.filter(a => a.tipo === currentFilter);
-  if (currentCidade !== 'all') filtered = filtered.filter(a => a.cidade === currentCidade);
-  if (currentLayout !== 'all') filtered = filtered.filter(a => a.layout === currentLayout);
-  filtered.sort((a, b) => (getCreationNum(a.slug) || 0) - (getCreationNum(b.slug) || 0));
-  document.getElementById('result-num').textContent = filtered.length;
-  renderGrid(filtered);
+function renderGallery() {
+  const sorted = [...allArtes].sort((a, b) => (getCreationNum(a.slug) || 0) - (getCreationNum(b.slug) || 0));
+  renderGrid(sorted);
 }
 
 function renderGrid(artes) {
   const grid = document.getElementById('grid');
   if (artes.length === 0) {
-    grid.innerHTML = '<div class="empty"><div class="empty-icon">✦</div><h3>Nenhuma arte encontrada</h3><p>Tente outro filtro.</p></div>';
+    grid.innerHTML = '<div class="empty"><div class="empty-icon">✦</div><h3>Nenhuma arte ainda</h3><p>As artes geradas pelo agente aparecerão aqui automaticamente.</p></div>';
     return;
   }
   grid.innerHTML = artes.map(arte => {
@@ -323,8 +232,7 @@ function renderGrid(artes) {
       <div class="card-thumb" data-card-thumb>
         <img class="card-thumb-img" src="artes/${arte.slug}/thumb.png" alt="${arte.headline}" loading="lazy" onerror="this.style.opacity=0">
         ${num ? `<div class="card-num-badge">#${num}</div>` : ''}
-        <div class="card-badge">${TIPO_LABELS[arte.tipo] || arte.tipo}</div>
-        ${arte.layout ? `<div class="card-layout-badge">${arte.layout}</div>` : ''}
+        ${arte.publicacao === 'backup' ? `<div class="card-backup-badge">backup</div>` : ''}
         <span class="card-date-badge">${date}</span>
         <div class="card-overlay">
           <div class="overlay-headline">${arte.headline}</div>
@@ -341,50 +249,14 @@ function renderGrid(artes) {
 }
 
 
-function renderLayoutFilters() {
-  const layouts = [...new Set(allArtes.map(a => a.layout).filter(l => l && l.trim() !== ''))].sort();
-  const bar = document.getElementById('filters-layout');
-  if (layouts.length === 0) { bar.classList.remove('visible'); return; }
-  bar.classList.add('visible');
-  [...bar.querySelectorAll('[data-layout]:not([data-layout="all"])')].forEach(b => b.remove());
-  layouts.forEach(layout => {
-    const btn = document.createElement('button');
-    btn.className = 'filter-btn filter-btn-layout';
-    btn.dataset.layout = layout;
-    btn.title = LAYOUT_NAMES[layout] || layout;
-    btn.textContent = layout + (LAYOUT_NAMES[layout] ? ' — ' + LAYOUT_NAMES[layout] : '');
-    btn.onclick = () => setLayoutFilter(layout, btn);
-    bar.appendChild(btn);
-  });
-}
-
-function setLayoutFilter(layout, btn) {
-  currentLayout = layout;
-  document.querySelectorAll('[data-layout]').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  applyFilters();
-}
-
 function renderDashboard() {
   const total = allArtes.length;
-  if (total === 0) { document.getElementById('dashboard').style.display = 'none'; return; }
-  document.getElementById('dashboard').style.display = '';
-
-  // por tipo
-  const tipoFreq = {};
-  allArtes.forEach(a => { tipoFreq[a.tipo] = (tipoFreq[a.tipo] || 0) + 1; });
-  const tipoOrder = ['blog','evento','palestrante','patrocinador','cidade'];
-  const tipoMax = Math.max(...Object.values(tipoFreq));
-  document.getElementById('dash-tipo').innerHTML = tipoOrder
-    .filter(t => tipoFreq[t])
-    .map(t => `
-      <div class="dash-row" onclick="setFilter('${t}', document.querySelector('[data-filter=${t}]'))">
-        <span class="dash-label">${TIPO_LABELS[t]}</span>
-        <div class="dash-bar-wrap">
-          <div class="dash-bar-track"><div class="dash-bar-fill" style="width:${Math.round(tipoFreq[t]/tipoMax*100)}%"></div></div>
-        </div>
-        <span class="dash-num">${tipoFreq[t]}</span>
-      </div>`).join('');
+  const tabBtn = document.getElementById('side-tab-btn');
+  if (total === 0) {
+    if (tabBtn) tabBtn.hidden = true;
+    return;
+  }
+  if (tabBtn) tabBtn.hidden = false;
 
   // por layout
   const layoutFreq = {};
@@ -396,7 +268,7 @@ function renderDashboard() {
   } else {
     document.getElementById('dash-layout').innerHTML = layoutEntries
       .map(([l, n]) => `
-        <div class="dash-row" onclick="setLayoutFilter('${l}', document.querySelector('[data-layout=${l}]') || document.querySelector('[data-layout=all]'))">
+        <div class="dash-row">
           <span class="dash-label">${l}<span class="dash-label-sub">${LAYOUT_NAMES[l] || ''}</span></span>
           <div class="dash-bar-wrap">
             <div class="dash-bar-track"><div class="dash-bar-fill layout" style="width:${Math.round(n/layoutMax*100)}%"></div></div>
@@ -422,7 +294,7 @@ function renderDashboard() {
   } else {
     document.getElementById('dash-cidade').innerHTML = cidadeEntries
       .map(([c, n]) => `
-        <div class="dash-row" onclick="setCidadeFilter('${c}', document.querySelector('[data-cidade=\'${c}\']') || document.querySelector('[data-cidade=all]'))">
+        <div class="dash-row">
           <span class="dash-label">${c}</span>
           <div class="dash-bar-wrap">
             <div class="dash-bar-track"><div class="dash-bar-fill cidade" style="width:${Math.round(n/cidadeMax*100)}%"></div></div>
@@ -462,16 +334,6 @@ function toggleModalPanel() {
   setTimeout(scaleModalArt, 320);
 }
 
-function setFilter(tipo, btn) {
-  currentFilter = tipo;
-  document.querySelectorAll('[data-filter]').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  const cidadeBar = document.getElementById('filters-cidade');
-  const temCidades = allArtes.some(a => a.cidade && a.cidade.trim() !== '');
-  if (temCidades) cidadeBar.classList.add('visible');
-  applyFilters();
-}
-
 function scaleModalArt() {
   const box = document.getElementById('modal-art-box');
   const scaler = document.getElementById('modal-art-scaler');
@@ -496,8 +358,7 @@ function openModal(slug, arte) {
   setTimeout(() => { img.src = 'artes/' + slug + '/thumb.png'; scaleModalArt(); }, 10);
   document.getElementById('modal-badge').textContent = (() => {
     const n = getCreationNum(slug);
-    const tipo = TIPO_LABELS[arte.tipo] || arte.tipo;
-    return n ? `#${n} · ${tipo}` : tipo;
+    return n ? `#${n} de ${allArtes.length}` : 'Arte';
   })();
   document.getElementById('modal-headline').textContent = arte.headline;
   document.getElementById('modal-actions').innerHTML = `
@@ -515,7 +376,6 @@ function openModal(slug, arte) {
     rows.push(`<div class="modal-meta-row"><span class="modal-meta-key">Palavras azuis</span><span class="modal-meta-val">${hl}</span></div>`);
   }
   if (arte.cidade) rows.push(`<div class="modal-meta-row"><span class="modal-meta-key">Cidade</span><span class="modal-meta-val"><span class="modal-meta-badge">🏙️ ${arte.cidade}</span></span></div>`);
-  if (arte.layout) rows.push(`<div class="modal-meta-row"><span class="modal-meta-key">Layout</span><span class="modal-meta-val"><span class="modal-meta-badge">${arte.layout} — ${LAYOUT_NAMES[arte.layout] || ''}</span></span></div>`);
   if (arte.formato) {
     const fmt = {feed_vertical:'Feed Vertical',feed_quadrado:'Feed Quadrado',stories:'Stories',linkedin:'LinkedIn'}[arte.formato] || arte.formato;
     rows.push(`<div class="modal-meta-row"><span class="modal-meta-key">Formato</span><span class="modal-meta-val">${fmt}</span></div>`);
@@ -623,6 +483,75 @@ function openModalFromHash() {
   if (m) openModalBySlug(decodeURIComponent(m[1]));
 }
 
+function initSideDrawer() {
+  const drawer = document.getElementById('side-drawer');
+  const tabBtn = document.getElementById('side-tab-btn');
+  const backdrop = document.getElementById('side-drawer-backdrop');
+  if (!drawer || !tabBtn) return;
+
+  tabBtn.addEventListener('click', () => {
+    if (drawer.classList.contains('open')) closeSideDrawer();
+    else openSideDrawer();
+  });
+
+  document.querySelectorAll('.side-tabs-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tab = btn.dataset.tab;
+      document.querySelectorAll('.side-tabs-btn').forEach(b => {
+        b.classList.toggle('active', b === btn);
+        b.setAttribute('aria-selected', b === btn ? 'true' : 'false');
+      });
+      document.querySelectorAll('.side-tab-panel').forEach(p => {
+        p.classList.toggle('active', p.id === 'tab-' + tab);
+      });
+    });
+  });
+
+  if (backdrop) backdrop.addEventListener('click', closeSideDrawer);
+}
+
+function openSideDrawer() {
+  const drawer = document.getElementById('side-drawer');
+  const tabBtn = document.getElementById('side-tab-btn');
+  const backdrop = document.getElementById('side-drawer-backdrop');
+  if (!drawer) return;
+  drawer.classList.add('open');
+  drawer.setAttribute('aria-hidden', 'false');
+  if (tabBtn) tabBtn.setAttribute('aria-expanded', 'true');
+  if (backdrop) backdrop.classList.add('visible');
+  document.body.classList.add('side-drawer-open');
+}
+
+function closeSideDrawer() {
+  const drawer = document.getElementById('side-drawer');
+  const tabBtn = document.getElementById('side-tab-btn');
+  const backdrop = document.getElementById('side-drawer-backdrop');
+  if (!drawer) return;
+  drawer.classList.remove('open');
+  drawer.setAttribute('aria-hidden', 'true');
+  if (tabBtn) tabBtn.setAttribute('aria-expanded', 'false');
+  if (backdrop) backdrop.classList.remove('visible');
+  document.body.classList.remove('side-drawer-open');
+}
+
+async function checkDevServerFluxo() {
+  const warn = document.getElementById('server-warn');
+  if (!warn) return;
+  try {
+    const res = await fetch('/api/status?v=' + Date.now());
+    if (!res.ok) throw new Error('no status');
+    const data = await res.json();
+    warn.hidden = data.fluxo === 'v2-propostas';
+    return;
+  } catch (_) {}
+  try {
+    const r2 = await fetch('/api/propostas?v=' + Date.now());
+    warn.hidden = r2.ok;
+  } catch {
+    warn.hidden = false;
+  }
+}
+
 function initPedidoPanel() {
   const panel = document.getElementById('pedido-panel');
   const btn   = document.getElementById('pedido-btn');
@@ -630,20 +559,51 @@ function initPedidoPanel() {
   const isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
   if (!panel || !isLocal) return;
 
-  panel.classList.add('visible');
+  checkDevServerFluxo();
 
-  btn.addEventListener('click', async () => {
-    const payload = {
-      tipoPost:       document.getElementById('pedido-tipo').value || undefined,
-      tema:           document.getElementById('pedido-tema').value.trim() || undefined,
-      headline:       document.getElementById('pedido-headline').value.trim() || undefined,
-      subtitulo:      document.getElementById('pedido-subtitulo').value.trim() || undefined,
-      contextoVisual: document.getElementById('pedido-contexto').value.trim() || undefined,
-    };
+  panel.classList.add('visible');
+  const PEDIDO_ICON = '✦';
+
+  async function submitPedido() {
+    const tema = document.getElementById('pedido-tema').value.trim();
+    const pendente = propostasEstado.lotePendente;
+
+    if (pendente) {
+      const temaNovo = tema && tema !== (pendente.tema_briefing || '');
+      if (!temaNovo) {
+        openPropostasOverlay(pendente);
+        status.className = 'pedido-status ok';
+        status.textContent = '⏳ Lote pendente — escolha uma rota abaixo';
+        return;
+      }
+      if (!confirm('Já existem 3 propostas pendentes. Descartar e gerar novas com este briefing?')) {
+        openPropostasOverlay(pendente);
+        return;
+      }
+      status.className = 'pedido-status';
+      status.textContent = '⏳ Descartando lote anterior…';
+      try {
+        const rej = await fetch('/api/propostas/rejeitar', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ loteId: pendente.id }),
+        });
+        const rejData = await rej.json();
+        if (!rej.ok || !rejData.ok) throw new Error(rejData.erro || 'Falha ao descartar lote');
+        await loadPropostasEstado();
+      } catch (e) {
+        status.className = 'pedido-status erro';
+        status.textContent = '❌ ' + e.message;
+        return;
+      }
+    }
+
+    const payload = { tema: tema || undefined };
 
     btn.disabled = true;
+    btn.textContent = '⏳';
     status.className = 'pedido-status';
-    status.textContent = '⏳ Agentes trabalhando… briefing → imagem → legenda → publicação (30–90s)';
+    status.textContent = '⏳ Gerando 3 rotas editoriais (só texto)…';
 
     try {
       const res = await fetch('/api/pedido', {
@@ -654,28 +614,307 @@ function initPedidoPanel() {
       const data = await res.json();
       if (!res.ok || !data.ok) throw new Error(data.erro || 'Falha na geração');
 
-      status.className = 'pedido-status ok';
-      status.textContent = `✅ Post criado: ${data.slug} · layout ${data.layout}`;
-
-      await loadArtes();
-      openModalBySlug(data.slug);
-      history.replaceState(null, '', '#arte=' + data.slug);
+      if (data.modo === 'visual_banco') {
+        status.className = 'pedido-status ok';
+        status.textContent = `✅ Arte do banco: ${data.slug}`;
+        await loadArtes();
+        await loadPropostasEstado();
+        openModalBySlug(data.slug);
+      } else if (data.modo === 'propostas' || data.modo === 'aguardando_aprovacao') {
+        status.className = 'pedido-status ok';
+        status.textContent = data.modo === 'propostas'
+          ? '✅ 3 propostas prontas — escolha abaixo'
+          : '⏳ Lote pendente — revise as propostas';
+        await loadPropostasEstado();
+        openPropostasOverlay(data.lote || propostasEstado.lotePendente);
+      } else {
+        status.className = 'pedido-status ok';
+        status.textContent = `✅ ${data.modo}`;
+      }
     } catch (e) {
-      status.className = 'pedido-status erro';
-      status.textContent = '❌ ' + e.message;
+      if (propostasEstado.lotePendente) {
+        openPropostasOverlay(propostasEstado.lotePendente);
+        status.className = 'pedido-status ok';
+        status.textContent = '⏳ Propostas pendentes — escolha uma rota abaixo';
+      } else {
+        status.className = 'pedido-status erro';
+        status.textContent = '❌ ' + e.message;
+      }
+    } finally {
+      btn.disabled = false;
+      btn.textContent = PEDIDO_ICON;
+    }
+  }
+
+  btn.addEventListener('click', submitPedido);
+  document.getElementById('pedido-revisar-btn')?.addEventListener('click', () => {
+    if (propostasEstado.lotePendente) openPropostasOverlay(propostasEstado.lotePendente);
+  });
+  document.getElementById('pedido-tema').addEventListener('keydown', e => {
+    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+      e.preventDefault();
+      if (!btn.disabled) submitPedido();
+    }
+  });
+}
+
+async function loadPropostasEstado() {
+  try {
+    const res = await fetch('/api/propostas?v=' + Date.now());
+    if (!res.ok) return;
+    const data = await res.json();
+    if (!data.ok) return;
+    propostasEstado = {
+      lotePendente: data.lotePendente,
+      banco: data.banco || [],
+      bancoCount: data.bancoCount || 0,
+      bancoMax: data.bancoMax || 5,
+    };
+    renderBancoPanel();
+    updatePropostasBadge();
+    hintPropostasPendentes();
+  } catch (_) {}
+}
+
+function hintPropostasPendentes() {
+  const pendingWrap = document.getElementById('pedido-pending');
+  const revisarBtn = document.getElementById('pedido-revisar-btn');
+  if (pendingWrap) pendingWrap.hidden = !propostasEstado.lotePendente;
+  if (revisarBtn && propostasEstado.lotePendente) {
+    const n = propostasEstado.lotePendente.propostas?.length || 3;
+    revisarBtn.textContent = `Revisar ${n} propostas pendentes`;
+  }
+  if (!propostasEstado.lotePendente) return;
+  const status = document.getElementById('pedido-status');
+  if (!status || status.classList.contains('erro')) return;
+  if (status.textContent.trim()) return;
+  status.className = 'pedido-status';
+  status.textContent = '⏳ Propostas aguardando sua escolha';
+}
+
+function updatePropostasBadge() {
+  const tabBtn = document.getElementById('side-tab-btn');
+  const countEl = document.getElementById('banco-count');
+  if (countEl) {
+    countEl.textContent = propostasEstado.bancoCount > 0 ? propostasEstado.bancoCount : '';
+    countEl.hidden = !propostasEstado.bancoCount;
+  }
+  if (tabBtn) {
+    tabBtn.classList.toggle('has-pending', !!propostasEstado.lotePendente);
+    tabBtn.title = propostasEstado.lotePendente ? 'Propostas pendentes' : 'Distribuição do acervo';
+  }
+  const revisar = document.getElementById('propostas-revisar-btn');
+  if (revisar) revisar.hidden = !propostasEstado.lotePendente;
+}
+
+function renderBancoPanel() {
+  const el = document.getElementById('dash-banco');
+  const btn = document.getElementById('banco-consumir-btn');
+  if (!el) return;
+  const banco = propostasEstado.banco || [];
+  if (!banco.length) {
+    el.innerHTML = '<span class="dash-empty">Nenhuma reserva de texto no banco.</span>';
+    if (btn) btn.hidden = true;
+    return;
+  }
+  el.innerHTML = banco.map(b => `
+    <div class="banco-row">
+      <div class="banco-row-head">${escHtml(b.angulo || 'Rota')}</div>
+      <div class="banco-row-hl">${escHtml(b.headline || '')}</div>
+      <div class="banco-row-meta">${new Date(b.aprovado_em).toLocaleDateString('pt-BR')}</div>
+    </div>`).join('');
+  if (btn) {
+    btn.hidden = false;
+    btn.textContent = `Gerar visual do próximo (${banco.length} na fila)`;
+  }
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function resetModaisFechados() {
+  closePropostasOverlay();
+  closeSideDrawer();
+  const modal = document.getElementById('modal');
+  if (modal) {
+    modal.classList.remove('open');
+    const mi = document.getElementById('modal-img');
+    if (mi) mi.src = '';
+  }
+  document.body.classList.remove('propostas-open', 'side-drawer-open');
+}
+
+function openPropostasOverlay(lote) {
+  if (!lote || !lote.propostas) return;
+  const overlay = document.getElementById('propostas-overlay');
+  const grid = document.getElementById('propostas-grid');
+  const sub = document.getElementById('propostas-sub');
+  sub.textContent = `${lote.propostas.length} propostas · escolha 1 para gerar imagem`;
+  const defaultId = (lote.propostas.find(p => p.recomendada) || lote.propostas[0]).id;
+
+  grid.innerHTML = lote.propostas.map(p => `
+    <article class="prop-card${p.recomendada ? ' recommended' : ''}" data-id="${p.id}">
+      ${p.recomendada ? '<span class="prop-rec">Recomendada</span>' : ''}
+      <div class="prop-angulo">${escHtml(p.angulo)}</div>
+      <h3 class="prop-headline">${escHtml(p.headline)}</h3>
+      <p class="prop-sub">${escHtml(p.subtitulo || '')}</p>
+      ${p.contexto_visual ? `<div class="prop-legenda-label">Cena visual (IA)</div><div class="prop-contexto">${escHtml(p.contexto_visual)}</div>` : ''}
+      <div class="prop-legenda-label">Legenda completa</div>
+      <div class="prop-legenda">${escHtml(p.legenda || '')}</div>
+      <div class="prop-picks">
+        <label class="prop-pick">
+          <input type="radio" name="prop-principal" value="${p.id}" ${p.id === defaultId ? 'checked' : ''}>
+          <span>GERAR IMAGEM</span>
+        </label>
+        <label class="prop-pick">
+          <input type="checkbox" class="prop-banco" value="${p.id}">
+          <span>Guardar no banco</span>
+        </label>
+      </div>
+    </article>`).join('');
+
+  overlay.dataset.loteId = lote.id;
+  const sugEl = document.getElementById('propostas-sugestao-visual');
+  if (sugEl) {
+    const b = lote.tema_briefing || '';
+    sugEl.value = /imagem|visual|fundo|tur[ií]stic|masp|ponto|marco|skyline|ibirapuera|copan|paulista/i.test(b) ? b : '';
+  }
+  overlay.classList.add('open');
+  overlay.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('propostas-open');
+
+  grid.querySelectorAll('input[name="prop-principal"]').forEach(radio => {
+    radio.addEventListener('change', () => {
+      const card = radio.closest('.prop-card');
+      grid.querySelectorAll('.prop-card').forEach(c => c.classList.toggle('selected', c === card));
+      const bancoCb = card.querySelector('.prop-banco');
+      if (bancoCb) bancoCb.checked = false;
+    });
+  });
+  grid.querySelector('.prop-card input[name="prop-principal"]:checked')
+    ?.closest('.prop-card')?.classList.add('selected');
+}
+
+function closePropostasOverlay() {
+  const overlay = document.getElementById('propostas-overlay');
+  if (!overlay) return;
+  overlay.classList.remove('open');
+  overlay.setAttribute('aria-hidden', 'true');
+  document.body.classList.remove('propostas-open');
+}
+
+async function submitAprovarPropostas() {
+  const overlay = document.getElementById('propostas-overlay');
+  const status = document.getElementById('propostas-status');
+  const loteId = overlay?.dataset.loteId;
+  const principal = overlay?.querySelector('input[name="prop-principal"]:checked')?.value;
+  if (!loteId || !principal) {
+    status.textContent = 'Escolha uma proposta para gerar imagem.';
+    return;
+  }
+  const bancoIds = [...overlay.querySelectorAll('.prop-banco:checked')].map(cb => cb.value)
+    .filter(id => id !== principal);
+  const gerarBackupVisual = document.getElementById('propostas-backup-visual')?.checked;
+  const sugestaoVisual = document.getElementById('propostas-sugestao-visual')?.value.trim();
+  const edicoes = {};
+  if (sugestaoVisual) {
+    edicoes[principal] = { contexto_visual: sugestaoVisual };
+  }
+
+  status.textContent = '⏳ Gerando visual da principal… (30–90s)';
+  document.getElementById('propostas-aprovar').disabled = true;
+
+  try {
+    const res = await fetch('/api/propostas/aprovar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ loteId, principalId: principal, bancoIds, gerarBackupVisual, edicoes }),
+    });
+    const data = await res.json();
+    if (!res.ok || !data.ok) throw new Error(data.erro || 'Falha na aprovação');
+
+    closePropostasOverlay();
+    await loadArtes();
+    await loadPropostasEstado();
+    openModalBySlug(data.slug);
+    history.replaceState(null, '', '#arte=' + data.slug);
+
+    const pedidoStatus = document.getElementById('pedido-status');
+    if (pedidoStatus) {
+      pedidoStatus.className = 'pedido-status ok';
+      pedidoStatus.textContent = `✅ Imagem gerada: ${data.slug}${data.bancoAdicionados ? ` · +${data.bancoAdicionados} no banco` : ''}`;
+    }
+  } catch (e) {
+    status.textContent = '❌ ' + e.message;
+  } finally {
+    document.getElementById('propostas-aprovar').disabled = false;
+  }
+}
+
+async function submitRejeitarPropostas() {
+  const overlay = document.getElementById('propostas-overlay');
+  const loteId = overlay?.dataset.loteId;
+  if (!loteId || !confirm('Rejeitar todas as propostas deste lote?')) return;
+  try {
+    const res = await fetch('/api/propostas/rejeitar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ loteId }),
+    });
+    const data = await res.json();
+    if (!res.ok || !data.ok) throw new Error(data.erro || 'Falha');
+    closePropostasOverlay();
+    await loadPropostasEstado();
+    document.getElementById('pedido-status').textContent = 'Lote rejeitado.';
+  } catch (e) {
+    document.getElementById('propostas-status').textContent = '❌ ' + e.message;
+  }
+}
+
+function initPropostasUI() {
+  document.getElementById('propostas-aprovar')?.addEventListener('click', submitAprovarPropostas);
+  document.getElementById('propostas-rejeitar')?.addEventListener('click', submitRejeitarPropostas);
+  document.getElementById('propostas-overlay')?.addEventListener('click', e => {
+    if (e.target.id === 'propostas-overlay') closePropostasOverlay();
+  });
+  document.getElementById('banco-consumir-btn')?.addEventListener('click', async () => {
+    const btn = document.getElementById('banco-consumir-btn');
+    btn.disabled = true;
+    try {
+      const res = await fetch('/api/banco/consumir', { method: 'POST' });
+      const data = await res.json();
+      if (!res.ok || !data.ok) throw new Error(data.erro || 'Banco vazio');
+      await loadArtes();
+      await loadPropostasEstado();
+      openModalBySlug(data.slug);
+    } catch (e) {
+      alert(e.message);
     } finally {
       btn.disabled = false;
     }
   });
 }
 
-loadArtes().then(() => {
+window.addEventListener('pageshow', e => {
+  if (e.persisted) resetModaisFechados();
+});
+
+loadArtes().then(async () => {
+  resetModaisFechados();
+  await loadPropostasEstado();
   openModalFromHash();
   initPedidoPanel();
+  initPropostasUI();
+  initSideDrawer();
 });
 window.addEventListener('resize', () => { scaleModalArt(); });
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') closeModal();
+  if (e.key === 'Escape') {
+    closePropostasOverlay();
+    closeSideDrawer();
+    closeModal();
+  }
 });
 </script>
 </body>

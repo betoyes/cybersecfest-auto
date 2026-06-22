@@ -371,4 +371,21 @@ function renderLayout(letter, params) {
   return fn(params);
 }
 
-module.exports = { renderLayout };
+/** CSS específico do layout (sem reset global) — para injetar no editor v3 */
+function getLayoutCss(letter) {
+  const html = renderLayout(letter, {
+    imageBase64: 'x',
+    headline: 'H',
+    subtitulo: 'S',
+    palavrasAzuis: '',
+  });
+  const m = html.match(/<style>([\s\S]*?)<\/style>/i);
+  if (!m) return '';
+  const css = m[1];
+  const canvasRule = css.match(/\.canvas\{[^}]*\}/);
+  if (!canvasRule) return css.trim();
+  const idx = css.indexOf(canvasRule[0]) + canvasRule[0].length;
+  return css.slice(idx).trim();
+}
+
+module.exports = { renderLayout, getLayoutCss };

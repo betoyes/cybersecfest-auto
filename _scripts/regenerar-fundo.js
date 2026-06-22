@@ -88,6 +88,7 @@ async function regenerarFundo(arte) {
   }
 
   // Salva fundo cru separado — nunca reutilizar thumb composto como fundo
+  fs.mkdirSync(slugDir, { recursive: true });
   fs.writeFileSync(path.join(slugDir, 'fundo.png'), imgBuffer);
   console.log(`💾 fundo.png salvo (${Math.round(imgBuffer.length / 1024)} KB)`);
 

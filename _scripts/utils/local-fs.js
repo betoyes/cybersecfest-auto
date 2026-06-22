@@ -40,6 +40,10 @@ async function putBinary(relPath, buffer, message) {
   return { sha: fileSha(buffer), message };
 }
 
+function ensureDir(relPath) {
+  fs.mkdirSync(abs(relPath), { recursive: true });
+}
+
 async function getJSON(relPath) {
   const f = await getFile(relPath);
   if (!f) return null;
@@ -73,7 +77,7 @@ async function listTree() {
 }
 
 module.exports = {
-  getFile, putFile, putBinary, getJSON, putJSON,
+  getFile, putFile, putBinary, getJSON, putJSON, ensureDir,
   getCommits, createRepo, repoExists, listTree,
   REPO, REPO_ROOT, isLocal: true
 };
