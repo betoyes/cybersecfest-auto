@@ -7,8 +7,23 @@ const REFERENCIA_OURO = [
   'blog-1782058741657',         // #3
 ];
 
+/** Bússola visual para novos posts — tonalidade azul fantástica */
+const GRANDE_REFERENCIA_VISUAL = [
+  'patrocinador-1782039190901', // #1 — grid + glow ciano
+  'evento-1782045624931',       // #2 — backlight + skyline
+];
+
 function isReferenciaOuro(slug) {
   return REFERENCIA_OURO.includes(slug);
 }
 
-module.exports = { REFERENCIA_OURO, isReferenciaOuro };
+function isGrandeReferencia(slug) {
+  return GRANDE_REFERENCIA_VISUAL.includes(slug);
+}
+
+module.exports = {
+  REFERENCIA_OURO,
+  GRANDE_REFERENCIA_VISUAL,
+  isReferenciaOuro,
+  isGrandeReferencia,
+};

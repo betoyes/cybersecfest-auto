@@ -127,7 +127,11 @@ Manter no máximo os últimos 20 registros.
 
 ### PASSO 2 — Geração da Imagem IA
 
-**Lei do Azul Cibernético (OBRIGATÓRIA):** Toda fotografia deve conter **pelo menos 2 fontes visíveis de luz azul ciano `#14A8F4`** na cena (rim light, backlight, city glow, LED, reflexo). Referências ouro: `patrocinador-1782039190901`, `evento-1782045624931`, `blog-1782058741657`.
+**Lei do Azul Cibernético (OBRIGATÓRIA):** Toda fotografia deve conter **pelo menos 2 fontes visíveis de luz azul ciano `#14A8F4`** na cena (rim light, backlight, city glow, LED, reflexo).
+
+**GRANDE REFERÊNCIA (bússola visual):** artes `#1 patrocinador-1782039190901` (grid + glow metálico) e `#2 evento-1782045624931` (silhueta + backlight + skyline). Todo post novo deve perseguir esta tonalidade azul — o pipeline anexa os fundos reais destas artes ao Gemini automaticamente.
+
+Referência secundária humanizada: `blog-1782058741657` (#3).
 
 **Proibido:** bokeh quente âmbar-dominante, interiores vazios, luminárias como sujeito, arquitetura genérica sem executivo.
 

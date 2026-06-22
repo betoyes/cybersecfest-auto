@@ -96,7 +96,7 @@ async function gerarArte({ tipoPost, headline, subtitulo, palavrasAzuis,
 
   // 3. Gerar imagem IA (regras rígidas por layout)
   console.log('🖼️  Gerando imagem IA (regras rígidas A–N + Lei do Azul #14A8F4)...');
-  console.log(`   Referências DS: ${REFERENCE_ARTES.join(', ')}`);
+  console.log(`   Grande referência DS: ${REFERENCE_ARTES.join(' + ')}`);
   const imgPrompt = await gerarImagemPrompt(tipoPost, layout, contextoVisual, slug);
   console.log(`   Zonas livres: ${imageRules.clearZones.length} regra(s) aplicadas`);
   const imgBuffer = await generateImage(imgPrompt, { tipo: tipoPost, layout });

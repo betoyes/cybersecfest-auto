@@ -8,11 +8,15 @@
 
 const VALID_LAYOUTS = 'ABCDEFGHIJKLMN'.split('');
 
-/** Artes de referência visual — padrão ouro do Design System (tons azuis na fotografia) */
+/** Artes GRANDE REFERÊNCIA — padrão ouro de tonalidade azul (#1 e #2 são a bússola) */
 const REFERENCE_ARTES = [
-  'patrocinador-1782039190901', // #1 — peça + grid azul
-  'evento-1782045624931',       // #2 — silhueta + backlight azul
-  'blog-1782058741657',         // #3 — retrato + rim light azul
+  'patrocinador-1782039190901', // #1 — xadrez metálico + grid ciano + bokeh rede
+  'evento-1782045624931',       // #2 — silhueta + backlight halo + skyline
+];
+
+/** Arte #3 — referência secundária (retrato humanizado) */
+const REFERENCE_ARTES_SECUNDARIAS = [
+  'blog-1782058741657',
 ];
 
 /**
@@ -20,15 +24,14 @@ const REFERENCE_ARTES = [
  * O HTML usa #14A8F4; a foto DEVE ecoar esse tom (referências #1–#3).
  */
 const CYBER_BLUE_STYLE = [
-  'CYBER BLUE ACCENT LAW (MANDATORY):',
-  '• At least TWO visible cool-cyan #14A8F4 light sources in the ENVIRONMENT (background bokeh, LED strips, screens, city glow, lens flare behind subject)',
-  '• Blue lives AROUND the subject — in architecture, atmosphere, bokeh, screens — NOT as a color filter on skin',
-  '• SKIN: natural warm human skin tones on face, hands, neck — photorealistic, never blue-tinted cheeks or forehead',
-  '• Rim light on hair/shoulder edge is OK; key light on face must be neutral/warm, not cyan',
-  '• Exposure: subject face must be readable — not crushed to black silhouette; midtones visible',
-  '• Shadow areas: deep #02050A allowed in background; face retains detail',
-  '• Color temperature: cool environment, natural skin — never full-frame blue monochrome',
-  '• Forbidden: blue color grade on skin, orange-only bokeh, muddy underexposure, 3D illustration',
+  'CYBER BLUE ACCENT LAW — match GRANDE REFERÊNCIA artes #1 (patrocinador) and #2 (evento):',
+  '• #1 signature: luminous cyan #14A8F4 glow on reflective surfaces (grid floor, metal), network-style blue bokeh, deep #02050A shadows with electric highlights',
+  '• #2 signature: brilliant cyan backlight halo behind subject, night city glow, dramatic silhouette-friendly contrast, saturated blue atmosphere',
+  '• At least TWO visible #14A8F4 light sources IN THE ENVIRONMENT — never muddy grey-only darkness',
+  '• Blue lives AROUND the subject — architecture, bokeh, screens, halo — NOT as skin color grade',
+  '• SKIN: natural warm tones on face/hands; rim on hair/shoulder edge OK; key light on face neutral/warm',
+  '• Exposure: readable midtones — not crushed black silhouette unless layout explicitly needs silhouette (#2 style)',
+  '• Forbidden: blue cheeks/forehead, warm-amber-only bokeh, flat underexposure, 3D illustration',
 ];
 
 /** Regras obrigatórias por layout — alinhadas ao SKILL (Lei de Foco) */
@@ -315,6 +318,7 @@ module.exports = {
   LAYOUT_SCENE_FALLBACK,
   VALID_LAYOUTS,
   REFERENCE_ARTES,
+  REFERENCE_ARTES_SECUNDARIAS,
   CYBER_BLUE_STYLE,
   /** @deprecated use LAYOUT_IMAGE_RULES */
   FOCUS_MAP: Object.fromEntries(

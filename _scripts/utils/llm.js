@@ -114,7 +114,7 @@ async function generateImage(prompt, { tipo, layout, useReferences = true } = {}
   let refPaths = [];
 
   if (useReferences) {
-    const refs = getReferencePartsForGeneration({ tipo, layout, max: 1 });
+    const refs = getReferencePartsForGeneration({ tipo, layout, max: 3 });
     referenceParts = refs.parts;
     refPaths = refs.paths;
     if (refPaths.length) {
