@@ -7,6 +7,7 @@
     "subtitulo": "O CybersecFEST coloca sua empresa dentro das conversas que movem o mercado de segurança no Brasil.",
     "cidade": "",
     "formato": "feed_vertical",
+    "layout": "F",
     "image_path": "artes/patrocinador-1782039190901/thumb.png",
     "html_path": "artes/patrocinador-1782039190901/arte.html",
     "created_at": "2026-06-21T10:53:13.138Z",
@@ -82,5 +83,20 @@
     "image_path": "artes/blog-1782085638864/thumb.png",
     "html_path": "artes/blog-1782085638864/arte.html",
     "created_at": "2026-06-21T23:47:18.864Z"
+  },
+  {
+    "slug": "blog-1782087418412",
+    "tipo": "blog",
+    "headline": "Transforme seu Patrocínio em Liderança Digital",
+    "palavras_azuis": "Patrocínio, Liderança",
+    "subtitulo": "Conquiste espaço ao lado das maiores marcas.",
+    "cidade": "BH e SP",
+    "formato": "feed_vertical",
+    "layout": "M",
+    "legenda": "Imagine sua marca no centro das atenções, onde líderes e inovadores redefinem o futuro da cibersegurança. Seus concorrentes já estão se destacando — e nós sentimos sua ausência! A oportunidade de transformar seu patrocínio em liderança digital é agora. Como você pretende liderar se não está ao lado das maiores marcas?\n\nEstamos oferecendo a chance de dominar a conversa no evento mais aguardado do setor. Sua presença no CybersecFEST é mais do que um patrocínio; é um compromisso com a vanguarda da inovação.\n\n✅ Torne-se a referência em cibersegurança: garanta seu patrocínio hoje! \n\n#CybersecFEST #LiderançaDigital #PatrocínioEstratégico #Inovação #Cibersegurança #FuturoAgora #TransformaçãoDigital #NetworkingExecutivo #FOMO #MarcasLíderes #TechInnovation #SegurançaCibernética #Oportunidade #DigitalLeadership #EventoDoAno",
+    "legenda_variante": "A",
+    "image_path": "artes/blog-1782087418412/thumb.png",
+    "html_path": "artes/blog-1782087418412/arte.html",
+    "created_at": "2026-06-22T00:16:58.412Z"
   }
 ]

@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CybersecFEST — Diagramação dos 14 Layouts (A–N)</title>
+<link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@700&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #02050A;
+  --surface: #0a1020;
+  --border: rgba(255,255,255,.08);
+  --blue: #14A8F4;
+  --text: #F6F8FF;
+  --muted: #94A0B8;
+  --lav: #D5D8ED;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Montserrat', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.5;
+}
+a { color: var(--blue); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.page-header {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(2,5,10,.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 18px 28px;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+}
+.page-header h1 {
+  font-family: 'Ubuntu', sans-serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+.page-header h1 span { color: var(--blue); }
+.page-header p { font-size: .78rem; color: var(--muted); margin-top: 2px; }
+.nav-links { display: flex; gap: 12px; font-size: .75rem; font-weight: 600; }
+
+.hero {
+  max-width: 1200px; margin: 0 auto;
+  padding: 32px 28px 8px;
+}
+.hero h2 {
+  font-family: 'Ubuntu', sans-serif;
+  font-size: 1.6rem;
+  margin-bottom: 8px;
+}
+.hero p { color: var(--muted); font-size: .88rem; max-width: 720px; }
+.legend {
+  display: flex; flex-wrap: wrap; gap: 10px 18px;
+  margin-top: 20px; font-size: .68rem; color: var(--muted);
+}
+.legend-item { display: flex; align-items: center; gap: 6px; }
+.legend-swatch {
+  width: 14px; height: 14px; border-radius: 3px; border: 1px solid var(--border);
+}
+
+.grid {
+  max-width: 1200px; margin: 0 auto;
+  padding: 24px 28px 64px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: border-color .2s, transform .2s;
+}
+.card:hover { border-color: rgba(20,168,244,.35); transform: translateY(-2px); }
+.card-head {
+  padding: 14px 16px 10px;
+  border-bottom: 1px solid var(--border);
+}
+.card-letter {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; border-radius: 6px;
+  background: rgba(20,168,244,.15); border: 1px solid rgba(20,168,244,.35);
+  color: var(--blue); font-family: 'Ubuntu', sans-serif; font-weight: 700; font-size: .85rem;
+  margin-right: 8px; vertical-align: middle;
+}
+.card-title { font-family: 'Ubuntu', sans-serif; font-size: .95rem; font-weight: 700; display: inline; vertical-align: middle; }
+.card-meta { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 6px; }
+.tag {
+  font-size: .62rem; font-weight: 600; letter-spacing: .04em; text-transform: uppercase;
+  padding: 3px 8px; border-radius: 4px;
+  background: rgba(255,255,255,.05); color: var(--muted); border: 1px solid var(--border);
+}
+.tag.focus { color: var(--blue); border-color: rgba(20,168,244,.25); background: rgba(20,168,244,.08); }
+
+.card-body { padding: 16px; }
+.card-spec { font-size: .68rem; color: var(--muted); margin-top: 12px; line-height: 1.55; }
+.card-spec strong { color: var(--lav); font-weight: 600; }
+
+/* ── Wireframe canvas 540×675 ── */
+.wf-wrap { display: flex; justify-content: center; }
+.wf {
+  position: relative;
+  width: 100%; max-width: 216px;
+  aspect-ratio: 540 / 675;
+  background: var(--bg);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 4px;
+  overflow: hidden;
+  font-size: 7px;
+  font-weight: 600;
+  letter-spacing: .03em;
+  text-transform: uppercase;
+}
+
+/* zones */
+.z-img {
+  position: absolute;
+  background: repeating-linear-gradient(
+    -45deg,
+    rgba(20,168,244,.06) 0, rgba(20,168,244,.06) 4px,
+    rgba(20,168,244,.02) 4px, rgba(20,168,244,.02) 8px
+  );
+  border: 1px dashed rgba(20,168,244,.35);
+  color: rgba(20,168,244,.7);
+  display: flex; align-items: center; justify-content: center;
+  text-align: center; padding: 4px;
+}
+.z-dark {
+  position: absolute;
+  background: #02050A;
+  border: 1px solid rgba(255,255,255,.15);
+  color: var(--muted);
+  display: flex; align-items: center; justify-content: center;
+}
+.z-blue {
+  position: absolute;
+  background: rgba(20,168,244,.55);
+  border: 1px solid var(--blue);
+  color: #02050A;
+  display: flex; flex-direction: column; align-items: flex-start; justify-content: center;
+  padding: 8px 6px; gap: 4px;
+}
+.z-ov {
+  position: absolute; inset: 0;
+  background: rgba(2,5,10,.45);
+  pointer-events: none;
+}
+.z-logo {
+  background: rgba(246,248,255,.12);
+  border: 1px solid rgba(255,255,255,.25);
+  color: var(--text);
+  padding: 2px 5px; border-radius: 2px; white-space: nowrap;
+}
+.z-hl {
+  background: rgba(246,248,255,.08);
+  border-left: 2px solid var(--blue);
+  color: var(--text);
+  padding: 2px 4px; line-height: 1.3; max-width: 100%;
+}
+.z-sub {
+  color: var(--lav);
+  font-size: 6px; font-weight: 400; text-transform: none;
+  border-left: 1px solid var(--blue); padding-left: 4px; margin-top: 2px;
+}
+.z-pill {
+  background: var(--blue); color: #02050A;
+  padding: 2px 6px; border-radius: 8px; font-size: 6px; margin-top: 3px;
+}
+.z-eco {
+  position: absolute; bottom: 4%; left: 6%;
+  display: flex; gap: 3px; align-items: center;
+}
+.z-eco span {
+  width: 14px; height: 6px;
+  background: rgba(255,255,255,.2); border-radius: 1px;
+  border: 1px solid rgba(255,255,255,.3);
+}
+.z-eco-r { left: auto; right: 6%; }
+.z-eco-c { left: 50%; transform: translateX(-50%); }
+.z-line-h { position: absolute; height: 2px; background: var(--blue); opacity: .8; }
+.z-line-v { position: absolute; width: 2px; background: var(--blue); opacity: .8; }
+.z-diag { position: absolute; height: 1px; background: var(--blue); opacity: .5; transform-origin: left center; }
+.z-bar { width: 20px; height: 3px; background: var(--blue); margin-bottom: 3px; }
+.z-db { position: absolute; width: 2px; height: 28%; background: var(--blue); transform: rotate(-15deg); opacity: .7; }
+.z-sp { font-size: 5px; color: var(--blue); letter-spacing: .08em; margin-bottom: 2px; }
+
+.toc {
+  max-width: 1200px; margin: 0 auto 0;
+  padding: 0 28px 16px;
+  display: flex; flex-wrap: wrap; gap: 6px;
+}
+.toc a {
+  font-size: .72rem; font-weight: 600;
+  padding: 4px 10px; border-radius: 6px;
+  background: var(--surface); border: 1px solid var(--border);
+}
+.toc a:hover { background: rgba(20,168,244,.1); border-color: rgba(20,168,244,.3); text-decoration: none; }
+
+footer {
+  text-align: center; padding: 24px; font-size: .72rem; color: var(--muted);
+  border-top: 1px solid var(--border);
+}
+</style>
+</head>
+<body>
+
+<header class="page-header">
+  <div>
+    <h1>Cybersec<span>FEST</span> · Diagramação</h1>
+    <p>14 layouts A–N · 540×675 px · referência visual do Gerador de Artes</p>
+  </div>
+  <nav class="nav-links">
+    <a href="index.html">← Galeria</a>
+    <a href="#grid">Ver todos</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <h2>Mapa de diagramação</h2>
+  <p>Cada card mostra a <strong>zona de composição</strong> do layout: onde entra a imagem IA (fundo), overlay, logo, headline, subtítulo, CTA e ecossistema. As proporções seguem <code>layouts.js</code> e o SKILL do Gerador de Artes v2.6.</p>
+  <div class="legend">
+    <span class="legend-item"><span class="legend-swatch" style="background:repeating-linear-gradient(-45deg,rgba(20,168,244,.2) 0 3px,rgba(20,168,244,.05) 3px 6px);border-color:rgba(20,168,244,.4)"></span> Imagem IA (fundo)</span>
+    <span class="legend-item"><span class="legend-swatch" style="background:#02050A"></span> Banda sólida #02050A</span>
+    <span class="legend-item"><span class="legend-swatch" style="background:rgba(20,168,244,.55)"></span> Coluna sólida #14A8F4</span>
+    <span class="legend-item"><span class="legend-swatch" style="background:rgba(246,248,255,.15)"></span> Logo / Headline / Sub</span>
+    <span class="legend-item"><span class="legend-swatch" style="background:var(--blue)"></span> Acento / linhas / pill</span>
+  </div>
+</section>
+
+<nav class="toc" aria-label="Índice de layouts">
+  <a href="#layout-a">A</a><a href="#layout-b">B</a><a href="#layout-c">C</a>
+  <a href="#layout-d">D</a><a href="#layout-e">E</a><a href="#layout-f">F</a>
+  <a href="#layout-g">G</a><a href="#layout-h">H</a><a href="#layout-i">I</a>
+  <a href="#layout-j">J</a><a href="#layout-k">K</a><a href="#layout-l">L</a>
+  <a href="#layout-m">M</a><a href="#layout-n">N</a>
+</nav>
+
+<div class="grid" id="grid">
+
+  <!-- A -->
+  <article class="card" id="layout-a">
+    <div class="card-head">
+      <span class="card-letter">A</span><span class="card-title">Banda Superior</span>
+      <div class="card-meta">
+        <span class="tag">cidade</span><span class="tag focus">foco: direita</span>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="wf-wrap"><div class="wf">
+        <div class="z-dark" style="top:0;left:0;width:100%;height:35%;border-bottom:2px solid var(--blue);flex-direction:row;gap:8px;padding:0 8%">
+          <span class="z-logo">LOGO</span><span class="z-hl" style="border:none;flex:1">HEADLINE</span>
+        </div>
+        <div class="z-img" style="bottom:0;left:0;width:100%;height:65%">IMG · 65% inf.</div>
+        <span class="z-sub" style="position:absolute;bottom:14%;left:8%">Subtítulo</span>
+        <div class="z-eco"><span></span><span></span><span></span></div>
+      </div></div>
+      <p class="card-spec"><strong>Imagem:</strong> 65% inferior · <strong>Topo:</strong> banda 35% + borda azul · Logo + HL na banda · Sub flutuante acima do eco.</p>
+    </div>
+  </article>
+
+  <!-- B -->
+  <article class="card" id="layout-b">
+    <div class="card-head">
+      <span class="card-letter">B</span><span class="card-title">Mirror Split</span>
+      <div class="card-meta">
+        <span class="tag">patrocinador</span><span class="tag focus">foco: esquerda</span>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="wf-wrap"><div class="wf">
+        <div class="z-img" style="top:0;right:0;width:55%;height:100%">IMG · dir. 55%</div>
+        <div class="z-ov" style="background:linear-gradient(to right,rgba(2,5,10,.85) 40%,transparent)"></div>
+        <div style="position:absolute;top:0;left:0;width:52%;height:100%;display:flex;flex-direction:column;justify-content:center;padding:8%">
+          <span class="z-logo">LOGO</span>
+          <span class="z-bar"></span>
+          <span class="z-hl">HEADLINE</span>
+          <span class="z-sub">Subtítulo</span>
+        </div>
+        <div class="z-eco"><span></span><span></span><span></span></div>
+      </div></div>
+      <p class="card-spec"><strong>Espelho do C:</strong> texto à esquerda 52% · imagem à direita 55% · barra azul decorativa · gradiente overlay horizontal.</p>
+    </div>
+  </article>
+
+  <!-- C -->
+  <article class="card" id="layout-c">
+    <div class="card-head">
+      <span class="card-letter">C</span><span class="card-title">Subtítulo ao Lado</span>
+      <div class="card-meta">
+        <span class="tag">blog</span><span class="tag focus">foco: direita</span>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="wf-wrap"><div class="wf">
+        <div class="z-img" style="top:0;left:0;width:100%;height:100%">IMG · full · pos. dir.</div>
+        <div class="z-ov" style="background:linear-gradient(to right,rgba(2,5,10,.9) 0%,transparent 55%)"></div>
+        <div style="position:absolute;top:0;left:0;width:52%;height:100%;display:flex;flex-direction:column;justify-content:center;padding:8%">
+          <span class="z-logo">LOGO</span>
+          <span class="z-hl">HEADLINE</span>
+          <span class="z-sub">Sub · borda esq.</span>
+        </div>
+        <div class="z-eco"><span></span><span></span><span></span></div>
+      </div></div>
+      <p class="card-spec"><strong>Coluna esq. 52%:</strong> logo + HL + sub com border-left azul · imagem ocupa fundo com <code>object-position: right</code>.</p>
+    </div>
+  </article>
+
+  <!-- D -->
+  <article class="card" id="layout-d">
+    <div class="card-head">
+      <span class="card-letter">D</span><span class="card-title">Diagonal</span>
+      <div class="card-meta">
+        <span class="tag">palestrante</span><span class="tag focus">foco: centro-dir.</span>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="wf-wrap"><div class="wf">
+        <div class="z-img" style="top:0;left:0;width:100%;height:100%">IMG · 70% center</div>
+        <div class="z-ov" style="background:linear-gradient(125deg,rgba(2,5,10,.95) 0%,transparent 60%)"></div>
+        <div class="z-diag" style="top:33%;left:0;width:100%;transform:rotate(-12deg)"></div>
+        <div style="position:absolute;top:0;left:0;width:55%;height:100%;display:flex;flex-direction:column;justify-content:center;padding:8%">
+          <span class="z-logo">LOGO</span>
+          <span class="z-sp">NOME PALESTRANTE</span>
+          <span class="z-hl">HEADLINE</span>
+          <span class="z-sub" style="border:none;color:var(--muted)">Cargo · empresa</span>
+        </div>
+        <div class="z-eco"><span></span><span></span><span></span></div>
+      </div></div>
+      <p class="card-spec"><strong>Overlay diagonal 125°</strong> · linha decorativa −12° · coluna 55% com speaker + HL + cargo.</p>
+    </div>
+  </article>
+
+  <!-- E -->
+  <article class="card" id="layout-e">
+    <div class="card-head">
+      <span class="card-letter">E</span><span class="card-title">CTA Pill</span>
+      <div class="card-meta">
+        <span class="tag">evento</span><span class="tag focus">foco: direita</span>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="wf-wrap"><div class="wf">
+        <div class="z-img" style="top:0;right:0;width:55%;height:100%">IMG · dir. 55%</div>
+        <div class="z-ov" style="background:linear-gradient(to right,rgba(2,5,10,.92) 0%,transparent 65%)"></div>
+        <div style="position:absolute;top:0;left:0;width:50%;height:100%;display:flex;flex-direction:column;justify-content:space-between;padding:8%">
+          <span class="z-logo">LOGO</span>
+          <div>
+            <span class="z-hl">HEADLINE</span>
+            <span class="z-pill">CTA PILL</span>
+          </div>
+          <span></span>
+        </div>
+        <div class="z-eco"><span></span><span></span><span></span></div>
+      </div></div>
+      <p class="card-spec"><strong>Evento:</strong> coluna 50% · <code>space-between</code> · pill azul #14A8F4 · imagem direita 55%.</p>
+    </div>
+  </article>
+
+  <!-- F -->
+  <article class="card" id="layout-f">
+    <div class="card-head">
+      <span class="card-letter">F</span><span class="card-title">Coluna Lateral Sólida</span>
+      <div class="card-meta">
+        <span class="tag">patrocinador</span><span class="tag focus">foco: centro</span>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="wf-wrap"><div class="wf">
+        <div class="z-blue" style="top:0;left:0;width:38%;height:100%">
+          <span class="z-logo" style="filter:brightness(0)">LOGO</span>
+          <span class="z-hl" style="color:#02050A;border-color:#02050A">HEADLINE</span>
+          <span class="z-sub" style="border:none;color:#02050A;opacity:.8">Subtítulo</span>
+        </div>
+        <div class="z-img" style="top:0;left:38%;width:62%;height:100%">IMG · 62%</div>
+        <div class="z-eco" style="left:42%"><span></span><span></span><span></span></div>
+      </div></div>
+      <p class="card-spec"><strong>Coluna azul 38%</strong> esquerda · logo invertido · texto #02050A · foto 62% à direita · eco na área da imagem.</p>
+    </div>
+  </article>
+
+  <!-- G -->
+  <article class="card" id="layout-g">
+    <div class="card-head">
+      <span class="card-letter">G</span><span class="card-title">Magazine Cover</span>
+      <div class="card-meta">
+        <span class="tag">override manual</span><span class="tag focus">foco: centro</span>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="wf-wrap"><div class="wf">
+        <div class="z-img" style="top:0;left:0;width:100%;height:100%">IMG · full bleed</div>
+        <div class="z-ov" style="background:linear-gradient(to bottom,rgba(2,5,10,.8) 0%,transparent 40%,rgba(2,5,10,.85) 100%)"></div>
+        <div style="position:absolute;top:5%;left:0;right:0;display:flex;justify-content:center">
+          <span class="z-logo">LOGO</span>
+        </div>
+        <div style="position:absolute;bottom:14%;left:0;right:0;text-align:center;padding:0 10%">
+          <span class="z-sp">SPEAKER</span>
+          <span class="z-hl" style="display:block;border:none;text-align:center">HEADLINE</span>
+          <span class="z-sub" style="border:none;text-align:center;display:block">Subtítulo</span>
+        </div>
+        <div class="z-eco z-eco-c"><span></span><span></span><span></span></div>
+      </div></div>
+      <p class="card-spec"><strong>Capa revista:</strong> logo topo centro · bloco inferior centrado · gradiente vertical topo/base escuro.</p>
+    </div>
+  </article>
+
+  <!-- H -->
+  <article class="card" id="layout-h">
+    <div class="card-head">
+      <span class="card-letter">H</span><span class="card-title">Rodapé Luminoso</span>
+      <div class="card-meta">
+        <span class="tag">cidade</span><span class="tag focus">foco: sup. centro</span>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="wf-wrap"><div class="wf">
+        <div class="z-img" style="top:0;left:0;width:100%;height:72%">IMG · 72% sup.</div>
+        <div class="z-dark" style="bottom:0;left:0;width:100%;height:32%;border-top:2px solid var(--blue);flex-direction:column;align-items:flex-start;padding:8%">
+          <span class="z-logo">LOGO</span>
+          <span class="z-hl" style="border:none;margin-top:4px">HEADLINE</span>
+          <span class="z-sub" style="border:none;margin-top:2px">Subtítulo</span>
+        </div>
+      </div></div>
+      <p class="card-spec"><strong>Cidade:</strong> skyline 72% superior · rodapé 32% #02050A + borda azul superior · conteúdo no rodapé (sem eco padrão).</p>
+    </div>
+  </article>
+
+  <!-- I -->
+  <article class="card" id="layout-i">
+    <div class="card-head">
+      <span class="card-letter">I</span><span class="card-title">Coluna Sólida Direita</span>
+      <div class="card-meta">
+        <span class="tag">patrocinador</span><span class="tag focus">foco: esquerda</span>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="wf-wrap"><div class="wf">
+        <div class="z-img" style="top:0;left:0;width:62%;height:100%">IMG · esq. 62%</div>
+        <div class="z-blue" style="top:0;right:0;width:38%;height:100%">
+          <span class="z-logo" style="filter:brightness(0)">LOGO</span>
+          <span class="z-hl" style="color:#02050A;border-color:#02050A">HEADLINE</span>
+          <span class="z-sub" style="border:none;color:#02050A;opacity:.8">Subtítulo</span>
+        </div>
+        <div class="z-eco"><span></span><span></span><span></span></div>
+      </div></div>
+      <p class="card-spec"><strong>Espelho do F:</strong> imagem 62% esquerda · coluna azul 38% direita · eco na área da foto.</p>
+    </div>
+  </article>
+
+  <!-- J -->
+  <article class="card" id="layout-j">
+    <div class="card-head">
+      <span class="card-letter">J</span><span class="card-title">3 Blocos</span>
+      <div class="card-meta">
+        <span class="tag">evento · cidade</span><span class="tag focus">foco: centro</span>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="wf-wrap"><div class="wf">
+        <div class="z-img" style="top:0;left:0;width:100%;height:100%">IMG · fundo</div>
+        <div class="z-ov" style="background:rgba(2,5,10,.5)"></div>
+        <div class="z-dark" style="top:0;left:0;width:100%;height:30%;padding-left:8%;justify-content:flex-start">
+          <span class="z-logo">LOGO</span>
+        </div>
+        <div class="z-dark" style="bottom:0;left:0;width:100%;height:30%;flex-direction:column;align-items:flex-start;padding:8%">
+          <span class="z-hl" style="border:none">HEADLINE</span>
+          <span class="z-sub" style="border:none">Subtítulo</span>
+        </div>
+        <div class="z-eco" style="bottom:32%"><span></span><span></span><span></span></div>
+      </div></div>
+      <p class="card-spec"><strong>Faixa sup. 30%</strong> logo · <strong>faixa inf. 30%</strong> HL + sub · faixa central 40% imagem visível entre blocos.</p>
+    </div>
+  </article>
+
+  <!-- K -->
+  <article class="card" id="layout-k">
+    <div class="card-head">
+      <span class="card-letter">K</span><span class="card-title">Tríptico</span>
+      <div class="card-meta">
+        <span class="tag">palestrante</span><span class="tag focus">foco: centro</span>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="wf-wrap"><div class="wf">
+        <div class="z-img" style="top:0;left:0;width:100%;height:100%">IMG · full</div>
+        <div class="z-ov"></div>
+        <div class="z-line-v" style="top:0;left:33%;height:100%"></div>
+        <div class="z-line-v" style="top:0;left:66%;height:100%"></div>
+        <div style="position:absolute;top:0;left:0;width:33%;height:100%;display:flex;flex-direction:column;justify-content:center;padding:6%">
+          <span class="z-logo">LOGO</span>
+          <span class="z-sp">SPEAKER</span>
+          <span class="z-hl">HEADLINE</span>
+          <span class="z-sub" style="border:none;color:var(--muted)">Cargo</span>
+        </div>
+        <div class="z-eco"><span></span><span></span><span></span></div>
+      </div></div>
+      <p class="card-spec"><strong>3 colunas visuais:</strong> linhas verticais 33% e 66% · conteúdo no terço esquerdo · centro/direita para sujeito da foto.</p>
+    </div>
+  </article>
+
+  <!-- L -->
+  <article class="card" id="layout-l">
+    <div class="card-head">
+      <span class="card-letter">L</span><span class="card-title">L Invertido + Traços</span>
+      <div class="card-meta">
+        <span class="tag">evento</span><span class="tag focus">foco: centro</span>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="wf-wrap"><div class="wf">
+        <div class="z-img" style="top:0;left:0;width:100%;height:100%">IMG · full</div>
+        <div class="z-ov" style="background:rgba(2,5,10,.75)"></div>
+        <div class="z-line-h" style="top:38%;left:0;width:100%"></div>
+        <div class="z-line-v" style="top:0;left:8%;height:38%"></div>
+        <div style="position:absolute;top:0;left:0;height:38%;display:flex;align-items:center;padding-left:14%">
+          <span class="z-logo">LOGO</span>
+        </div>
+        <div style="position:absolute;top:40%;left:0;right:0;padding:4% 8%">
+          <span class="z-hl">HEADLINE</span>
+          <span class="z-sub">Subtítulo</span>
+        </div>
+        <div class="z-eco z-eco-r"><span></span><span></span><span></span></div>
+      </div></div>
+      <p class="card-spec"><strong>L invertido:</strong> barra H 38% + barra V até 38% · logo acima · HL abaixo · eco canto inferior direito.</p>
+    </div>
+  </article>
+
+  <!-- M -->
+  <article class="card" id="layout-m">
+    <div class="card-head">
+      <span class="card-letter">M</span><span class="card-title">Pull Quote</span>
+      <div class="card-meta">
+        <span class="tag">blog</span><span class="tag focus">foco: direita</span>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="wf-wrap"><div class="wf">
+        <div class="z-img" style="top:0;left:0;width:100%;height:100%">IMG · center</div>
+        <div class="z-ov" style="background:rgba(2,5,10,.85)"></div>
+        <div style="position:absolute;bottom:0;left:0;width:100%;height:40%;background:linear-gradient(to top,rgba(2,5,10,.95),transparent)"></div>
+        <div style="position:absolute;bottom:12%;left:0;right:0;display:flex;flex-direction:column;align-items:center;text-align:center;padding:0 10%">
+          <span class="z-logo">LOGO</span>
+          <span class="z-bar" style="margin:4px auto"></span>
+          <span class="z-hl" style="border:none;text-align:center">HEADLINE</span>
+          <span class="z-sub" style="border:none;text-align:center">Sub · quote</span>
+        </div>
+        <div class="z-eco z-eco-c"><span></span><span></span><span></span></div>
+      </div></div>
+      <p class="card-spec"><strong>Pull quote:</strong> overlay escuro · bloco inferior centrado · barra azul 48px · gradiente na base 40%.</p>
+    </div>
+  </article>
+
+  <!-- N -->
+  <article class="card" id="layout-n">
+    <div class="card-head">
+      <span class="card-letter">N</span><span class="card-title">Acento Diagonal</span>
+      <div class="card-meta">
+        <span class="tag">blog</span><span class="tag focus">foco: sup. dir.</span>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="wf-wrap"><div class="wf">
+        <div class="z-img" style="top:0;left:0;width:100%;height:100%">IMG · top right</div>
+        <div class="z-ov" style="background:linear-gradient(160deg,transparent 0%,rgba(2,5,10,.95) 100%)"></div>
+        <div class="z-db" style="top:38%;left:7%"></div>
+        <div style="position:absolute;bottom:0;left:0;padding:8% 8% 14%">
+          <span class="z-logo">LOGO</span>
+          <span class="z-hl">HEADLINE</span>
+          <span class="z-sub">Sub · border-bottom</span>
+        </div>
+        <div class="z-eco"><span></span><span></span><span></span></div>
+      </div></div>
+      <p class="card-spec"><strong>Gradiente 160°</strong> · barra diagonal −15° esquerda · conteúdo canto inferior esq. · sub com border-bottom azul.</p>
+    </div>
+  </article>
+
+</div>
+
+<footer>
+  CybersecFEST · Diagramação A–N · Canvas 540×675 px (1080×1350 @2×) ·
+  <a href="index.html">Galeria</a> ·
+  Gerador de Artes v2.6
+</footer>
+
+</body>
+</html>

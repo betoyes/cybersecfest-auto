@@ -1,0 +1,5 @@
+.env
+_scripts/.env
+node_modules/
+_scripts/node_modules/
+_scripts/utils/.asset-cache.json

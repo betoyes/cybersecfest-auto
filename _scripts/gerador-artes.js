@@ -3,27 +3,18 @@
 // Roda via GitHub Actions ou chamado pelo pipeline.js
 'use strict';
 
-const { getJSON, putFile, putBinary, putJSON, REPO } = require('./utils/github.js');
+require('./load-env.js');
+
+const path = require('path');
+const fs   = require('fs');
+
+const { getJSON, putFile, putBinary, putJSON, REPO, REPO_ROOT, isLocal } = require('./utils/storage.js');
 const { generateText, generateImage }                = require('./utils/llm.js');
+const { buildImagePrompt, getLayoutImageRules, validateLayout, REFERENCE_ARTES } = require('./utils/imagem-prompt.js');
 const { renderLayout }                               = require('./utils/layouts.js');
-
-const ROTATION = {
-  blog:        ['C','M','N'],
-  evento:      ['E','L','J'],
-  palestrante: ['D','G','K'],
-  patrocinador:['F','I','B'],
-  cidade:      ['A','H','J']
-};
-
-// ── Determinar próximo layout ────────────────────────────────────
-function nextLayout(tipoPost, historico) {
-  const seq    = ROTATION[tipoPost] || ['C','M','N'];
-  const recent = (historico || []).filter(h => h.tipo_post === tipoPost);
-  if (!recent.length) return seq[0];
-  const last = recent[recent.length - 1].layout;
-  const idx  = seq.indexOf(last);
-  return seq[(idx + 1) % seq.length];
-}
+const { wrapWithEditor }                             = require('./utils/editor-wrap.js');
+const { gerarThumbComposto }                         = require('./utils/thumb-composto.js');
+const { pickNextLayout }                             = require('./utils/layout-rotacao.js');
 
 // ── Score de legenda via LLM ─────────────────────────────────────
 async function scoreLegenda(legenda) {
@@ -55,18 +46,9 @@ Máximo 12 linhas de corpo.`;
   return generateText(prompt, system, 0.85);
 }
 
-// ── Gerar imagem IA com prompt otimizado ─────────────────────────
-async function gerarImagemPrompt(briefing, layoutLetter, contextoVisual) {
-  const focusMap = {
-    A:'top third',B:'left',C:'right third',D:'center-right',E:'right',
-    F:'center',G:'center',H:'upper center',I:'left',J:'center',
-    K:'center',L:'center',M:'right',N:'right'
-  };
-  const focus = focusMap[layoutLetter] || 'center';
-  return `Dark cinematic professional photography. ${contextoVisual || briefing}.
-Subject positioned in the ${focus} of frame. Ultra dark background #02050A.
-High contrast dramatic lighting. No text, no logos, no watermarks.
-Photorealistic, 8K, executive atmosphere, premium corporate event in Brazil.`;
+// ── Gerar imagem IA — SOMENTE cena visual, nunca headline/copy ───
+async function gerarImagemPrompt(tipoPost, layoutLetter, contextoVisual, slug = '') {
+  return buildImagePrompt({ tipo: tipoPost, layout: layoutLetter, contextoVisual, slug });
 }
 
 // ── Main: gerar arte completa ─────────────────────────────────────
@@ -81,15 +63,48 @@ async function gerarArte({ tipoPost, headline, subtitulo, palavrasAzuis,
   if (!temasFile) throw new Error('temas.json não encontrado no repo');
   const temas = temasFile.data;
 
-  // 2. Determinar layout
-  const layout = layoutOverride || nextLayout(tipoPost, temas.historico_recente);
-  console.log(`📐 Layout selecionado: ${layout}`);
+  // 2. Determinar layout (rotação aleatória sem repetição até esgotar pool)
+  let layoutMeta = null;
+  let layoutCiclos = temas.layout_ciclos || {};
+  let layout;
 
-  // 3. Gerar imagem IA
-  console.log('🖼️  Gerando imagem IA...');
-  const imgPrompt = await gerarImagemPrompt(briefingCompleto || headline, layout, contextoVisual);
-  const imgBuffer = await generateImage(imgPrompt);
+  if (layoutOverride) {
+    layout = layoutOverride;
+  } else {
+    const pick = pickNextLayout(tipoPost, {
+      rotacaoLayouts:   temas.rotacao_layouts,
+      layoutCiclos,
+      historicoRecente: temas.historico_recente,
+    });
+    layout       = pick.layout;
+    layoutCiclos = pick.layoutCiclos;
+    layoutMeta   = pick.meta;
+  }
+
+  validateLayout(layout);
+  const imageRules = getLayoutImageRules(layout);
+  if (layoutMeta) {
+    console.log(`📐 Layout: ${layout} (aleatório · pool [${layoutMeta.pool.join(',')}] · restantes: [${layoutMeta.restantesApos.join(',') || '—'}]${layoutMeta.novoCiclo ? ' · novo ciclo' : ''})`);
+  } else {
+    console.log(`📐 Layout: ${layout} (override manual)`);
+  }
+  console.log(`   Foco imagem: ${imageRules.focusId}`);
+
+  const slug      = `${tipoPost}-${Date.now()}`;
+  const basePath  = `artes/${slug}`;
+  const timestamp = new Date().toISOString();
+
+  // 3. Gerar imagem IA (regras rígidas por layout)
+  console.log('🖼️  Gerando imagem IA (regras rígidas A–N + Lei do Azul #14A8F4)...');
+  console.log(`   Referências DS: ${REFERENCE_ARTES.join(', ')}`);
+  const imgPrompt = await gerarImagemPrompt(tipoPost, layout, contextoVisual, slug);
+  console.log(`   Zonas livres: ${imageRules.clearZones.length} regra(s) aplicadas`);
+  const imgBuffer = await generateImage(imgPrompt, { tipo: tipoPost, layout });
   const imageBase64 = imgBuffer.toString('base64');
+
+  // fundo cru separado — thumb composto é gerado depois
+  const fundoPath = path.join(REPO_ROOT, basePath, 'fundo.png');
+  fs.writeFileSync(fundoPath, imgBuffer);
 
   // 4. Gerar legendas A/B
   console.log('✍️  Gerando legendas A/B...');
@@ -120,7 +135,8 @@ async function gerarArte({ tipoPost, headline, subtitulo, palavrasAzuis,
 
   // 5. Gerar HTML
   console.log('🏗️  Gerando HTML...');
-  const html = renderLayout(layout, {
+
+  let html = renderLayout(layout, {
     imageBase64,
     headline,
     subtitulo,
@@ -128,15 +144,21 @@ async function gerarArte({ tipoPost, headline, subtitulo, palavrasAzuis,
     nomePalestrante,
     cargoEmpresa
   });
+  html = wrapWithEditor(html, { layout, headline, slug });
 
-  // 6. Slug e upload
-  const slug      = `${tipoPost}-${Date.now()}`;
-  const basePath  = `artes/${slug}`;
-  const timestamp = new Date().toISOString();
-  console.log(`📤 Fazendo upload: ${slug}`);
+  console.log(`📤 ${isLocal ? 'Salvando localmente' : 'Fazendo upload'}: ${slug}`);
 
   await putFile(`${basePath}/arte.html`, html, `[SuperAgent] arte: ${slug} — layout ${layout}`);
-  await putBinary(`${basePath}/thumb.png`, imgBuffer, `[SuperAgent] thumb: ${slug}`);
+
+  const arteFullPath = path.join(REPO_ROOT, basePath, 'arte.html');
+  const thumbFullPath = path.join(REPO_ROOT, basePath, 'thumb.png');
+  try {
+    await gerarThumbComposto(arteFullPath, thumbFullPath);
+    console.log('📸 thumb composto gerado');
+  } catch (e) {
+    console.warn(`⚠️  thumb composto falhou (${e.message}) — salvando imagem IA crua`);
+    await putBinary(`${basePath}/thumb.png`, imgBuffer, `[SuperAgent] thumb: ${slug}`);
+  }
 
   // index.html individual
   const indexHtml = `<!DOCTYPE html>
@@ -152,7 +174,7 @@ a{color:#14A8F4;text-decoration:none;margin-top:16px;display:block;text-align:ce
 </head>
 <body>
 <iframe src="arte.html?embed"></iframe>
-<a href="/">← Galeria</a>
+<a href="../../index.html#arte=${slug}">← Galeria</a>
 </body>
 </html>`;
   await putFile(`${basePath}/index.html`, indexHtml, `[SuperAgent] index: ${slug}`);
@@ -164,6 +186,13 @@ a{color:#14A8F4;text-decoration:none;margin-top:16px;display:block;text-align:ce
     slug, tipo: tipoPost, headline, palavras_azuis: palavrasAzuis || '',
     subtitulo: subtitulo || '', cidade: cidade || '', formato: 'feed_vertical',
     layout, legenda: legendaSelecionada, legenda_variante: varianteSelecionada,
+    contexto_visual: contextoVisual || '',
+    image_rules: {
+      layout,
+      focus: imageRules.focusId,
+      focus_en: imageRules.focusEn,
+      clear_zones: imageRules.clearZones,
+    },
     image_path: `${basePath}/thumb.png`,
     html_path:  `${basePath}/arte.html`,
     created_at: timestamp
@@ -175,13 +204,19 @@ a{color:#14A8F4;text-decoration:none;margin-top:16px;display:block;text-align:ce
   hist.push({ tipo_post: tipoPost, layout, slug, data: timestamp.slice(0,10) });
   if (hist.length > 20) hist.splice(0, hist.length - 20);
   temas.historico_recente = hist;
+  if (!layoutOverride) temas.layout_ciclos = layoutCiclos;
   await putJSON('temas.json', temas, `[SuperAgent] temas.json: rotacao ${layout}`, temasFile.sha);
 
-  console.log(`\n🎉 Arte publicada!`);
+  console.log(`\n🎉 Arte ${isLocal ? 'salva localmente' : 'publicada'}!`);
   console.log(`   Slug:    ${slug}`);
   console.log(`   Layout:  ${layout}`);
   console.log(`   Legenda: ${varianteSelecionada} (score ${Math.max(scoreA,scoreB)}/10)`);
-  console.log(`   URL:     https://cybersecfest-auto.vercel.app/artes/${slug}/`);
+  if (isLocal) {
+    console.log(`   Galeria: http://localhost:${process.env.PORT || 8765}/`);
+    console.log(`   Arquivo: ${REPO_ROOT}/artes/${slug}/`);
+  } else {
+    console.log(`   URL:     https://cybersecfest-auto.vercel.app/artes/${slug}/`);
+  }
 
   return { slug, layout, tipoPost, varianteSelecionada, scoreA, scoreB };
 }

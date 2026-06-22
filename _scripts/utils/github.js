@@ -85,4 +85,4 @@ async function listTree(repo = REPO) {
   return (d.tree || []).filter(f => f.type === 'blob');
 }
 
-module.exports = { getFile, putFile, putBinary, getJSON, putJSON, getCommits, createRepo, repoExists, listTree, REPO };
+module.exports = { getFile, putFile, putBinary, getJSON, putJSON, getCommits, createRepo, repoExists, listTree, REPO, isLocal: false };

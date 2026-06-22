@@ -4,13 +4,26 @@
   "description": "CybersecFEST — Pipeline autônomo standalone",
   "type": "commonjs",
   "scripts": {
+    "dev": "node dev-server.js",
+    "gallery": "node dev-server.js",
+    "pedido": "node pedido-cli.js",
     "pipeline": "node pipeline.js",
+    "pipeline:remote": "LOCAL_MODE=0 node pipeline.js",
     "guardian": "node guardian.js",
-    "arte":     "node gerador-artes.js"
+    "arte": "node gerador-artes.js",
+    "regen-thumb": "node regenerar-thumb.js",
+    "regenerar-thumbs": "node regenerar-thumbs.js",
+    "organize-artes": "node organize-artes.js",
+    "reparar-artes": "node reparar-artes.js",
+    "regenerar-fundo": "node regenerar-fundo.js",
+    "aplicar-editor": "node aplicar-editor-v3.js",
+    "corrigir-editor-ids": "node corrigir-editor-ids.js"
   },
   "dependencies": {
+    "@google/genai": "^2.9.0",
+    "@google/generative-ai": "^0.21.0",
     "openai": "^4.52.0",
-    "@google/generative-ai": "^0.21.0"
+    "puppeteer-core": "^25.1.0"
   },
   "engines": {
     "node": ">=20.0.0"

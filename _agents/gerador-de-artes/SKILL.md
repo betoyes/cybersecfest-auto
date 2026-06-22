@@ -31,6 +31,7 @@ Verificar:
 - [ ] HTTP 200 — arquivo acessível
 - [ ] JSON válido e parseável
 - [ ] Campo `rotacao_layouts` presente e com chave para `tipo_post` atual
+- [ ] Campo `layout_ciclos` presente (pode ser objeto vazio `{}`)
 - [ ] Campo `historico_recente` presente (pode ser array vazio)
 - [ ] Campo `calendario_editorial` presente
 
@@ -64,25 +65,27 @@ Se houver erro, parar e exibir:
 
 ---
 
-### PASSO 0 — Rotação Inteligente de Layout
+### PASSO 0 — Rotação Aleatória de Layout (SEM REPETIÇÃO NO CICLO)
 
-Usando os dados já carregados na pré-validação:
+Usando os dados já carregados na pré-validação (`rotacao_layouts` + `layout_ciclos`):
 
-**Regras de rotação por tipo_post:**
-- blog:        [C, M, N] → ciclo de 3
-- evento:      [E, L, J] → ciclo de 3
-- palestrante: [D, G, K] → ciclo de 3
-- patrocinador:[F, I, B] → ciclo de 3
-- cidade:      [A, H, J] → ciclo de 3
+**Pools por tipo_post** (definidos em `temas.json` → `rotacao_layouts`):
+- blog:        [C, M, N]
+- evento:      [E, L, J]
+- palestrante: [D, G, K]
+- patrocinador:[F, I, B]
+- cidade:      [A, H, J]
 
-**Algoritmo:**
-1. Filtrar `historico_recente` pelo `tipo_post` atual
-2. Pegar o último layout usado para esse tipo
-3. Selecionar o próximo na sequência de rotação
-4. Se não houver histórico, usar o primeiro da sequência
-5. Se o usuário especificar layout via override no contexto_visual, respeitar o override
+**Algoritmo OBRIGATÓRIO (baralho embaralhado):**
+1. Ler o pool do `tipo_post` em `rotacao_layouts`
+2. Ler `layout_ciclos[tipo_post]` — lista de layouts **ainda não usados** no ciclo atual (ordem embaralhada)
+3. Se a lista estiver vazia: **embaralhar** todo o pool aleatoriamente e iniciar novo ciclo
+4. Retirar o **primeiro** layout da lista embaralhada (= escolha aleatória sem ordem fixa C→M→N)
+5. Persistir a lista restante em `layout_ciclos[tipo_post]`
+6. **Regra rígida:** um layout só pode voltar a ser usado depois que **todos** os outros do pool tiverem sido usados no ciclo
+7. Override manual via `layoutOverride` ignora o baralho (não altera `layout_ciclos`)
 
-**Registrar uso:** após publicar, atualizar `historico_recente` em `temas.json`:
+**Registrar uso:** após publicar, atualizar `historico_recente` e `layout_ciclos` em `temas.json`:
 ```json
 {
   "tipo_post": "<tipo>",
@@ -124,12 +127,24 @@ Manter no máximo os últimos 20 registros.
 
 ### PASSO 2 — Geração da Imagem IA
 
-Construir prompt seguindo o foco do layout:
-- Posição do sujeito conforme foco (ex: "subject on the right third")
-- Estilo: dark cinematic, fundo #02050A, high contrast
+**Lei do Azul Cibernético (OBRIGATÓRIA):** Toda fotografia deve conter **pelo menos 2 fontes visíveis de luz azul ciano `#14A8F4`** na cena (rim light, backlight, city glow, LED, reflexo). Referências ouro: `patrocinador-1782039190901`, `evento-1782045624931`, `blog-1782058741657`.
+
+**Proibido:** bokeh quente âmbar-dominante, interiores vazios, luminárias como sujeito, arquitetura genérica sem executivo.
+
+Construir prompt via `buildImagePrompt()` (regras em `_scripts/utils/imagem-prompt.js`):
+- Posição do sujeito conforme foco do layout
+- Estilo: **dark cinematic executive photography** + tons `#14A8F4` na fotografia
+- Fundo `#02050A`, high contrast
 - Resolução: 1080×1350 (feed_vertical) | 1080×1080 (feed_quadrado) | 1200×628 (linkedin)
-- Incorporar `contexto_visual`
+- Incorporar `contexto_visual` (sanitizado — sem texto/logos)
 - Se `referencias` fornecidas, usar como referência de estilo
+
+**PASSO 2.5 — Auto-validação visual (antes de aceitar):**
+- [ ] Há luz azul ciano visível na foto (não só no HTML)?
+- [ ] Há sujeito executivo ou metáfora cyber (xadrez, skyline, palco)?
+- [ ] Não é interiores vazios / luminária / decor genérico?
+- [ ] Zonas livres do layout respeitadas?
+- Se falhar → **regenerar fundo** (não publicar).
 
 ---
 
@@ -317,8 +332,9 @@ O campo `legenda_variante` registra qual versão (A ou B) foi aprovada.
 
 ### PASSO 7 — Atualizar temas.json (Rotação)
 
-Atualizar `historico_recente` em `temas.json`:
-- Adicionar entrada: tipo_post, layout, slug, data
+Atualizar `historico_recente` e `layout_ciclos` em `temas.json`:
+- Adicionar entrada em `historico_recente`: tipo_post, layout, slug, data
+- Atualizar `layout_ciclos[tipo_post]` com layouts restantes do ciclo
 - Truncar para máximo 20 entradas
 
 ---

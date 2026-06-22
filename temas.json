@@ -258,6 +258,7 @@
       "historico": []
     }
   ],
+  "layout_ciclos": {},
   "rotacao_layouts": {
     "blog": [
       "C",
@@ -323,6 +324,12 @@
       "layout": "C",
       "slug": "blog-1782085638864",
       "data": "2026-06-21"
+    },
+    {
+      "tipo_post": "blog",
+      "layout": "M",
+      "slug": "blog-1782087418412",
+      "data": "2026-06-22"
     }
   ],
   "historico_aprovacoes": []

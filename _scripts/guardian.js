@@ -2,6 +2,8 @@
 // Roda diariamente às 07h BRT via GitHub Actions
 'use strict';
 
+require('./load-env.js');
+
 const { getJSON, putJSON, getFile, getCommits, createRepo, repoExists, listTree, putFile, putBinary, REPO } = require('./utils/github.js');
 
 const PRIMARY_REPO = 'betoyes/cybersecfest-auto';
