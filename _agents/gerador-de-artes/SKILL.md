@@ -109,10 +109,10 @@ Manter no máximo os últimos 20 registros.
 | C | Subtítulo ao Lado | blog (rotação) | DIREITA |
 | D | Diagonal | palestrante (rotação) | CENTRO/DIREITA |
 | E | CTA Pill | evento (rotação) | DIREITA |
-| F | Coluna Lateral Sólida | patrocinador (rotação) | DIREITA |
+| F | Painel Lateral Escuro | patrocinador (rotação) | DIREITA |
 | G | Magazine Cover | override | CENTRO |
 | H | Rodapé Luminoso | cidade (rotação) | CENTRAL-SUPERIOR |
-| I | Coluna Sólida Direita | patrocinador (rotação) | ESQUERDA |
+| I | Painel Direito Escuro | patrocinador (rotação) | ESQUERDA |
 | J | 3 Blocos | evento/cidade (rotação) | CENTRO entre horizontais |
 | K | Tríptico | palestrante (rotação) | CENTRO entre verticais |
 | L | L Invertido + Traços | evento (rotação) | CENTRO entre zonas |
@@ -122,6 +122,8 @@ Manter no máximo os últimos 20 registros.
 **Lei de Foco da Imagem:** A imagem IA deve ser gerada com o sujeito principal na zona de foco do layout, garantindo que o texto não sobreponha o sujeito.
 
 **⚠️ REGRA CRÍTICA DE VARIAÇÃO:** Cada layout (A–N) deve gerar um HTML visualmente distinto — estrutura CSS, posicionamento dos elementos e hierarquia devem ser completamente diferentes entre layouts. Nunca usar o mesmo template HTML para layouts diferentes.
+
+**⚠️ REGRA DO SUBTÍTULO:** O campo `subtitulo` é **sempre** texto livre fora de qualquer box, pill, badge ou container preenchido. Proibido injetar subtítulo dentro de `.pill`, `.cta`, chips ou fundos coloridos. Elementos de CTA decorativos usam copy fixa própria, separada do subtítulo.
 
 ---
 
@@ -195,7 +197,8 @@ Construir prompt via `buildImagePrompt()` (regras em `_scripts/utils/imagem-prom
 - Conteúdo: coluna esquerda, 50% largura, justify-content: space-between, padding 40px 36px
 - Logo cyberfest: 130px no topo
 - Headline: Ubuntu 700, 28px
-- Pill CTA: background `#14A8F4`, color `#02050A`, font-weight 700, padding `8px 20px`, border-radius `24px`, margin-top 16px
+- Subtítulo: Montserrat 400, 13px, `#D5D8ED`, margin-top 12px — **texto livre, fora de qualquer box**
+- Pill CTA (decorativa, copy fixa "Garanta seu acesso"): background `#14A8F4`, color `#02050A`, font-weight 700, padding `8px 20px`, border-radius `24px`, margin-top 14px — **não usar campo subtitulo**
 - Ecosistema: bottom 22px, left 36px, height logos **33px**
 
 **LAYOUT D — Diagonal (palestrante)**
@@ -208,12 +211,21 @@ Construir prompt via `buildImagePrompt()` (regras em `_scripts/utils/imagem-prom
 - Cargo/empresa: Montserrat 400, 11px, `#94A0B8`, margin-top 10px
 - Ecosistema: bottom 22px, left 40px, height logos **33px**
 
-**LAYOUT F — Coluna Lateral Sólida (patrocinador)**
-- Coluna sólida esquerda: `width: 38%`, background `#14A8F4`, position absolute, height 100%
-- Imagem: cobre área direita (left: 38%, width: 62%), object-position: center
-- Logo cyberfest: 120px COM filter `brightness(0)` (fundo azul)
-- Headline: Ubuntu 700, 26px, color `#02050A`, line-height 1.2
-- Ecosistema: bottom 22px, LEFT 62% (área da imagem), height logos **33px**
+**LAYOUT F — Painel Lateral Escuro (patrocinador)**
+- Painel esquerdo escuro: `width: 220px`, background `#02050A`, padding 32px 24px 26px 30px
+- Divisor vertical fino em `left: 220px` (gradiente `#14A8F4`)
+- Imagem: coluna direita (`left: 221px`, ~59%), object-fit cover, fades na junção e no rodapé
+- Logo cyberfest: 64px, branco (sem invert)
+- Headline: Ubuntu 700, 28px, `#F6F8FF`, uppercase, traço horizontal azul abaixo
+- Subtítulo: Montserrat 400, 11px, `#D5D8ED`, texto livre (sem pill)
+- Ecosistema: dentro do painel esquerdo, logos horizontais com separadores, height **26px**
+
+**LAYOUT I — Painel Direito Escuro (patrocinador, espelho do F)**
+- Imagem: coluna esquerda (`width: 321px`, ~59%), fade para o painel direito
+- Divisor vertical em `left: 320px`
+- Painel direito escuro: `width: 220px`, background `#02050A`
+- Logo 64px · headline Ubuntu 26px · traço `.dh` · subtítulo livre 11px
+- Ecosistema: dentro do painel direito, logos empilhados verticalmente, height **26px**
 
 **LAYOUT A — Banda Superior (cidade)**
 - Imagem: cobre 65% INFERIOR da tela

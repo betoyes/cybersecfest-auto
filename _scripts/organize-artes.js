@@ -17,7 +17,7 @@ for (const slug of fs.readdirSync(ROOT)) {
   let html = fs.readFileSync(artePath, 'utf8');
 
   if (!html.includes('id="topbar"')) {
-    const layout = (html.match(/Layout ([A-N])/) || slug.match(/^(blog|evento)/) || ['','C'])[1] || 'C';
+    const layout = (html.match(/Layout ([A-Q])/) || slug.match(/^(blog|evento)/) || ['','C'])[1] || 'C';
     const headline = (html.match(/class="hl"[^>]*>([^<]+)/) || ['','Arte'])[1].slice(0, 80);
     html = wrapWithEditor(html, { layout, headline, slug });
     fs.writeFileSync(artePath, html);

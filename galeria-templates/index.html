@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CybersecFEST — Galeria de Templates (A–Q)</title>
+<link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&family=Montserrat:ital,wght@0,300;0,400;0,600;1,300&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/gallery.css">
+<style>
+.tpl-hero {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 28px var(--page-pad) 8px;
+}
+.tpl-hero h1 {
+  font-family: 'Ubuntu', sans-serif;
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.tpl-hero p {
+  color: var(--lavanda);
+  font-size: 0.88rem;
+  max-width: 720px;
+  line-height: 1.6;
+}
+.tpl-hero .tpl-copy {
+  margin-top: 16px;
+  padding: 14px 18px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+.tpl-hero .tpl-copy strong { color: var(--white); display: block; margin-bottom: 4px; }
+.tpl-nav {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+.tpl-nav a {
+  color: var(--blue);
+  font-size: 0.8rem;
+  text-decoration: none;
+}
+.tpl-nav a:hover { text-decoration: underline; }
+.tpl-workflow {
+  margin-top: 12px;
+  padding: 12px 16px;
+  border-left: 3px solid var(--blue);
+  background: rgba(20,168,244,0.06);
+  font-size: 0.82rem;
+  color: var(--lavanda);
+  line-height: 1.55;
+}
+.tpl-workflow em { color: var(--elec); font-style: normal; }
+.card-padrao-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 3;
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #2ecc71;
+  background: rgba(2,5,10,0.88);
+  border: 1px solid rgba(46,204,113,0.4);
+  padding: 4px 8px;
+  border-radius: 999px;
+}
+.card-padrao-badge[hidden] { display: none; }
+.server-hint {
+  max-width: 1400px;
+  margin: 0 auto 12px;
+  padding: 10px 16px;
+  font-size: 0.78rem;
+  color: var(--muted);
+  border: 1px solid rgba(246,191,45,0.25);
+  background: rgba(246,191,45,0.06);
+  border-radius: var(--radius-sm);
+}
+.server-hint[hidden] { display: none; }
+.server-hint code { color: var(--elec); }
+.tpl-focus {
+  font-size: 8px;
+  color: var(--muted);
+  margin-top: 6px;
+  letter-spacing: 0.04em;
+}
+.card-layout-badge .clb-name {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--lavanda);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.card-layout-badge {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  max-width: calc(100% - 24px);
+  padding: 5px 10px 5px 8px;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <span class="logo-top">Cybersec</span>
+    <div class="logo-divider"></div>
+    <span class="logo-fest">fest</span>
+  </div>
+  <div class="header-center">
+    <div class="live-dot"></div>
+    <span class="live-label">Validação</span>
+    <span class="live-count" id="header-count">—</span>
+  </div>
+  <span class="header-right">Templates A–Q</span>
+</header>
+
+<section class="tpl-hero">
+  <h1>Galeria de Templates</h1>
+  <p>Um post genérico por layout (A–Q). Mesmo título e subtítulo em todos; a imagem de fundo segue as regras rígidas de foco e zonas livres de cada diagramação.</p>
+  <p class="tpl-workflow"><strong>Fluxo:</strong> clique em <em>Editar</em> no card → ajuste no editor → <em>💾 Salvar</em>. Ao salvar, aquele layout vira o <strong>padrão</strong> (posição de elementos, fundo, overlay) para novos posts com a mesma diagramação.</p>
+  <div class="tpl-copy" id="tpl-copy-block" hidden>
+    <strong id="tpl-headline"></strong>
+    <span id="tpl-sub"></span>
+  </div>
+  <nav class="tpl-nav">
+    <a href="../index.html">← Galeria principal</a>
+    <a href="../layouts-diagramacao.html">Diagramação A–Q</a>
+  </nav>
+</section>
+
+<div class="server-hint" id="server-hint" hidden>
+  Edição e <strong>Salvar como padrão</strong> exigem o servidor local: <code>cd _scripts && npm run dev</code> →
+  <a href="http://127.0.0.1:8765/galeria-templates/">http://127.0.0.1:8765/galeria-templates/</a>
+</div>
+
+<div class="gallery-wrap">
+  <div class="grid" id="grid">
+    <div class="empty">
+      <div class="empty-icon">✦</div>
+      <h3>Carregando templates…</h3>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal" onclick="closeModal(event)">
+  <div class="modal" id="modal-inner" onclick="event.stopPropagation()">
+    <div class="modal-preview" style="position:relative">
+      <button class="btn-toggle-panel" id="btn-toggle-panel" onclick="toggleModalPanel()" title="Expandir / recolher painel">◀ Info</button>
+      <div class="modal-art-box" id="modal-art-box">
+        <div class="modal-art-scaler" id="modal-art-scaler">
+          <img id="modal-img" src="" alt="Template" style="width:100%;height:100%;object-fit:contain;display:block;">
+        </div>
+      </div>
+    </div>
+    <div class="modal-info">
+      <div class="modal-info-header">
+        <button class="modal-close" onclick="closeModal()">✕</button>
+        <div class="modal-badge" id="modal-badge"></div>
+        <div class="modal-headline" id="modal-headline"></div>
+      </div>
+      <div class="modal-body">
+        <div class="modal-actions" id="modal-actions"></div>
+        <div class="modal-meta-wrap" id="modal-meta"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <span class="footer-text">Galeria interna · validação do fluxo do agente diretor de arte</span>
+</footer>
+
+<script src="manifest.embed.js"></script>
+<script>
+/** Base URL da galeria — http server; file:// usa caminhos relativos */
+const GALLERY_BASE = (() => {
+  if (location.protocol === 'file:') return '';
+  const p = location.pathname;
+  if (p.endsWith('/')) return p;
+  if (/\/index\.html$/i.test(p)) return p.replace(/index\.html$/i, '');
+  const i = p.lastIndexOf('/');
+  return i >= 0 ? p.slice(0, i + 1) : '/';
+})();
+
+let allArtes = [];
+let arteMap = {};
+let LAYOUT_NAMES = {};
+
+function assetUrl(rel) {
+  const clean = rel.replace(/^\//, '');
+  if (location.protocol === 'file:') return clean;
+  return GALLERY_BASE + clean;
+}
+
+async function loadLayoutNames() {
+  try {
+    const res = await fetch(assetUrl('../assets/layout-names.json') + '?v=' + Date.now());
+    if (res.ok) LAYOUT_NAMES = await res.json();
+  } catch (_) {}
+}
+
+function layoutBadge(arte) {
+  const L = String(arte.layout || '').toUpperCase();
+  const name = LAYOUT_NAMES[L] || '';
+  return `<div class="card-layout-badge" title="Layout ${L}">
+    <span class="clb-letter">${L}</span>${name ? `<span class="clb-name">${name}</span>` : ''}
+  </div>`;
+}
+
+function applyManifest(data) {
+  allArtes = (data.artes || []).slice().sort((a, b) => a.layout.localeCompare(b.layout));
+  arteMap = Object.fromEntries(allArtes.map(a => [a.slug, a]));
+
+  if (data.copy) {
+    document.getElementById('tpl-copy-block').hidden = false;
+    document.getElementById('tpl-headline').textContent = data.copy.headline || '';
+    document.getElementById('tpl-sub').textContent = data.copy.subtitulo || '';
+  }
+
+  document.getElementById('header-count').textContent = allArtes.length + ' / 17 layouts';
+  renderGrid();
+}
+
+async function loadManifest() {
+  try {
+    await loadLayoutNames();
+    let data = window.__TPL_MANIFEST__;
+    if (!data && location.protocol !== 'file:') {
+      const res = await fetch(assetUrl('manifest.json') + '?v=' + Date.now());
+      if (!res.ok) throw new Error('manifest não encontrado — rode: node gerar-galeria-templates.js');
+      data = await res.json();
+    }
+    if (!data?.artes?.length) {
+      throw new Error('Nenhum template no manifest — rode: node gerar-galeria-templates.js');
+    }
+    applyManifest(data);
+  } catch (e) {
+    document.getElementById('grid').innerHTML = `<div class="empty load-error">
+      <div class="empty-icon">⚠</div>
+      <h3>${e.message}</h3>
+      <p class="load-error-hint">Na pasta <code>_scripts</code>: <code>node gerar-galeria-templates.js</code></p>
+      <p class="load-error-hint">Ou via servidor: <a href="http://127.0.0.1:8765/galeria-templates/">http://127.0.0.1:8765/galeria-templates/</a></p>
+    </div>`;
+  }
+}
+
+function renderGrid() {
+  const grid = document.getElementById('grid');
+  if (!allArtes.length) {
+    grid.innerHTML = `<div class="empty">
+      <div class="empty-icon">✦</div>
+      <h3>Nenhum template gerado ainda</h3>
+      <p class="load-error-hint"><code>cd _scripts && node gerar-galeria-templates.js</code></p>
+    </div>`;
+    return;
+  }
+  grid.innerHTML = allArtes.map(arte => {
+    const focus = arte.image_rules?.focus || '';
+    return `
+    <div class="card" data-slug="${arte.slug}" onclick="openModal('${arte.slug}')">
+      <div class="card-thumb">
+        <img class="card-thumb-img" src="${assetUrl('artes/' + arte.slug + '/thumb.png')}?v=${arte.salvo_em || arte.created_at || ''}" alt="Layout ${arte.layout}" loading="lazy">
+        ${layoutBadge(arte)}
+        ${arte.padrao ? '<div class="card-padrao-badge">Padrão</div>' : ''}
+        <span class="card-date-badge">foco ${focus}</span>
+        <div class="card-overlay">
+          <div class="overlay-headline">Layout ${arte.layout}${LAYOUT_NAMES[arte.layout] ? ' · ' + LAYOUT_NAMES[arte.layout] : ''}</div>
+          <div class="overlay-actions">
+            <button class="btn-action btn-view" onclick="event.stopPropagation(); goEditor('${arte.slug}')">✏️ Editar</button>
+            <button class="btn-action btn-view" onclick="event.stopPropagation(); openModal('${arte.slug}')">Detalhes</button>
+            <a class="btn-action btn-dl" href="${assetUrl('artes/' + arte.slug + '/thumb.png')}" download onclick="event.stopPropagation()">↓ PNG</a>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openModal(slug) {
+  const arte = arteMap[slug];
+  if (!arte) return;
+  document.getElementById('modal-badge').textContent = `Layout ${arte.layout} · ${LAYOUT_NAMES[arte.layout] || ''}`;
+  document.getElementById('modal-headline').textContent = arte.headline;
+  document.getElementById('modal-img').src = assetUrl('artes/' + slug + '/thumb.png') + '?v=' + Date.now();
+  document.getElementById('modal-actions').innerHTML = `
+    <a class="btn-modal btn-editor" href="${assetUrl('artes/' + slug + '/arte.html')}" target="_blank">✏️ Abrir Editor</a>
+    <a class="btn-modal btn-dl" href="${assetUrl('artes/' + slug + '/thumb.png')}" download>↓ PNG</a>
+    <a class="btn-modal btn-dl" href="${assetUrl('artes/' + slug + '/arte.html')}" download>↓ HTML</a>`;
+  const rules = arte.image_rules || {};
+  document.getElementById('modal-meta').innerHTML = `
+    <div class="meta-row"><span class="meta-label">Layout</span><span class="meta-val">${arte.layout} — ${LAYOUT_NAMES[arte.layout] || ''}</span></div>
+    <div class="meta-row"><span class="meta-label">Tipo (cena)</span><span class="meta-val">${arte.tipo || '—'}</span></div>
+    <div class="meta-row"><span class="meta-label">Foco imagem</span><span class="meta-val">${rules.focus || '—'} · ${rules.focus_en || ''}</span></div>
+    <div class="meta-row"><span class="meta-label">Subtítulo</span><span class="meta-val">${arte.subtitulo || '—'}</span></div>
+    <div class="meta-row"><span class="meta-label">Palavras azuis</span><span class="meta-val">${arte.palavras_azuis || '—'}</span></div>
+    ${(rules.clear_zones || []).length ? `<div class="meta-row"><span class="meta-label">Zonas livres</span><span class="meta-val" style="font-size:11px;line-height:1.5">${rules.clear_zones.map(z => '· ' + z).join('<br>')}</span></div>` : ''}`;
+  document.getElementById('modal').classList.add('open');
+  scaleModalArt();
+}
+
+function closeModal(e) {
+  if (!e || e.target === document.getElementById('modal')) {
+    document.getElementById('modal').classList.remove('open');
+    document.getElementById('modal-img').src = '';
+  }
+}
+
+function goEditor(slug) {
+  window.open(assetUrl('artes/' + slug + '/arte.html'), '_blank');
+}
+
+function toggleModalPanel() {
+  document.getElementById('modal-inner').classList.toggle('panel-collapsed');
+  scaleModalArt();
+}
+
+function scaleModalArt() {
+  const box = document.getElementById('modal-art-box');
+  const scaler = document.getElementById('modal-art-scaler');
+  if (!box || !scaler) return;
+  const w = box.clientWidth;
+  const h = box.clientHeight;
+  const scale = Math.min(w / 540, h / 675, 1);
+  scaler.style.transform = `scale(${scale})`;
+  scaler.style.transformOrigin = 'center center';
+}
+
+window.addEventListener('resize', scaleModalArt);
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+const serverHint = document.getElementById('server-hint');
+if (serverHint && location.protocol === 'file:') serverHint.hidden = false;
+
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && allArtes.length) renderGrid();
+});
+
+loadManifest();
+</script>
+</body>
+</html>

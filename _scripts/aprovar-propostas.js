@@ -9,7 +9,7 @@ const {
 function aplicarEdicoes(proposta, edicoes = {}) {
   if (!edicoes || typeof edicoes !== 'object') return { ...proposta };
   const out = { ...proposta };
-  for (const k of ['headline', 'subtitulo', 'palavras_azuis', 'contexto_visual', 'legenda', 'cidade', 'angulo']) {
+  for (const k of ['headline', 'subtitulo', 'palavras_azuis', 'contexto_visual', 'legenda', 'cidade', 'angulo', 'cta_visual']) {
     if (edicoes[k] != null && String(edicoes[k]).trim()) out[k] = String(edicoes[k]).trim();
   }
   return out;
@@ -27,6 +27,7 @@ function propostaParaArtePayload(proposta, tipoPost, opts = {}) {
     publicacao: opts.publicacao || 'normal',
     propostaId: proposta.id,
     angulo: proposta.angulo,
+    ctaVisual: proposta.cta_visual,
   };
 }
 
@@ -42,6 +43,7 @@ function itemBancoFromProposta(proposta, lote, destino = 'fila') {
     legenda: proposta.legenda,
     contexto_visual: proposta.contexto_visual,
     cidade: proposta.cidade,
+    cta_visual: proposta.cta_visual || '',
     aprovado_em: new Date().toISOString(),
     origem_lote: lote.id,
     destino,
@@ -147,6 +149,7 @@ async function consumirBanco(opts = {}) {
     publicacao: gerarBackupVisual || item.destino === 'backup' ? 'backup' : 'normal',
     propostaId: item.id,
     angulo: item.angulo,
+    ctaVisual: item.cta_visual,
   });
 
   return { ...resultado, fromBanco: true, bancoId: item.id };

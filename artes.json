@@ -142,5 +142,33 @@
     "image_path": "artes/blog-1782102928259/thumb.png",
     "html_path": "artes/blog-1782102928259/arte.html",
     "created_at": "2026-06-22T04:35:28.259Z"
+  },
+  {
+    "slug": "evento-1782143777641",
+    "tipo": "evento",
+    "headline": "C-Levels reunidos em BH, a maior confraria cyber",
+    "palavras_azuis": "C-Levels, confraria",
+    "subtitulo": "Participe da edição mais exclusiva do CybersecFEST em Belo Horizonte e transforme seu networking.",
+    "cidade": "Belo Horizonte",
+    "formato": "feed_vertical",
+    "layout": "E",
+    "legenda": "O CybersecFEST está chegando a Belo Horizonte.\n\nSe você é um C-Level, prepare-se para um evento que vai além do esperado.\n\nReuniremos 200 mentes inovadoras, incluindo líderes da UnimedBH e Drogaria Araujo.\n\nEste é o espaço para quem molda o futuro da cibersegurança no Brasil.\n\nParticipe de palestras incisivas e debates que desafiam o status quo.\n\nAqui, networking é só o começo. Venha pelas ideias que transformam.\n\n🔹 O palco está montado, só falta você.\n\n✅ Reserve sua participação agora: [link]\n\n#CybersecFEST #Ciberseguranca #BeloHorizonte #Networking #CLevel #Liderança #Inovação #EventoExclusivo #UnimedBH #DrogariaAraujo #Tecnologia #Futuro #Transformação",
+    "legenda_variante": "aprovada",
+    "contexto_visual": "Vista aérea de Belo Horizonte ao entardecer: curvas de Niemeyer na Lagoa da Pampulha, reflexos cianos na água, skyline mineiro ao fundo. Fotografia urbana real — arquitetura e cidade como protagonistas. Sem xadrez, sem tabuleiro, sem padrão de grid no chão.",
+    "publicacao": "normal",
+    "proposta_id": "prop-1782143773651-9gcbd",
+    "angulo_editorial": "Confraria e Exclusividade",
+    "image_rules": {
+      "layout": "E",
+      "focus": "DIREITA",
+      "focus_en": "right 55% of the frame",
+      "clear_zones": [
+        "LEFT 50%: dark gradient column for logo, headline, CTA pill — ZERO subject intrusion.",
+        "Subject only in RIGHT 55% strip."
+      ]
+    },
+    "image_path": "artes/evento-1782143777641/thumb.png",
+    "html_path": "artes/evento-1782143777641/arte.html",
+    "created_at": "2026-06-22T15:56:17.641Z"
   }
 ]

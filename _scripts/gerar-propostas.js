@@ -2,6 +2,7 @@
 
 const { generateText } = require('./utils/llm.js');
 const { buildReferenciaCopyBlock, getMinLegendaChars, legendaDentroDoPadrao, contarLinhasCorpo, REGRAS_LEGENDA } = require('./utils/referencia-copy.js');
+const { suggestCtaExamples } = require('./utils/cta-pill.js');
 const {
   loadStore, saveStore, newId, getLoteAguardando, countBanco, BANCO_MAX,
 } = require('./utils/propostas-store.js');
@@ -55,6 +56,8 @@ IMPORTANTE: posts MEDIANOS — ${REGRAS_LEGENDA.linhasCorpoIdeal[0]}–${REGRAS_
     ? `\nATENÇÃO: tentativa anterior fora do padrão. Cada legenda DEVE ter ${REGRAS_LEGENDA.linhasCorpoIdeal[0]}–${REGRAS_LEGENDA.linhasCorpoIdeal[1]} linhas de corpo — calibre pelos exemplos ouro abaixo.\n`
     : '';
 
+  const ctaExemplos = suggestCtaExamples(tipoPost).join(', ');
+
   const prompt = `${refBlock}
 
 Crie EXATAMENTE 3 rotas editoriais DISTINTAS para um post do CybersecFEST 2026.
@@ -78,6 +81,7 @@ RETORNE APENAS JSON válido (sem markdown):
       "headline": "8 a 14 palavras, impacto manifesto, nunca começa com O CybersecFEST",
       "palavras_azuis": "1-3 palavras da headline, vírgula",
       "subtitulo": "1 frase completa de convite, 15-25 palavras",
+      "cta_visual": "opcional — mensagem curta para pill CTA na arte (máx 4 palavras, UPPERCASE). Exemplos: ${ctaExemplos}. Use quando couber inscrição, patrocínio ou urgência. Omita ou string vazia se não aplicável.",
       "contexto_visual": "descrição DETALHADA da cena fotográfica (80-200 palavras): quem/o quê, onde (cidade + marco se pedido), luz, atmosfera — SEM texto na cena. Se o briefing pedir ponto turístico, cite o monumento explicitamente (ex: MASP na Av. Paulista, Copan, Ibirapuera, Theatro Municipal)",
       "legenda": "LEGENDA pronta para LinkedIn — padrão mediano dos exemplos ouro (${REGRAS_LEGENDA.linhasCorpoIdeal[0]}–${REGRAS_LEGENDA.linhasCorpoIdeal[1]} linhas de corpo, máx. ${REGRAS_LEGENDA.linhasCorpoMax}). Estrutura: gancho 2–3 linhas → tensão 3–5 linhas → CybersecFEST como resposta 2–3 linhas → linha vazia → CTA ✅ → linha vazia → 10–15 hashtags",
       "cidade": "BH e SP"
@@ -105,6 +109,7 @@ RETORNE APENAS JSON válido (sem markdown):
       headline,
       palavras_azuis: p.palavras_azuis || '',
       subtitulo: p.subtitulo || '',
+      cta_visual: (p.cta_visual || '').trim(),
       contexto_visual: p.contexto_visual || '',
       legenda: p.legenda || '',
       cidade: p.cidade || 'BH e SP',

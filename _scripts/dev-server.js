@@ -11,6 +11,7 @@ const { executarPedido, getEstadoPropostas } = require('./pedido-run.js');
 const { aprovarLote, rejeitarLote, consumirBanco } = require('./aprovar-propostas.js');
 const { upsertEditorState } = require('./utils/editor-state.js');
 const { gerarThumbComposto } = require('./utils/thumb-composto.js');
+const { resolveArtePaths, promoteTemplatePadrao, isTemplateSlug } = require('./utils/template-padroes.js');
 
 const ROOT = path.join(__dirname, '..');
 const PORT = Number(process.env.PORT || 8765);
@@ -45,9 +46,25 @@ async function readBody(req) {
   }
 }
 
+function resolveStaticPath(urlPath) {
+  let rel = urlPath === '/' ? 'index.html' : urlPath.replace(/^\//, '').replace(/\/$/, '');
+
+  if (!rel) rel = 'index.html';
+
+  let file = path.join(ROOT, rel);
+
+  if (fs.existsSync(file) && fs.statSync(file).isDirectory()) {
+    file = path.join(file, 'index.html');
+  } else if (!path.extname(rel)) {
+    const indexCandidate = path.join(ROOT, rel, 'index.html');
+    if (fs.existsSync(indexCandidate)) file = indexCandidate;
+  }
+
+  return file;
+}
+
 function serveStatic(req, res, urlPath) {
-  const rel  = urlPath === '/' ? 'index.html' : urlPath.replace(/^\//, '');
-  const file = path.join(ROOT, rel);
+  const file = resolveStaticPath(urlPath);
 
   if (!file.startsWith(ROOT)) {
     res.writeHead(403); return res.end('Forbidden');
@@ -163,7 +180,7 @@ async function handleSalvarArte(req, res) {
     return json(res, 400, { ok: false, erro: 'slug inválido' });
   }
 
-  const artePath = path.join(ROOT, 'artes', slug, 'arte.html');
+  const { artePath, thumbPath, isTemplate, layout } = resolveArtePaths(slug);
   if (!fs.existsSync(artePath)) {
     return json(res, 404, { ok: false, erro: `Arte não encontrada: ${slug}` });
   }
@@ -175,7 +192,6 @@ async function handleSalvarArte(req, res) {
 
     let thumbOk = false;
     let thumbAviso = null;
-    const thumbPath = path.join(ROOT, 'artes', slug, 'thumb.png');
     try {
       await gerarThumbComposto(artePath, thumbPath);
       thumbOk = true;
@@ -183,8 +199,23 @@ async function handleSalvarArte(req, res) {
       thumbAviso = e.message;
     }
 
-    console.log(`💾 Editor salvo: ${slug}${thumbOk ? ' + thumb' : ''}`);
-    json(res, 200, { ok: true, slug, thumb: thumbOk, thumbAviso });
+    let padraoInfo = null;
+    if (isTemplate) {
+      padraoInfo = promoteTemplatePadrao(slug, state);
+    }
+
+    console.log(`💾 Editor salvo: ${slug}${thumbOk ? ' + thumb' : ''}${isTemplate ? ' · padrão layout ' + layout : ''}`);
+    json(res, 200, {
+      ok: true,
+      slug,
+      thumb: thumbOk,
+      thumbAviso,
+      padrao: !!isTemplate,
+      layout: layout || undefined,
+      message: isTemplate
+        ? `Layout ${layout} salvo como padrão da galeria de templates.`
+        : undefined,
+    });
   } catch (e) {
     console.error('❌ Salvar arte:', e.message);
     json(res, 500, { ok: false, erro: e.message });
@@ -206,8 +237,17 @@ const server = http.createServer((req, res) => {
       gerando,
       fluxo: 'v2-propostas',
       build: '2026-06-22-editor-save',
-      apis: ['pedido', 'propostas', 'aprovar', 'banco', 'arte/salvar'],
+      apis: ['pedido', 'propostas', 'aprovar', 'banco', 'arte/salvar', 'template/padroes'],
     });
+  }
+
+  if (req.method === 'GET'  && urlPath === '/api/template/padroes') {
+    try {
+      const { readPadroes } = require('./utils/template-padroes.js');
+      return json(res, 200, { ok: true, ...readPadroes() });
+    } catch (e) {
+      return json(res, 500, { ok: false, erro: e.message });
+    }
   }
 
   if (req.method !== 'GET' && req.method !== 'HEAD') {
@@ -221,6 +261,7 @@ server.listen(PORT, HOST, () => {
   const local = ['1', 'true', 'yes'].includes(String(process.env.LOCAL_MODE || '').toLowerCase());
   console.log(`\n🚀 CybersecFEST — Dev Server`);
   console.log(`   Galeria:  http://${HOST}:${PORT}/`);
+  console.log(`   Templates: http://${HOST}:${PORT}/galeria-templates/`);
   console.log(`   API:      POST /api/pedido · GET /api/propostas · POST /api/arte/salvar`);
   console.log(`   Modo:     ${local ? 'LOCAL (grava no disco)' : 'REMOTO (GitHub API)'}`);
   console.log(`   Raiz:     ${ROOT}\n`);

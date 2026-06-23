@@ -1,0 +1,9 @@
+{
+  "name": "cybersecfest-auto",
+  "private": true,
+  "scripts": {
+    "dev": "cd _scripts && npm run dev",
+    "install:all": "cd _scripts && npm install",
+    "galeria-templates": "cd _scripts && npm run galeria-templates"
+  }
+}

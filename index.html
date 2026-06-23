@@ -11,10 +11,26 @@
 <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&family=Montserrat:ital,wght@0,300;0,400;0,600;1,300&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/dom-to-image-more@3.3.1/dist/dom-to-image-more.min.js"></script>
 <link rel="stylesheet" href="assets/css/gallery.css">
+<script>
+if (location.protocol === 'file:') {
+  document.documentElement.classList.add('file-protocol');
+}
+</script>
 </head>
 <body>
 
-<!-- ══ HEADER ══ -->
+<div class="file-protocol-block" id="file-protocol-block" hidden>
+  <div class="file-protocol-card">
+    <div class="file-protocol-icon">⚠</div>
+    <h2>Abra pela URL do servidor, não pelo arquivo</h2>
+    <p>O <code>index.html</code> não carrega a galeria se você abrir direto do Finder. O navegador bloqueia o <code>artes.json</code>.</p>
+    <ol>
+      <li>No Terminal: <code>cd _scripts && npm run dev</code></li>
+      <li>No navegador: <a href="http://127.0.0.1:8765/">http://127.0.0.1:8765/</a></li>
+    </ol>
+    <p class="file-protocol-path">Pasta do projeto:<br><code id="file-protocol-path"></code></p>
+  </div>
+</div>
 <header>
   <div class="logo">
     <span class="logo-top">Cybersec</span>
@@ -26,7 +42,7 @@
     <span class="live-label">Ao vivo</span>
     <span class="live-count" id="header-count">—</span>
   </div>
-  <span class="header-right">Portal · 2026</span>
+  <span class="header-right"><a href="galeria-templates/index.html" style="color:inherit;text-decoration:none;opacity:0.85" title="Validação A–Q">Templates</a> · <a href="layouts-diagramacao.html" style="color:inherit;text-decoration:none;opacity:0.85" title="Mapa de diagramação A–Q">Diagramação</a> · Portal · 2026</span>
 </header>
 
 <!-- ══ AVISO SERVIDOR ANTIGO ══ -->
@@ -181,6 +197,13 @@ function getCreationNum(slug) {
   return creationOrderMap[slug] || null;
 }
 
+function layoutBadgeHtml(arte) {
+  const L = String(arte.layout || '').toUpperCase();
+  if (!L) return '';
+  const name = LAYOUT_NAMES[L] || '';
+  return `<div class="card-layout-badge" title="Layout ${L}${name ? ' — ' + name : ''}"><span class="clb-letter">${L}</span></div>`;
+}
+
 async function loadLayoutNames() {
   try {
     const res = await fetch('assets/layout-names.json?v=' + Date.now());
@@ -189,10 +212,18 @@ async function loadLayoutNames() {
 }
 
 async function loadArtes() {
+  const grid = document.getElementById('grid');
+  if (location.protocol === 'file:') {
+    showLoadError('file');
+    return;
+  }
   try {
     await loadLayoutNames();
     const res = await fetch('artes.json?v=' + Date.now());
-    if (!res.ok) return;
+    if (!res.ok) {
+      showLoadError('http', res.status);
+      return;
+    }
     allArtes = await res.json();
     buildCreationOrder(allArtes);
     allArtes.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
@@ -201,8 +232,29 @@ async function loadArtes() {
     renderDashboard();
     renderGallery();
   } catch(e) {
-    console.warn('artes.json não encontrado ainda.');
+    console.warn('artes.json não carregou:', e);
+    showLoadError('fetch', e.message);
   }
+}
+
+function showLoadError(kind, detail) {
+  const grid = document.getElementById('grid');
+  if (!grid) return;
+  const isFile = kind === 'file' || location.protocol === 'file:';
+  const title = isFile ? 'Use o servidor local' : 'Não foi possível carregar artes.json';
+  const steps = isFile
+    ? `<ol class="load-error-steps">
+        <li>Abra o Terminal na pasta do projeto</li>
+        <li>Rode: <code>cd _scripts && npm run dev</code></li>
+        <li>Acesse: <a href="http://127.0.0.1:8765/">http://127.0.0.1:8765/</a></li>
+      </ol>`
+    : `<p class="load-error-detail">Confira se o servidor está rodando (<code>npm run dev</code> em <code>_scripts</code>).${detail ? `<br><small>${escHtml(String(detail))}</small>` : ''}</p>`;
+  grid.innerHTML = `<div class="empty load-error">
+    <div class="empty-icon">⚠</div>
+    <h3>${title}</h3>
+    ${steps}
+    <p class="load-error-hint">Não abra o arquivo pelo Finder — use sempre a URL <strong>http://127.0.0.1:8765/</strong></p>
+  </div>`;
 }
 
 function renderStats() {
@@ -231,6 +283,7 @@ function renderGrid(artes) {
     <div class="card" data-slug="${arte.slug}" onclick="openModalBySlug('${arte.slug}')" style="cursor:pointer">
       <div class="card-thumb" data-card-thumb>
         <img class="card-thumb-img" src="artes/${arte.slug}/thumb.png" alt="${arte.headline}" loading="lazy" onerror="this.style.opacity=0">
+        ${layoutBadgeHtml(arte)}
         ${num ? `<div class="card-num-badge">#${num}</div>` : ''}
         ${arte.publicacao === 'backup' ? `<div class="card-backup-badge">backup</div>` : ''}
         <span class="card-date-badge">${date}</span>
@@ -901,6 +954,13 @@ window.addEventListener('pageshow', e => {
 });
 
 loadArtes().then(async () => {
+  if (location.protocol === 'file:') {
+    const block = document.getElementById('file-protocol-block');
+    const pathEl = document.getElementById('file-protocol-path');
+    if (block) block.hidden = false;
+    if (pathEl) pathEl.textContent = location.pathname.replace(/\/index\.html$/, '');
+    return;
+  }
   resetModaisFechados();
   await loadPropostasEstado();
   openModalFromHash();

@@ -1,0 +1,202 @@
+{
+  "version": 1,
+  "layouts": {
+    "A": {
+      "slug": "template-a",
+      "layout": "A",
+      "aprovado": true,
+      "salvo_em": "2026-06-23T05:20:41.992Z",
+      "html_path": "galeria-templates/artes/template-a/arte.html",
+      "thumb_path": "galeria-templates/artes/template-a/thumb.png",
+      "copy": {
+        "headline": "O encontro que<br>redefine<br>cyber no Brasil",
+        "subtitulo": "C-Levels, decisores e estratégia em um só lugar.",
+        "palavras_azuis": "CYBER, BRASIL"
+      },
+      "editor_state": null
+    },
+    "B": {
+      "slug": "template-b",
+      "layout": "B",
+      "aprovado": true,
+      "salvo_em": "2026-06-23T05:20:41.996Z",
+      "html_path": "galeria-templates/artes/template-b/arte.html",
+      "thumb_path": "galeria-templates/artes/template-b/thumb.png",
+      "copy": {
+        "headline": "O encontro que<br>redefine<br>cyber no Brasil",
+        "subtitulo": "C-Levels, decisores e estratégia em um só lugar.",
+        "palavras_azuis": "CYBER, BRASIL"
+      },
+      "editor_state": null
+    },
+    "C": {
+      "slug": "template-c",
+      "layout": "C",
+      "aprovado": true,
+      "salvo_em": "2026-06-23T05:21:58.253Z",
+      "html_path": "galeria-templates/artes/template-c/arte.html",
+      "thumb_path": "galeria-templates/artes/template-c/thumb.png",
+      "copy": {
+        "headline": "O encontro que<br>redefine<br>cyber no Brasil",
+        "subtitulo": "C-Levels, decisores e estratégia em um só lugar.",
+        "palavras_azuis": "CYBER, BRASIL"
+      },
+      "editor_state": null
+    },
+    "D": {
+      "slug": "template-d",
+      "layout": "D",
+      "aprovado": true,
+      "salvo_em": "2026-06-23T05:34:40.936Z",
+      "html_path": "galeria-templates/artes/template-d/arte.html",
+      "thumb_path": "galeria-templates/artes/template-d/thumb.png",
+      "copy": {
+        "headline": "O encontro que<br>redefine<br>cyber no Brasil",
+        "subtitulo": "C-Levels, decisores e estratégia em um só lugar.",
+        "palavras_azuis": "CYBER, BRASIL"
+      },
+      "editor_state": null
+    },
+    "E": {
+      "slug": "template-e",
+      "layout": "E",
+      "aprovado": true,
+      "salvo_em": "2026-06-23T05:40:06.196Z",
+      "html_path": "galeria-templates/artes/template-e/arte.html",
+      "thumb_path": "galeria-templates/artes/template-e/thumb.png",
+      "copy": {
+        "headline": "O encontro que<br>redefine<br>cyber no Brasil",
+        "subtitulo": "C-Levels, decisores e estratégia em um só lugar.",
+        "palavras_azuis": "CYBER, BRASIL"
+      },
+      "editor_state": null
+    },
+    "G": {
+      "slug": "template-g",
+      "layout": "G",
+      "aprovado": true,
+      "salvo_em": "2026-06-23T05:51:20.357Z",
+      "html_path": "galeria-templates/artes/template-g/arte.html",
+      "thumb_path": "galeria-templates/artes/template-g/thumb.png",
+      "copy": {
+        "headline": "O encontro que<br>redefine<br>cyber no Brasil",
+        "subtitulo": "C-Levels, decisores e estratégia em um só lugar.",
+        "palavras_azuis": "CYBER, BRASIL"
+      },
+      "editor_state": null
+    },
+    "H": {
+      "slug": "template-h",
+      "layout": "H",
+      "aprovado": true,
+      "salvo_em": "2026-06-23T05:56:57.198Z",
+      "html_path": "galeria-templates/artes/template-h/arte.html",
+      "thumb_path": "galeria-templates/artes/template-h/thumb.png",
+      "copy": {
+        "headline": "O encontro que<br>redefine<br>cyber no Brasil",
+        "subtitulo": "C-Levels, decisores e estratégia em um só lugar.",
+        "palavras_azuis": "CYBER, BRASIL"
+      },
+      "editor_state": null
+    },
+    "F": {
+      "slug": "template-f",
+      "layout": "F",
+      "aprovado": true,
+      "salvo_em": "2026-06-23T06:09:02.676Z",
+      "html_path": "galeria-templates/artes/template-f/arte.html",
+      "thumb_path": "galeria-templates/artes/template-f/thumb.png",
+      "copy": {
+        "headline": "O encontro que<br>redefine<br>cyber no Brasil",
+        "subtitulo": "C-Levels, decisores e estratégia em um só lugar.",
+        "palavras_azuis": "CYBER, BRASIL"
+      },
+      "editor_state": null
+    },
+    "I": {
+      "slug": "template-i",
+      "layout": "I",
+      "aprovado": true,
+      "salvo_em": "2026-06-23T06:29:34.892Z",
+      "html_path": "galeria-templates/artes/template-i/arte.html",
+      "thumb_path": "galeria-templates/artes/template-i/thumb.png",
+      "copy": {
+        "headline": "O encontro que<br>redefine<br>cyber no Brasil",
+        "subtitulo": "C-Levels, decisores e estratégia em um só lugar.",
+        "palavras_azuis": "CYBER, BRASIL"
+      },
+      "editor_state": null
+    },
+    "J": {
+      "slug": "template-j",
+      "layout": "J",
+      "aprovado": true,
+      "salvo_em": "2026-06-23T06:29:34.917Z",
+      "html_path": "galeria-templates/artes/template-j/arte.html",
+      "thumb_path": "galeria-templates/artes/template-j/thumb.png",
+      "copy": {
+        "headline": "O encontro que<br>redefine<br>cyber no Brasil",
+        "subtitulo": "C-Levels, decisores e estratégia em um só lugar.",
+        "palavras_azuis": "CYBER, BRASIL"
+      },
+      "editor_state": null
+    },
+    "K": {
+      "slug": "template-k",
+      "layout": "K",
+      "aprovado": true,
+      "salvo_em": "2026-06-23T06:38:30.923Z",
+      "html_path": "galeria-templates/artes/template-k/arte.html",
+      "thumb_path": "galeria-templates/artes/template-k/thumb.png",
+      "copy": {
+        "headline": "O encontro que<br>redefine<br>cyber no Brasil",
+        "subtitulo": "C-Levels, decisores e estratégia em um só lugar.",
+        "palavras_azuis": "CYBER, BRASIL"
+      },
+      "editor_state": null
+    },
+    "L": {
+      "slug": "template-l",
+      "layout": "L",
+      "aprovado": true,
+      "salvo_em": "2026-06-23T06:38:30.954Z",
+      "html_path": "galeria-templates/artes/template-l/arte.html",
+      "thumb_path": "galeria-templates/artes/template-l/thumb.png",
+      "copy": {
+        "headline": "O encontro que<br>redefine<br>cyber no Brasil",
+        "subtitulo": "C-Levels, decisores e estratégia em um só lugar.",
+        "palavras_azuis": "CYBER, BRASIL"
+      },
+      "editor_state": null
+    },
+    "M": {
+      "slug": "template-m",
+      "layout": "M",
+      "aprovado": true,
+      "salvo_em": "2026-06-23T06:39:22.961Z",
+      "html_path": "galeria-templates/artes/template-m/arte.html",
+      "thumb_path": "galeria-templates/artes/template-m/thumb.png",
+      "copy": {
+        "headline": "O encontro que<br>redefine<br>cyber no Brasil",
+        "subtitulo": "C-Levels, decisores e estratégia em um só lugar.",
+        "palavras_azuis": "CYBER, BRASIL"
+      },
+      "editor_state": null
+    },
+    "N": {
+      "slug": "template-n",
+      "layout": "N",
+      "aprovado": true,
+      "salvo_em": "2026-06-23T06:39:22.986Z",
+      "html_path": "galeria-templates/artes/template-n/arte.html",
+      "thumb_path": "galeria-templates/artes/template-n/thumb.png",
+      "copy": {
+        "headline": "O encontro que<br>redefine<br>cyber no Brasil",
+        "subtitulo": "C-Levels, decisores e estratégia em um só lugar.",
+        "palavras_azuis": "CYBER, BRASIL"
+      },
+      "editor_state": null
+    }
+  },
+  "updated_at": "2026-06-23T06:39:22.986Z"
+}

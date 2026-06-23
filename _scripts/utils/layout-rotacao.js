@@ -6,10 +6,10 @@
  */
 
 const DEFAULT_ROTACAO = {
-  blog:        ['C', 'M', 'N'],
-  evento:      ['E', 'L', 'J'],
+  blog:        ['C', 'M', 'N', 'O'],
+  evento:      ['E', 'L', 'J', 'P'],
   palestrante: ['D', 'G', 'K'],
-  patrocinador:['F', 'I', 'B'],
+  patrocinador:['F', 'I', 'B', 'Q'],
   cidade:      ['A', 'H', 'J'],
 };
 

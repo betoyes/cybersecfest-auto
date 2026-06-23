@@ -47,6 +47,7 @@ RETORNE EXATAMENTE neste formato JSON (sem markdown, apenas JSON puro):
   "headline": "máx 8 palavras, impacto máximo, nunca começa com O CybersecFEST",
   "palavras_azuis": "1-3 palavras da headline para destacar em azul, separadas por vírgula",
   "subtitulo": "máx 12 palavras, complementa com convite",
+  "cta_visual": "opcional — pill CTA na arte (máx 4 palavras, UPPERCASE). Ex: INSCRIÇÕES ABERTAS, SEJA PATROCINADOR. Omita se não couber.",
   "contexto_visual": "cena aspiracional dark APENAS visual: quem, onde, atmosfera, iluminação — SEM texto, SEM palavras de headline, SEM clichês de hacking",
   "cidade": "BH e SP"
 }`;

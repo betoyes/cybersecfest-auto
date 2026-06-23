@@ -20,7 +20,7 @@ const ARTes_JSON = path.join(ROOT, 'artes.json');
 
 function detectLayout(arte, html) {
   if (arte.layout) return arte.layout.toUpperCase();
-  const m = html.match(/LAYOUT ([A-N])|Layout ([A-N]) ·/i);
+  const m = html.match(/LAYOUT ([A-Q])|Layout ([A-Q]) ·/i);
   if (m) return (m[1] || m[2]).toUpperCase();
   if (arte.tipo === 'patrocinador') return 'F';
   if (arte.tipo === 'evento') return 'E';
@@ -42,7 +42,7 @@ function readFundoBase64(slugDir) {
 
 function needsUpgrade(html) {
   if (!html.includes('btnSave') || !html.includes('ttaseg')) return true;
-  if (!/\/\* Layout [A-N] \*\//.test(html)) return true;
+  if (!/\/\* Layout [A-Q] \*\//.test(html)) return true;
   return false;
 }
 

@@ -4,13 +4,16 @@
   "C": "Subtítulo ao Lado",
   "D": "Diagonal",
   "E": "CTA Pill",
-  "F": "Coluna Lateral Sólida",
+  "F": "Painel Lateral Escuro",
   "G": "Magazine Cover",
   "H": "Rodapé Luminoso",
-  "I": "Coluna Sólida Direita",
+  "I": "Painel Direito Escuro",
   "J": "3 Blocos",
   "K": "Tríptico",
   "L": "L Invertido + Traços",
   "M": "Pull Quote",
-  "N": "Acento Diagonal"
+  "N": "Acento Diagonal",
+  "O": "Holofote",
+  "P": "Moldura",
+  "Q": "Asa Dupla"
 }

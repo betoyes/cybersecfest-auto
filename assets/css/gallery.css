@@ -50,6 +50,38 @@ body {
     radial-gradient(ellipse 40% 30% at 100% 0%, rgba(6,43,82,0.35), transparent 50%);
 }
 
+html.file-protocol body > :not(.file-protocol-block) { display: none !important; }
+.file-protocol-block {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: var(--bg);
+}
+.file-protocol-block[hidden] { display: none !important; }
+.file-protocol-card {
+  max-width: 520px;
+  text-align: center;
+  padding: 32px 28px;
+  border: 1px solid rgba(20,168,244,0.3);
+  border-radius: var(--radius-lg);
+  background: var(--surface-2);
+}
+.file-protocol-icon { font-size: 2rem; margin-bottom: 12px; }
+.file-protocol-card h2 { font-family: 'Ubuntu', sans-serif; font-size: 1.15rem; margin-bottom: 12px; }
+.file-protocol-card p { color: var(--lavanda); font-size: 0.88rem; margin-bottom: 12px; }
+.file-protocol-card ol { text-align: left; margin: 16px auto; max-width: 380px; color: var(--lavanda); font-size: 0.85rem; line-height: 1.7; }
+.file-protocol-card code { color: var(--elec); font-size: 0.8rem; }
+.file-protocol-card a { color: var(--blue); }
+.file-protocol-path { margin-top: 16px; font-size: 0.75rem; color: var(--muted); word-break: break-all; }
+
+.load-error-steps { text-align: left; max-width: 360px; margin: 12px auto; color: var(--lavanda); font-size: 0.85rem; line-height: 1.7; }
+.load-error-detail { color: var(--lavanda); font-size: 0.85rem; }
+.load-error-hint { margin-top: 14px; font-size: 0.78rem; color: var(--muted); }
+
 /* ── HEADER ─────────────────────────────────────── */
 header {
   position: sticky;
@@ -783,17 +815,16 @@ header {
   left: 12px;
   z-index: 3;
   font-family: 'Ubuntu', sans-serif;
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  max-width: calc(100% - 24px);
   color: var(--white);
   background: rgba(2,5,10,0.88);
   border: 1px solid rgba(20,168,244,0.35);
-  padding: 5px 10px 5px 8px;
+  padding: 4px;
   border-radius: var(--radius-sm);
   backdrop-filter: blur(8px);
+  pointer-events: none;
+  transition: opacity 0.3s;
 }
+.card:hover .card-layout-badge { opacity: 0.35; }
 .card-layout-badge .clb-letter {
   flex-shrink: 0;
   font-size: 11px;

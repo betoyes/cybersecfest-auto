@@ -17,7 +17,9 @@
     "reparar-artes": "node reparar-artes.js",
     "regenerar-fundo": "node regenerar-fundo.js",
     "aplicar-editor": "node aplicar-editor-v3.js",
-    "corrigir-editor-ids": "node corrigir-editor-ids.js"
+    "corrigir-editor-ids": "node corrigir-editor-ids.js",
+    "galeria-templates": "node gerar-galeria-templates.js",
+    "atualizar-editor-templates": "node atualizar-editor-templates.js"
   },
   "dependencies": {
     "@google/genai": "^2.9.0",

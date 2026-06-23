@@ -1,12 +1,12 @@
 'use strict';
 
 /**
- * Regras RÍGIDAS de imagem de fundo por layout (A–N).
+ * Regras RÍGIDAS de imagem de fundo por layout (A–Q).
  * A imagem é APENAS fotografia — texto/copy vive no HTML por cima.
  * Referência: SKILL Gerador de Artes v2.6 + layouts.js
  */
 
-const VALID_LAYOUTS = 'ABCDEFGHIJKLMN'.split('');
+const VALID_LAYOUTS = 'ABCDEFGHIJKLMNOPQ'.split('');
 
 /** Artes GRANDE REFERÊNCIA — padrão ouro de tonalidade azul (#1 e #2 são a bússola) */
 const REFERENCE_ARTES = [
@@ -38,18 +38,18 @@ const CYBER_BLUE_STYLE = [
 const LAYOUT_IMAGE_RULES = {
   A: {
     focusId: 'DIREITA',
-    focusEn: 'right portion of the lower 65% of the frame (bottom image band)',
+    focusEn: 'right-center of the TOP 55% image band',
     clearZones: [
-      'TOP 35% of frame: MUST be empty — dark sky, blur, or gradient only. NO faces, NO subjects.',
-      'Subject only in bottom 65%, biased to the RIGHT side of that band.',
+      'BOTTOM 48%: solid dark text band — NO subject, NO faces, NO bright detail.',
+      'Subject only in TOP 55% image band, biased to the right.',
     ],
   },
   B: {
     focusId: 'ESQUERDA',
-    focusEn: 'left half of the frame (subject visible through right-side photo with object-position left)',
+    focusEn: 'center of the LEFT 48% image strip',
     clearZones: [
-      'LEFT 52%: MUST stay dark and low-detail for text overlay (Mirror Split).',
-      'NO subject faces or bright elements in the left text column area.',
+      'RIGHT 52%: dark HTML text panel — NO subject or readable detail.',
+      'Subject confined to LEFT 48% only.',
     ],
   },
   C: {
@@ -61,11 +61,12 @@ const LAYOUT_IMAGE_RULES = {
     ],
   },
   D: {
-    focusId: 'CENTRO/DIREITA',
-    focusEn: 'center-right zone (approximately 55–85% horizontal)',
+    focusId: 'CENTRO',
+    focusEn: 'dead center of the frame (between top-left headline and bottom-right subtitle)',
     clearZones: [
-      'LEFT 55%: dark diagonal gradient zone for speaker name + headline — NO subject overlap.',
-      'Subject at 70% horizontal center of photo area.',
+      'TOP-LEFT corner: logo + headline block — keep subject out of upper-left 52%.',
+      'BOTTOM-RIGHT corner: subtitle + eco — keep subject out of lower-right 52%.',
+      'Subject centered in the middle band of the photo.',
     ],
   },
   E: {
@@ -78,10 +79,10 @@ const LAYOUT_IMAGE_RULES = {
   },
   F: {
     focusId: 'DIREITA',
-    focusEn: 'center of the RIGHT 62% image area (right side of canvas)',
+    focusEn: 'center of the RIGHT 62% image strip (right side of canvas)',
     clearZones: [
-      'LEFT 38%: solid blue HTML column — image MUST NOT place subject or detail here.',
-      'All subject matter confined to RIGHT 62% only.',
+      'LEFT 41%: dark HTML text panel — image MUST NOT place subject or readable detail here.',
+      'All subject matter confined to RIGHT 59% only.',
     ],
   },
   G: {
@@ -94,44 +95,44 @@ const LAYOUT_IMAGE_RULES = {
   },
   H: {
     focusId: 'CENTRAL-SUPERIOR',
-    focusEn: 'upper center within the TOP 72% of the frame',
+    focusEn: 'upper center within the TOP 62% image zone (420px band)',
     clearZones: [
-      'BOTTOM 32%: solid dark footer band — NO subject, NO skyline detail, NO bright elements.',
-      'Subject and scene only in UPPER 72%, centered horizontally.',
+      'BOTTOM 38%: solid dark footer with two columns — NO subject, NO skyline detail.',
+      'Subject and scene only in TOP 62%, centered horizontally.',
     ],
   },
   I: {
     focusId: 'ESQUERDA',
-    focusEn: 'left 62% of the frame (photography strip)',
+    focusEn: 'center of the LEFT 59% image strip (left side of canvas)',
     clearZones: [
-      'RIGHT 38%: solid blue HTML column — NO subject or readable detail.',
-      'Subject confined to LEFT 62% only.',
+      'RIGHT 41%: dark HTML text panel — NO subject or readable detail.',
+      'Subject confined to LEFT 59% only.',
     ],
   },
   J: {
     focusId: 'CENTRO entre horizontais',
-    focusEn: 'horizontal center band between 30% and 70% vertical height',
+    focusEn: 'horizontal center of the middle 44% image band (between 17% and 61% height)',
     clearZones: [
-      'TOP 30%: dark band for logo — empty of subjects.',
-      'BOTTOM 30%: dark band for headline — empty of subjects.',
-      'Subject ONLY in middle 40% horizontal band, centered.',
+      'TOP 17%: dark band for logo — empty of subjects.',
+      'BOTTOM 41%: dark band for headline — empty of subjects.',
+      'Subject ONLY in middle 44% band, centered.',
     ],
   },
   K: {
     focusId: 'CENTRO entre verticais',
-    focusEn: 'center-right area between 33% and 100% horizontal (right two-thirds)',
+    focusEn: 'center of the middle 38% image column (between vertical dividers)',
     clearZones: [
-      'LEFT 33%: text column — NO subject faces or bright elements.',
-      'Vertical guide lines at 33% and 66% — subject between them or right of center line.',
+      'LEFT 31% and RIGHT 31%: dark text panels — NO subject faces or bright elements.',
+      'Subject strictly in CENTER 38% column only.',
     ],
   },
   L: {
     focusId: 'CENTRO entre zonas',
-    focusEn: 'open center-right area; avoid top-left logo quadrant and below-38% headline block on the left',
+    focusEn: 'center of the middle 51% image band (between top bar and bottom headline block)',
     clearZones: [
-      'TOP 38% left (logo zone): NO subject.',
-      'Below 38% left padding: headline area — keep subject in center-right open space.',
-      'Respect L-shaped blue guides — subject in remaining visible area.',
+      'TOP 13%: logo + eco bar — NO subject.',
+      'BOTTOM 36%: headline block — NO subject.',
+      'Subject only in middle image band with diagonal accent lines.',
     ],
   },
   M: {
@@ -151,6 +152,33 @@ const LAYOUT_IMAGE_RULES = {
       'Diagonal accent zone bottom-left must stay clear.',
     ],
   },
+  O: {
+    focusId: 'CENTRO-INFERIOR',
+    focusEn: 'center of the lower third — inside the radial spotlight ellipse',
+    clearZones: [
+      'CENTER 55%: headline + subtitle stack — NO faces, NO bright blobs.',
+      'TOP 22%: logo zone — keep clear of subject highlights.',
+      'Subject visible in upper/mid frame AROUND the spotlight, not through text zone.',
+    ],
+  },
+  P: {
+    focusId: 'CENTRO-SUPERIOR',
+    focusEn: 'center-upper area inside the framed image window (above bottom text strip)',
+    clearZones: [
+      'BOTTOM 38% inside frame: dark footer for headline — NO subject intrusion.',
+      'TOP-LEFT inside frame: logo corner — NO bright subject detail.',
+      'Subject in upper 55% of the inner image window, centered.',
+    ],
+  },
+  Q: {
+    focusId: 'LATERAIS',
+    focusEn: 'left and right wing strips (outside the central 47% pillar)',
+    clearZones: [
+      'CENTER 47%: solid dark pillar — ZERO subject, ZERO readable detail.',
+      'Subject ONLY in LEFT 27% and RIGHT 27% wing strips.',
+      'Wide scene or duplicated atmosphere on both wings preferred.',
+    ],
+  },
 };
 
 /** Cenas padrão por tipo + layout — cada uma ORIGINAL, não clone de referência */
@@ -165,16 +193,19 @@ const SCENE_DEFAULTS = {
       'Latina female tech director in navy blazer, three-quarter pose looking left, natural skin, premium venue with cyan LED wall wash in background blur, subject top-right, original composition',
       'Male executive descending glass staircase in convention center, cyan strip lighting on rails, natural skin tones, dynamic angle top-right, not studio portrait clone',
     ],
+    O: 'Executive audience seen from behind facing illuminated stage, cyan spotlight pool on floor, dark premium venue, subject in upper frame around central void',
   },
   evento: {
     E: 'Silhouette of businessman in suit from behind overlooking city skyline at night, brilliant blue backlight halo, dramatic executive atmosphere, vast dark sky',
     L: 'Premium dark conference venue, executives in background blur, blue architectural lighting, cinematic wide shot',
     J: 'Executive roundtable environment, dark premium venue, blue accent lights, professional corporate event Brazil',
+    P: 'Wide cinematic conference hall interior, cyan architectural lighting, subject in upper center of frame, dark elegant atmosphere',
   },
   patrocinador: {
     F: 'Executives networking in premium dark corporate venue, blue accent lighting, sponsorship atmosphere, professional photography',
     I: 'Corporate leaders in conversation at exclusive tech event, dark moody environment, blue highlights',
     B: 'Split atmosphere: dark executive space with professional figures, premium event photography',
+    Q: 'Wide executive networking scene with space in center, subjects on left and right margins, dark premium venue, cyan accent lights',
   },
   palestrante: {
     D: 'Confident speaker executive on dark stage, blue spotlight, audience silhouettes, cinematic keynote atmosphere',
@@ -188,7 +219,7 @@ const SCENE_DEFAULTS = {
   },
 };
 
-/** Fallback de cena por letra (quando tipo não define) — cobre os 14 layouts */
+/** Fallback de cena por letra (quando tipo não define) — cobre os 17 layouts */
 const LAYOUT_SCENE_FALLBACK = {
   A: 'Urban skyline or cityscape at dusk, dark moody atmosphere, blue twilight lights, photorealistic',
   B: 'Dark executive corporate environment, professional figures in soft focus, premium event photography',
@@ -204,6 +235,9 @@ const LAYOUT_SCENE_FALLBACK = {
   L: 'Wide dark conference venue, executives in background blur, blue accent lights',
   M: 'Networking reception or lobby walk-through, natural skin tones, cyan lights in environment bokeh, readable exposure, not silhouette face-off',
   N: 'Executive in venue with cyan architectural lighting in background, natural skin, original pose top-right, not studio portrait clone',
+  O: 'Dark keynote venue with cyan floor spotlight, audience silhouettes in upper frame, theatrical executive atmosphere',
+  P: 'Premium conference interior wide shot, cyan LED accents, subject upper-center, dark cinematic mood',
+  Q: 'Wide networking scene with visual weight on left and right edges, dark venue, cyan bokeh, center area empty',
 };
 
 const BANNED_IN_CONTEXTO = [
@@ -218,7 +252,7 @@ function validateLayout(layout) {
   const L = String(layout || '').toUpperCase();
   if (!VALID_LAYOUTS.includes(L)) {
     throw new Error(
-      `Layout inválido "${layout}". Obrigatório: A–N. Disponíveis: ${VALID_LAYOUTS.join(', ')}`
+      `Layout inválido "${layout}". Obrigatório: A–Q. Disponíveis: ${VALID_LAYOUTS.join(', ')}`
     );
   }
   return L;
@@ -312,7 +346,7 @@ function buildSceneDescription(contextoVisual = '', cidade = '', layout = 'C', t
 
 /**
  * Monta prompt de imagem com regras rígidas do layout.
- * @throws se layout ∉ A–N
+ * @throws se layout ∉ A–Q
  */
 function buildImagePrompt({ tipo = 'blog', layout = 'C', contextoVisual = '', cidade = '', slug = '' } = {}) {
   const L = validateLayout(layout);
@@ -355,6 +389,9 @@ function buildImagePrompt({ tipo = 'blog', layout = 'C', contextoVisual = '', ci
     '• NO warm-only color grade (reject if zero cyan/blue visible in environment)',
     '• NO blue tint or color grade on human skin',
     '• NO copying poses, faces, or compositions from mood-board references',
+    ...(landmark ? [
+      '• NO chess boards, checkerboard floors, xadrez grids, or game-piece metaphors — use real architecture/skyline only',
+    ] : []),
     '',
     'The HTML overlay will contain ALL text. This image is the silent photographic background only.',
   ].join('\n');

@@ -1,7 +1,7 @@
 'use strict';
 
 const DEFAULT_STATE = {
-  x: 50, y: 50, z: 110, bo: 100, fl: false, oo: 100, bgc: '#02050A', ol: 'original', fw: '700',
+  x: 50, y: 50, z: 110, bo: 100, fl: false, sat: 100, oo: 100, bgc: '#02050A', ol: 'original', fw: '700',
   tta: 'center', sta: 'center',
   lx: 0, ly: 0, ls: 100, lo: 100,
   tx: 0, ty: 0, ts: 100,
@@ -13,7 +13,9 @@ function normalizeState(raw) {
   const s = { ...DEFAULT_STATE, ...(raw && typeof raw === 'object' ? raw : {}) };
   if (raw && raw.ta && !raw.tta) s.tta = raw.ta;
   if (raw && raw.ta && !raw.sta) s.sta = raw.ta;
+  if (raw && raw.pb && s.sat === 100) s.sat = 0;
   delete s.ta;
+  delete s.pb;
   return s;
 }
 

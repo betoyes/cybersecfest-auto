@@ -56,9 +56,10 @@ input[type=range]{width:100%;accent-color:#14A8F4;cursor:pointer;height:3px}
 .headline,.hl{font-family:'Ubuntu',sans-serif;font-weight:700;color:#F6F8FF}
 .subtitulo,.sb{font-family:'Montserrat',sans-serif;color:#D5D8ED}
 .logo-cyberfest,.art-canvas .lg{z-index:2}
-#el-eco,.ecosystem{position:absolute;display:flex;align-items:center;gap:12px;z-index:2}
+.ecosystem:not(.eco-panel){position:absolute;display:flex;align-items:center;gap:12px;z-index:2}
 .ecosystem-center{left:0;right:0;justify-content:center;gap:18px}
-#el-eco img,.ecosystem img{height:33px;filter:brightness(0) invert(1);opacity:0.75}
+.ecosystem:not(.eco-panel) img{height:33px;filter:brightness(0) invert(1);opacity:0.75}
+.art-canvas .left-col,.art-canvas .right-panel,.art-canvas .right-panel-b,.art-canvas .right-img,.art-canvas .img-left,.art-canvas .img-left-b,.art-canvas .text-band,.art-canvas .img-band{z-index:2}
 .badge-layout{position:absolute;bottom:22px;right:14px;background:rgba(20,168,244,0.18);border:1px solid rgba(20,168,244,0.35);color:#14A8F4;font-family:'Montserrat',sans-serif;font-size:9px;font-weight:600;padding:3px 8px;border-radius:4px;letter-spacing:1px;z-index:3}
 @media print{#topbar,#pl,#pr{display:none!important}#main-area{display:flex!important;align-items:center!important;justify-content:center!important}#ca{flex:1!important;background:none!important;padding:0!important}.cl,.ci{display:none!important}}
 html.embed body{display:block!important;height:100vh!important;overflow:hidden!important}
@@ -76,7 +77,8 @@ const PANEL_LEFT = `
       <div class="ep-c"><div class="ep-l">Posição ↑↓ <em id="vy">50%</em></div><input type="range" id="sy" min="0" max="100" value="50"></div>
       <div class="ep-c"><div class="ep-l">Zoom <em id="vz">110%</em></div><input type="range" id="sz" min="100" max="300" value="110"></div>
       <div class="ep-c"><div class="ep-l">Opacidade <em id="vbo">100%</em></div><input type="range" id="sbo" min="0" max="100" value="100"></div>
-      <div class="ep-c"><div class="ep-tr"><span class="ep-tl">Espelhar horizontal</span><button class="ep-tog" id="btnFlip">OFF</button></div></div>
+      <div class="ep-c"><div class="ep-l">Espelhar</div><div class="ep-seg"><button class="ep-sb" id="btnFlip" type="button">⇄ Flip</button></div></div>
+      <div class="ep-c"><div class="ep-l">Saturação <em id="vsat">100%</em></div><input type="range" id="ssat" min="0" max="200" value="100"></div>
     </div>
     <div class="ep-s">
       <div class="ep-st">Overlay</div>
@@ -164,7 +166,7 @@ function extractCanvasFromEditor(html) {
 }
 
 function resolveLayoutCss(html, layout) {
-  const editorMatch = html.match(/\/\* Layout [A-N] \*\/([\s\S]*?)(?:@media print|html\.embed)/i);
+  const editorMatch = html.match(/\/\* Layout [A-Q] \*\/([\s\S]*?)(?:@media print|html\.embed)/i);
   if (editorMatch && editorMatch[1].trim()) return editorMatch[1].trim();
   const simple = extractLayoutCss(html);
   if (simple && /\.(hl|ct|bc|bb|lc)\{/.test(simple)) return simple;
@@ -306,15 +308,17 @@ ${stateBlock}<script>${editorV3Script(slug)}<\/script>
 </html>`;
 }
 
-function wrapWithEditor(simpleHtml, { layout, headline, slug, editorState: stateOverride = null }) {
+function wrapWithEditor(simpleHtml, { layout, headline, slug, editorState: stateOverride = null, back: backOverride = null }) {
   const layoutN = LAYOUT_NAMES[layout] || layout;
   const title   = (headline || 'Arte CybersecFEST').replace(/"/g, '&quot;').slice(0, 80);
-  const back    = `../../index.html#arte=${slug}`;
+  const isTemplate = /^template-[a-n]$/i.test(String(slug || ''));
+  const back    = backOverride
+    || (isTemplate ? '../../index.html' : `../../index.html#arte=${slug}`);
   const editorState = stateOverride ?? extractEditorState(simpleHtml);
 
   const isV3Complete = simpleHtml.includes('id="topbar"') && simpleHtml.includes('ep-tag')
     && simpleHtml.includes('btnSave') && simpleHtml.includes('ttaseg')
-    && /\/\* Layout [A-N] \*\//.test(simpleHtml);
+    && /\/\* Layout [A-Q] \*\//.test(simpleHtml);
 
   if (isV3Complete) {
     return simpleHtml;

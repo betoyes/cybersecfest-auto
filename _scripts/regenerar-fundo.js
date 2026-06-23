@@ -14,6 +14,7 @@ const { generateImage }      = require('./utils/llm.js');
 const { buildImagePrompt, validateLayout, getLayoutImageRules } = require('./utils/imagem-prompt.js');
 const { renderLayout }       = require('./utils/layouts.js');
 const { wrapWithEditor }     = require('./utils/editor-wrap.js');
+const { extractEditorState } = require('./utils/editor-state.js');
 const { gerarThumbComposto } = require('./utils/thumb-composto.js');
 
 const ROOT       = path.join(__dirname, '..');
@@ -43,23 +44,29 @@ function detectLayout(arte) {
 
 function montarArte(slugDir, slug, arte, imageBase64) {
   const layout = detectLayout(arte);
+  const artePath = path.join(slugDir, 'arte.html');
+  const editorState = fs.existsSync(artePath)
+    ? extractEditorState(fs.readFileSync(artePath, 'utf8'))
+    : null;
+
   const simpleHtml = renderLayout(layout, {
     imageBase64,
     headline:        arte.headline,
     subtitulo:       arte.subtitulo || '',
     palavrasAzuis:   arte.palavras_azuis || '',
     nomePalestrante: arte.nome_palestrante || '',
-    cargoEmpresa:    arte.cargo_empresa || ''
+    cargoEmpresa:    arte.cargo_empresa || '',
   });
 
   const html = wrapWithEditor(simpleHtml, {
     layout,
     headline: arte.headline,
-    slug
+    slug,
+    editorState,
   });
 
-  fs.writeFileSync(path.join(slugDir, 'arte.html'), html);
-  console.log(`📝 HTML recomposto: ${slug} (layout ${layout}) — texto só no HTML`);
+  fs.writeFileSync(artePath, html);
+  console.log(`📝 HTML recomposto: ${slug} (layout ${layout}) — editor preservado`);
 }
 
 async function regenerarFundo(arte) {
@@ -74,13 +81,19 @@ async function regenerarFundo(arte) {
     layout,
     contextoVisual: arte.contexto_visual || '',
     slug:           arte.slug,
+    cidade:         arte.cidade || 'BH',
   });
 
   console.log(`\n🖼️  Regenerando fundo limpo: ${slug}`);
   console.log(`   Layout ${layout} · foco: ${rules.focusId}`);
   console.log(`   Prompt (visual only): ${prompt.slice(0, 140)}…`);
 
-  const imgBuffer   = await generateImage(prompt, { tipo: arte.tipo, layout });
+  const imgBuffer = await generateImage(prompt, {
+    tipo:           arte.tipo,
+    layout,
+    contextoVisual: arte.contexto_visual || '',
+    cidade:         arte.cidade || 'BH',
+  });
   const imageBase64 = imgBuffer.toString('base64');
 
   if (imgBuffer.length < 5000) {

@@ -3,7 +3,38 @@
     "versao": "1.0.0",
     "descricao": "Propostas de texto (fase 1) e banco editorial antes da geração visual"
   },
-  "banco": [],
+  "banco": [
+    {
+      "id": "banco-1782143791788-ngsgl",
+      "status": "aprovado_texto",
+      "tipo_post": "evento",
+      "angulo": "Crescimento e Impacto Regional",
+      "headline": "Expansão em BH: CybersecFEST com mais líderes",
+      "subtitulo": "Descubra o impacto da cibersegurança regional no CybersecFEST Belo Horizonte 2026.",
+      "palavras_azuis": "Expansão, BH",
+      "legenda": "O CybersecFEST está dobrando sua capacidade em BH. \n\nEste ano, 200 líderes de tecnologia se encontram para redefinir a cibersegurança. Estratégias que impactam não só suas empresas, mas toda a região. \n\nMarcas como UnimedBH e Drogaria Araujo já estão no radar. Belo Horizonte está se firmando como um polo de inovação e segurança da informação. \n\n🔹 Não perca essa transformação regional.\n\n✅ Inscreva-se para Belo Horizonte: [link]\n\n#CybersecFEST #Cibersegurança #InovaçãoBH #LiderançaTech #EventoDeImpacto #Networking #UnimedBH #DrogariaAraujo #Tecnologia #Estratégia #BHInovadora #SegurançaDaInformação #TransformaçãoDigital",
+      "contexto_visual": "A Praça da Liberdade durante a noite, com suas árvores iluminadas e o Palácio da Liberdade ao fundo. Pessoas transitam com crachás, refletindo o ambiente de um evento de networking. O céu limpo e estrelado adiciona um toque de serenidade, criando uma atmosfera propícia para conversas e encontros significativos.",
+      "cidade": "BH e SP",
+      "aprovado_em": "2026-06-22T15:56:31.788Z",
+      "origem_lote": "lote-1782143777550-bnlwo",
+      "destino": "fila"
+    },
+    {
+      "id": "banco-1782143791788-92a51",
+      "status": "aprovado_texto",
+      "tipo_post": "evento",
+      "angulo": "ROI para Patrocinadores",
+      "headline": "Aproveite o ROI do CybersecFEST BH 2026",
+      "subtitulo": "Patrocinadores, o CybersecFEST Belo Horizonte é a vitrine ideal para destacar sua marca.",
+      "palavras_azuis": "ROI, CybersecFEST",
+      "legenda": "O CybersecFEST Belo Horizonte é mais do que um evento — é uma plataforma estratégica.\n\nCom expansão de 160 para 200 participantes, os patrocinadores brilham entre líderes e decisores.\n\nUnimedBH e Drogaria Araujo já entenderam o potencial. Você também pode estar na linha de frente.\n\nConexões aqui não são apenas trocas de cartões. São portas para novas parcerias e negócios.\n\n🔹 Amplifique sua marca no cenário de cibersegurança.\n🔹 Alinhe-se com a inovação e visão de futuro.\n\n✅ Torne-se um patrocinador: [link]\n\n#CybersecFEST #Cibersegurança #Patrocínio #ROI #BeloHorizonte #UnimedBH #DrogariaAraujo #Negócios #Oportunidade #Visibilidade #MarketingEstratégico #Parcerias #CLevel #TechLeadership",
+      "contexto_visual": "Um skyline noturno de Belo Horizonte, capturando o movimentado centro da cidade com arranha-céus iluminados. O edifício da Prefeitura de Belo Horizonte aparece em destaque, simbolizando o poder e a influência dos negócios na cidade. Carros passando e luzes piscando criam uma sensação de dinamismo e oportunidade.",
+      "cidade": "BH e SP",
+      "aprovado_em": "2026-06-22T15:56:31.788Z",
+      "origem_lote": "lote-1782143777550-bnlwo",
+      "destino": "fila"
+    }
+  ],
   "lotes": [
     {
       "id": "lote-1782101387453-ypu3a",
@@ -135,6 +166,51 @@
       "concluido_em": "2026-06-22T04:35:42.507Z",
       "principal_id": "prop-1782102571265-1bsnq",
       "slug_gerado": "blog-1782102928259"
+    },
+    {
+      "id": "lote-1782143777550-bnlwo",
+      "status": "concluido",
+      "tipo_post": "evento",
+      "tema_briefing": "Crie um post sobre o CyberSecFest Belo Horizonte 2026 (edição de novembro em BH/MG). Foco exclusivo na edição mineira — não mencionar São Paulo como protagonista. Destaque: confraria de C-Levels, crescimento das edições BH (160→200 participantes), marcas como UnimedBH e Drogaria Araujo. Sugestão visual: marco de BH à noite (Pampulha, Praça da Liberdade, skyline de BH ou vista aérea da cidade).",
+      "criado_em": "2026-06-22T15:56:17.554Z",
+      "propostas": [
+        {
+          "id": "prop-1782143773651-9gcbd",
+          "angulo": "Confraria e Exclusividade",
+          "recomendada": true,
+          "headline": "C-Levels reunidos em BH, a maior confraria cyber",
+          "palavras_azuis": "C-Levels, confraria",
+          "subtitulo": "Participe da edição mais exclusiva do CybersecFEST em Belo Horizonte e transforme seu networking.",
+          "contexto_visual": "Uma vista aérea de Belo Horizonte ao anoitecer, com o horizonte iluminado pelo pôr do sol. A Lagoa da Pampulha reflete as luzes da cidade, enquanto a silhueta do Museu de Arte da Pampulha se destaca. O céu está com tons alaranjados e roxos, transmitindo um clima vibrante e acolhedor. A foto destaca a integração entre a modernidade e a natureza, criando um ambiente perfeito para a confraternização e a troca de ideias.",
+          "legenda": "O CybersecFEST está chegando a Belo Horizonte.\n\nSe você é um C-Level, prepare-se para um evento que vai além do esperado.\n\nReuniremos 200 mentes inovadoras, incluindo líderes da UnimedBH e Drogaria Araujo.\n\nEste é o espaço para quem molda o futuro da cibersegurança no Brasil.\n\nParticipe de palestras incisivas e debates que desafiam o status quo.\n\nAqui, networking é só o começo. Venha pelas ideias que transformam.\n\n🔹 O palco está montado, só falta você.\n\n✅ Reserve sua participação agora: [link]\n\n#CybersecFEST #Ciberseguranca #BeloHorizonte #Networking #CLevel #Liderança #Inovação #EventoExclusivo #UnimedBH #DrogariaAraujo #Tecnologia #Futuro #Transformação",
+          "cidade": "BH e SP"
+        },
+        {
+          "id": "prop-1782143773651-byun9",
+          "angulo": "Crescimento e Impacto Regional",
+          "recomendada": false,
+          "headline": "Expansão em BH: CybersecFEST com mais líderes",
+          "palavras_azuis": "Expansão, BH",
+          "subtitulo": "Descubra o impacto da cibersegurança regional no CybersecFEST Belo Horizonte 2026.",
+          "contexto_visual": "A Praça da Liberdade durante a noite, com suas árvores iluminadas e o Palácio da Liberdade ao fundo. Pessoas transitam com crachás, refletindo o ambiente de um evento de networking. O céu limpo e estrelado adiciona um toque de serenidade, criando uma atmosfera propícia para conversas e encontros significativos.",
+          "legenda": "O CybersecFEST está dobrando sua capacidade em BH. \n\nEste ano, 200 líderes de tecnologia se encontram para redefinir a cibersegurança. Estratégias que impactam não só suas empresas, mas toda a região. \n\nMarcas como UnimedBH e Drogaria Araujo já estão no radar. Belo Horizonte está se firmando como um polo de inovação e segurança da informação. \n\n🔹 Não perca essa transformação regional.\n\n✅ Inscreva-se para Belo Horizonte: [link]\n\n#CybersecFEST #Cibersegurança #InovaçãoBH #LiderançaTech #EventoDeImpacto #Networking #UnimedBH #DrogariaAraujo #Tecnologia #Estratégia #BHInovadora #SegurançaDaInformação #TransformaçãoDigital",
+          "cidade": "BH e SP"
+        },
+        {
+          "id": "prop-1782143773651-kf76k",
+          "angulo": "ROI para Patrocinadores",
+          "recomendada": false,
+          "headline": "Aproveite o ROI do CybersecFEST BH 2026",
+          "palavras_azuis": "ROI, CybersecFEST",
+          "subtitulo": "Patrocinadores, o CybersecFEST Belo Horizonte é a vitrine ideal para destacar sua marca.",
+          "contexto_visual": "Um skyline noturno de Belo Horizonte, capturando o movimentado centro da cidade com arranha-céus iluminados. O edifício da Prefeitura de Belo Horizonte aparece em destaque, simbolizando o poder e a influência dos negócios na cidade. Carros passando e luzes piscando criam uma sensação de dinamismo e oportunidade.",
+          "legenda": "O CybersecFEST Belo Horizonte é mais do que um evento — é uma plataforma estratégica.\n\nCom expansão de 160 para 200 participantes, os patrocinadores brilham entre líderes e decisores.\n\nUnimedBH e Drogaria Araujo já entenderam o potencial. Você também pode estar na linha de frente.\n\nConexões aqui não são apenas trocas de cartões. São portas para novas parcerias e negócios.\n\n🔹 Amplifique sua marca no cenário de cibersegurança.\n🔹 Alinhe-se com a inovação e visão de futuro.\n\n✅ Torne-se um patrocinador: [link]\n\n#CybersecFEST #Cibersegurança #Patrocínio #ROI #BeloHorizonte #UnimedBH #DrogariaAraujo #Negócios #Oportunidade #Visibilidade #MarketingEstratégico #Parcerias #CLevel #TechLeadership",
+          "cidade": "BH e SP"
+        }
+      ],
+      "concluido_em": "2026-06-22T15:56:31.788Z",
+      "principal_id": "prop-1782143773651-9gcbd",
+      "slug_gerado": "evento-1782143777641"
     }
   ]
 }

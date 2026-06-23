@@ -111,7 +111,15 @@ function pickReferencePaths({ tipo = 'blog', layout = 'C', max = 3, contextoVisu
     : GRANDE_REFERENCIA.patrocinador;
 
   if (max >= 2 && fs.existsSync(otherGrande)) {
-    if (wantCity || tipo === 'blog' || tipo === 'evento') picked.push(otherGrande);
+    if (wantCity) {
+      // Cidade/landmark: ref #2 (evento) + mood BH — nunca xadrez #1
+      const cidadeRefs = listPng(path.join(REF_ROOT, 'cidade'));
+      const bh = cidadeRefs.find(f => /niemeyer|pampulha|bh/i.test(path.basename(f)));
+      const cityRef = bh || cidadeRefs[0];
+      if (cityRef && !picked.includes(cityRef)) picked.push(cityRef);
+    } else if (tipo === 'blog' || tipo === 'evento') {
+      picked.push(otherGrande);
+    }
   }
 
   if (max >= 3) {

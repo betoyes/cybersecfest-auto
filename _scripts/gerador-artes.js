@@ -16,6 +16,8 @@ const { wrapWithEditor }                             = require('./utils/editor-w
 const { gerarThumbComposto }                         = require('./utils/thumb-composto.js');
 const { pickNextLayout }                             = require('./utils/layout-rotacao.js');
 const { buildReferenciaCopyBlock, REGRAS_LEGENDA } = require('./utils/referencia-copy.js');
+const { getLayoutPadraoState }                       = require('./utils/template-padroes.js');
+const { resolveCtaPill }                             = require('./utils/cta-pill.js');
 
 // ── Score de legenda via LLM ─────────────────────────────────────
 async function scoreLegenda(legenda) {
@@ -58,7 +60,8 @@ async function gerarImagemPrompt(tipoPost, layoutLetter, contextoVisual, slug = 
 async function gerarArte({ tipoPost, headline, subtitulo, palavrasAzuis,
   nomePalestrante, cargoEmpresa, contextoVisual, cidade,
   layoutOverride = null, briefingCompleto = null,
-  legendaAprovada = null, publicacao = 'normal', propostaId = null, angulo = null }) {
+  legendaAprovada = null, publicacao = 'normal', propostaId = null, angulo = null,
+  cta = null, ctaVisual = null }) {
 
   console.log(`\n🎨 Gerador de Artes — fase visual · tipo: ${tipoPost}${publicacao === 'backup' ? ' · backup' : ''}`);
 
@@ -104,7 +107,7 @@ async function gerarArte({ tipoPost, headline, subtitulo, palavrasAzuis,
   }
 
   // 3. Gerar imagem IA (regras rígidas por layout)
-  console.log('🖼️  Gerando imagem IA (regras rígidas A–N + Lei do Azul #14A8F4)...');
+  console.log('🖼️  Gerando imagem IA (regras rígidas A–Q + Lei do Azul #14A8F4)...');
   console.log(`   Grande referência DS: ${REFERENCE_ARTES.join(' + ')}`);
   const imgPrompt = await gerarImagemPrompt(tipoPost, layout, contextoVisual, slug, cidade);
   console.log(`   Zonas livres: ${imageRules.clearZones.length} regra(s) aplicadas`);
@@ -158,15 +161,25 @@ async function gerarArte({ tipoPost, headline, subtitulo, palavrasAzuis,
   // 5. Gerar HTML
   console.log('🏗️  Gerando HTML...');
 
+  const ctaPayload = (ctaVisual || cta || '').trim() || null;
+
   let html = renderLayout(layout, {
     imageBase64,
     headline,
     subtitulo,
     palavrasAzuis,
     nomePalestrante,
-    cargoEmpresa
+    cargoEmpresa,
+    tipoPost,
+    cta: ctaPayload,
+    ctaVisual: ctaPayload,
   });
-  html = wrapWithEditor(html, { layout, headline, slug });
+  html = wrapWithEditor(html, {
+    layout,
+    headline,
+    slug,
+    editorState: getLayoutPadraoState(layout) || undefined,
+  });
 
   console.log(`📤 ${isLocal ? 'Salvando localmente' : 'Fazendo upload'}: ${slug}`);
 
@@ -201,6 +214,8 @@ a{color:#14A8F4;text-decoration:none;margin-top:16px;display:block;text-align:ce
 </html>`;
   await putFile(`${basePath}/index.html`, indexHtml, `[SuperAgent] index: ${slug}`);
 
+  const ctaResolvido = resolveCtaPill({ cta: ctaPayload, ctaVisual: ctaPayload, tipoPost, layout });
+
   // 7. Atualizar artes.json
   const artesFile = await getJSON('artes.json');
   const artes     = artesFile ? artesFile.data : [];
@@ -209,6 +224,7 @@ a{color:#14A8F4;text-decoration:none;margin-top:16px;display:block;text-align:ce
     subtitulo: subtitulo || '', cidade: cidade || '', formato: 'feed_vertical',
     layout, legenda: legendaSelecionada, legenda_variante: varianteSelecionada,
     contexto_visual: contextoVisual || '',
+    ...(ctaResolvido ? { cta_visual: ctaResolvido } : {}),
     publicacao: publicacao === 'backup' ? 'backup' : 'normal',
     ...(propostaId ? { proposta_id: propostaId } : {}),
     ...(angulo ? { angulo_editorial: angulo } : {}),
