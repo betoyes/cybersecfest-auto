@@ -12,7 +12,9 @@ const { renderLayout }       = require('./utils/layouts.js');
 const { wrapWithEditor }     = require('./utils/editor-wrap.js');
 const { extractEditorState } = require('./utils/editor-state.js');
 const { gerarThumbComposto } = require('./utils/thumb-composto.js');
-const { isReferenciaOuro }   = require('./utils/referencia-artes.js');
+const { resolveCtaPill }            = require('./utils/cta-pill.js');
+const { getLayoutPadraoState }      = require('./utils/template-padroes.js');
+const { isReferenciaOuro }          = require('./utils/referencia-artes.js');
 
 const ROOT       = path.join(__dirname, '..');
 const ARTES_DIR  = path.join(ROOT, 'artes');
@@ -43,14 +45,24 @@ function readFundoBase64(slugDir) {
 function needsUpgrade(html) {
   if (!html.includes('btnSave') || !html.includes('ttaseg')) return true;
   if (!/\/\* Layout [A-Q] \*\//.test(html)) return true;
+  if (!html.includes('id="ctaSection"')) return true;
+  if (!html.includes('v3.1')) return true;
   return false;
 }
 
 function rebuildArteHtml(arte, slugDir) {
-  const layout = detectLayout(arte, '');
-  const b64    = readFundoBase64(slugDir);
   const oldHtml = fs.readFileSync(path.join(slugDir, 'arte.html'), 'utf8');
-  const editorState = extractEditorState(oldHtml);
+  const layout  = detectLayout(arte, oldHtml);
+  const b64     = readFundoBase64(slugDir);
+
+  const ctaMatch = oldHtml.match(/id="el-cta"[^>]*>([^<]+)/);
+  const ctaVisual = arte.cta_visual
+    || (ctaMatch ? ctaMatch[1].trim() : '')
+    || resolveCtaPill({ layout, tipoPost: arte.tipo });
+
+  const savedState  = extractEditorState(oldHtml);
+  const padraoState = getLayoutPadraoState(layout);
+  const editorState = savedState || padraoState || undefined;
 
   const simpleHtml = renderLayout(layout, {
     imageBase64:     b64,
@@ -59,6 +71,9 @@ function rebuildArteHtml(arte, slugDir) {
     palavrasAzuis:   arte.palavras_azuis || '',
     nomePalestrante: arte.nome_palestrante || '',
     cargoEmpresa:    arte.cargo_empresa || '',
+    ctaVisual:       ctaVisual || undefined,
+    tipoPost:        arte.tipo,
+    layout,
   });
 
   const html = wrapWithEditor(simpleHtml, {

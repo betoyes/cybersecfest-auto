@@ -12,6 +12,8 @@ const { getJSON, putFile, putBinary, putJSON, REPO, REPO_ROOT, isLocal, ensureDi
 const { generateText, generateImage }                = require('./utils/llm.js');
 const { buildImagePrompt, getLayoutImageRules, validateLayout, REFERENCE_ARTES } = require('./utils/imagem-prompt.js');
 const { renderLayout }                               = require('./utils/layouts.js');
+const { normalizePalavrasAzuis }                     = require('./utils/palavras-azuis.js');
+const { enforceHeadlineText }                        = require('./utils/headline-rules.js');
 const { wrapWithEditor }                             = require('./utils/editor-wrap.js');
 const { gerarThumbComposto }                         = require('./utils/thumb-composto.js');
 const { pickNextLayout }                             = require('./utils/layout-rotacao.js');
@@ -61,9 +63,19 @@ async function gerarArte({ tipoPost, headline, subtitulo, palavrasAzuis,
   nomePalestrante, cargoEmpresa, contextoVisual, cidade,
   layoutOverride = null, briefingCompleto = null,
   legendaAprovada = null, publicacao = 'normal', propostaId = null, angulo = null,
-  cta = null, ctaVisual = null }) {
+  cta = null, ctaVisual = null, formato = 'feed_vertical' }) {
 
   console.log(`\n🎨 Gerador de Artes — fase visual · tipo: ${tipoPost}${publicacao === 'backup' ? ' · backup' : ''}`);
+
+  const headlineEnforced = enforceHeadlineText(headline);
+  headline = headlineEnforced.headline;
+  headlineEnforced.warnings.forEach(w => console.log(`   ⚠️  ${w}`));
+
+  const palavrasAzuisNorm = normalizePalavrasAzuis(headline, palavrasAzuis);
+  if (palavrasAzuisNorm !== String(palavrasAzuis || '').trim()) {
+    console.log(`   🔵 palavras_azuis ajustadas: "${palavrasAzuis || ''}" → "${palavrasAzuisNorm}"`);
+    palavrasAzuis = palavrasAzuisNorm;
+  }
 
   // 1. Carregar temas.json
   const temasFile = await getJSON('temas.json');
@@ -178,7 +190,9 @@ async function gerarArte({ tipoPost, headline, subtitulo, palavrasAzuis,
     layout,
     headline,
     slug,
+    palavrasAzuis,
     editorState: getLayoutPadraoState(layout) || undefined,
+    formato,
   });
 
   console.log(`📤 ${isLocal ? 'Salvando localmente' : 'Fazendo upload'}: ${slug}`);
@@ -221,7 +235,7 @@ a{color:#14A8F4;text-decoration:none;margin-top:16px;display:block;text-align:ce
   const artes     = artesFile ? artesFile.data : [];
   artes.push({
     slug, tipo: tipoPost, headline, palavras_azuis: palavrasAzuis || '',
-    subtitulo: subtitulo || '', cidade: cidade || '', formato: 'feed_vertical',
+    subtitulo: subtitulo || '', cidade: cidade || '', formato: formato || 'feed_vertical',
     layout, legenda: legendaSelecionada, legenda_variante: varianteSelecionada,
     contexto_visual: contextoVisual || '',
     ...(ctaResolvido ? { cta_visual: ctaResolvido } : {}),

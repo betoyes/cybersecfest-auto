@@ -170,5 +170,51 @@
     "image_path": "artes/evento-1782143777641/thumb.png",
     "html_path": "artes/evento-1782143777641/arte.html",
     "created_at": "2026-06-22T15:56:17.641Z"
+  },
+  {
+    "slug": "blog-1782236441882",
+    "tipo": "blog",
+    "headline": "O Reduto Secreto Onde Líderes Realmente Conversam",
+    "palavras_azuis": "Realmente, Conversam",
+    "subtitulo": "Descubra o evento onde os executivos realmente se encontram para trocar ideias que movem o setor.",
+    "cidade": "BH e SP",
+    "formato": "feed_vertical",
+    "layout": "C",
+    "legenda": "O CybersecFEST não é um evento comum. É onde líderes C-Level se reúnem para discutir o que realmente importa.\n\nAqui, as conexões acontecem fora das salas de reunião. As ideias trocadas não estão nos manuais. Estratégias inovadoras surgem em conversas casuais.\n\nÉ por isso que chamamos de Confraria C-Level. Um reduto reservado onde o networking é de alto nível e as discussões são francas.\n\nSe você busca estar à frente, não pode ficar de fora desse seleto grupo.\n\n✅ Inscreva-se agora e garanta sua presença.\n\n#CybersecFEST #LiderançaCLevel #CyberNetworking #FuturoDaTecnologia #InovaçãoEmSegurança #EventoExclusivo #NetworkingVIP #CLevelCommunity #BH #SP #ConfrariaCLevel #TechLeadership",
+    "legenda_variante": "aprovada",
+    "contexto_visual": "No salão de um charmoso hotel histórico, executivos vestidos com elegância trocam insights enquanto degustam vinhos finos; em um canto, uma apresentação interativa exibe as últimas tendências em cibersegurança.",
+    "cta_visual": "INSCRIÇÕES ABERTAS",
+    "publicacao": "normal",
+    "proposta_id": "prop-1782236338198-oqp4q",
+    "angulo_editorial": "Confraria C-Level",
+    "image_rules": {
+      "layout": "C",
+      "focus": "DIREITA",
+      "focus_en": "right third of the frame",
+      "clear_zones": [
+        "LEFT 52%: MANDATORY empty negative space — dark gradient, NO subject, NO faces.",
+        "Subject strictly in RIGHT third; object-position equivalent: right."
+      ]
+    },
+    "image_path": "artes/blog-1782236441882/thumb.png",
+    "html_path": "artes/blog-1782236441882/arte.html",
+    "created_at": "2026-06-23T17:40:41.882Z"
+  },
+  {
+    "slug": "blog-1782238181309",
+    "tipo": "blog",
+    "headline": "Quem lidera decide agora o futuro da cyber no Brasil",
+    "palavras_azuis": "lidera, futuro",
+    "subtitulo": "Teste das regras de headline: dez palavras em cinco linhas.",
+    "cidade": "BH e SP",
+    "formato": "feed_vertical",
+    "layout": "C",
+    "legenda": "Post de teste — validação headline 10 palavras / 5 linhas.\n\n✅ Abra no editor para inspecionar as quebras e o destaque azul.\n\n#CybersecFEST #Teste #HeadlineRules",
+    "legenda_variante": "teste",
+    "publicacao": "backup",
+    "angulo_editorial": "Teste headline-rules",
+    "image_path": "artes/blog-1782238181309/thumb.png",
+    "html_path": "artes/blog-1782238181309/arte.html",
+    "created_at": "2026-06-23T18:09:45.122Z"
   }
 ]

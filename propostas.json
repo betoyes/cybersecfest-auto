@@ -5,21 +5,6 @@
   },
   "banco": [
     {
-      "id": "banco-1782143791788-ngsgl",
-      "status": "aprovado_texto",
-      "tipo_post": "evento",
-      "angulo": "Crescimento e Impacto Regional",
-      "headline": "Expansão em BH: CybersecFEST com mais líderes",
-      "subtitulo": "Descubra o impacto da cibersegurança regional no CybersecFEST Belo Horizonte 2026.",
-      "palavras_azuis": "Expansão, BH",
-      "legenda": "O CybersecFEST está dobrando sua capacidade em BH. \n\nEste ano, 200 líderes de tecnologia se encontram para redefinir a cibersegurança. Estratégias que impactam não só suas empresas, mas toda a região. \n\nMarcas como UnimedBH e Drogaria Araujo já estão no radar. Belo Horizonte está se firmando como um polo de inovação e segurança da informação. \n\n🔹 Não perca essa transformação regional.\n\n✅ Inscreva-se para Belo Horizonte: [link]\n\n#CybersecFEST #Cibersegurança #InovaçãoBH #LiderançaTech #EventoDeImpacto #Networking #UnimedBH #DrogariaAraujo #Tecnologia #Estratégia #BHInovadora #SegurançaDaInformação #TransformaçãoDigital",
-      "contexto_visual": "A Praça da Liberdade durante a noite, com suas árvores iluminadas e o Palácio da Liberdade ao fundo. Pessoas transitam com crachás, refletindo o ambiente de um evento de networking. O céu limpo e estrelado adiciona um toque de serenidade, criando uma atmosfera propícia para conversas e encontros significativos.",
-      "cidade": "BH e SP",
-      "aprovado_em": "2026-06-22T15:56:31.788Z",
-      "origem_lote": "lote-1782143777550-bnlwo",
-      "destino": "fila"
-    },
-    {
       "id": "banco-1782143791788-92a51",
       "status": "aprovado_texto",
       "tipo_post": "evento",
@@ -211,6 +196,111 @@
       "concluido_em": "2026-06-22T15:56:31.788Z",
       "principal_id": "prop-1782143773651-9gcbd",
       "slug_gerado": "evento-1782143777641"
+    },
+    {
+      "id": "lote-1782236341739-l5n17",
+      "status": "concluido",
+      "modo": "campanha",
+      "objetivo": "inscricoes",
+      "quantidade": 3,
+      "tipo_post": "evento",
+      "tema_briefing": null,
+      "criado_em": "2026-06-23T17:39:01.739Z",
+      "propostas": [
+        {
+          "id": "prop-1782236338198-51ygt",
+          "angulo": "FOMO exclusividade",
+          "tipo_post": "evento",
+          "recomendada": true,
+          "headline": "Os Segredos Que Apenas Alguns Líderes Descobrirão",
+          "palavras_azuis": "INSIDER",
+          "subtitulo": "O evento que redefine o futuro da segurança com os insights que você não encontrará em nenhum outro lugar.",
+          "cta_visual": "INSCRIÇÕES ABERTAS",
+          "contexto_visual": "No centro de um ambiente sofisticado e iluminado, executivos C-Level estão reunidos em torno de mesas redondas, engajados em discussões intensas; ao fundo, painéis digitais exibem gráficos de segurança cibernética de última geração.",
+          "legenda": "\"\"\"\nQuando muitos ainda procuram respostas, poucos já as têm na ponta da língua. \n\nO CybersecFEST não é só mais um evento. É um divisor de águas.\n\nExclusividade é a regra aqui:\n🔹 Insights que transformam estratégias.\n🔹 Networking com quem molda o futuro.\n🔹 Conheça antes para decidir melhor.\n\nSe você é responsável por segurança e risco, sua decisão começa agora. ⚠️\n\n✅ Inscreva-se: as vagas são limitadas.\n\n#CybersecFEST #CyberSecurity #FuturoDaSegurança #CLevel #ExecuçãoEstratégica #Exclusividade #EventoTech #NetworkingCLevel #LiderançaTech #BH #SP #Inovação #Proteção #Estratégia\n\"\"\"",
+          "cidade": "BH e SP"
+        },
+        {
+          "id": "prop-1782236338198-oqp4q",
+          "angulo": "Confraria C-Level",
+          "tipo_post": "blog",
+          "recomendada": false,
+          "headline": "O Reduto Secreto Onde Líderes Realmente Conversam",
+          "palavras_azuis": "ELITE",
+          "subtitulo": "Descubra o evento onde os executivos realmente se encontram para trocar ideias que movem o setor.",
+          "cta_visual": "INSCRIÇÕES ABERTAS",
+          "contexto_visual": "No salão de um charmoso hotel histórico, executivos vestidos com elegância trocam insights enquanto degustam vinhos finos; em um canto, uma apresentação interativa exibe as últimas tendências em cibersegurança.",
+          "legenda": "O CybersecFEST não é um evento comum. É onde líderes C-Level se reúnem para discutir o que realmente importa.\n\nAqui, as conexões acontecem fora das salas de reunião. As ideias trocadas não estão nos manuais. Estratégias inovadoras surgem em conversas casuais.\n\nÉ por isso que chamamos de Confraria C-Level. Um reduto reservado onde o networking é de alto nível e as discussões são francas.\n\nSe você busca estar à frente, não pode ficar de fora desse seleto grupo.\n\n✅ Inscreva-se agora e garanta sua presença.\n\n#CybersecFEST #LiderançaCLevel #CyberNetworking #FuturoDaTecnologia #InovaçãoEmSegurança #EventoExclusivo #NetworkingVIP #CLevelCommunity #BH #SP #ConfrariaCLevel #TechLeadership",
+          "cidade": "BH e SP"
+        },
+        {
+          "id": "prop-1782236338198-9b24q",
+          "angulo": "Risco estratégico",
+          "tipo_post": "evento",
+          "recomendada": false,
+          "headline": "Decisões de Hoje Transformam os Riscos de Amanhã",
+          "palavras_azuis": "VANTAGEM",
+          "subtitulo": "Um fórum para líderes que entendem que segurança não pode ser deixada para amanhã.",
+          "cta_visual": "INSCRIÇÕES ABERTAS",
+          "contexto_visual": "Em um ambiente moderno e futurista, com telas gigantes exibindo as últimas ameaças cibernéticas em tempo real, executivos atentos absorvem insights de especialistas em segurança.",
+          "legenda": "A diferença entre reagir a um risco e antecipá-lo está na abordagem estratégica.\n\nNo CybersecFEST, líderes de cibersegurança não só acompanham, eles lideram mudanças.\n\n🔹 Enfrente desafios com visão e agilidade.\n🔹 Transforme ameaças em vantagens competitivas.\n🔹 Acesse insights exclusivos e pioneiros.\n\nA era da reação acabou.\nAgora é sobre proatividade e inovação.\n\n⚠️ Não espere até ser tarde demais para agir.\n\n✅ Inscreva-se e assuma o controle do futuro da sua organização.\n\n#CybersecFEST #EstratégiaEmSegurança #CibersegurançaProativa #LiderançaCLevel #Inovação #GestãoDeRisco #SegurançaDaInformação #EventoTech #FuturoEmSegurança #SP #BH #Networking #TechLeadership #SecurityFirst",
+          "cidade": "BH e SP"
+        }
+      ],
+      "concluido_em": "2026-06-23T17:40:55.183Z",
+      "principal_id": "prop-1782236338198-oqp4q",
+      "slug_gerado": "blog-1782236441882"
+    },
+    {
+      "id": "lote-1782241708317-nq40z",
+      "status": "aguardando_aprovacao",
+      "modo": "campanha",
+      "objetivo": "patrocinadores",
+      "quantidade": 3,
+      "tipo_post": "patrocinador",
+      "tema_briefing": "Crie um post",
+      "criado_em": "2026-06-23T19:08:28.317Z",
+      "propostas": [
+        {
+          "id": "prop-1782241704604-6c8ge",
+          "angulo": "ROI sala certa",
+          "tipo_post": "patrocinador",
+          "recomendada": true,
+          "headline": "Seu investimento está na sala certa no CybersecFEST",
+          "palavras_azuis": "ROI",
+          "subtitulo": "Alcance os líderes que definem o rumo da segurança digital no Brasil.",
+          "cta_visual": "SEJA PATROCINADOR",
+          "contexto_visual": "Um auditório cheio, rostos atentos, slides projetando insights sobre a tela. Executivos trocam cartões, conversam em pequenos grupos, discutem colaborações futuras. A cena é de um fervilhante caldeirão de ideias e estratégias. No centro, stands personalizados das marcas patrocinadoras atraem olhares curiosos, oportunidades de networking e parcerias ganham vida. A energia é tangível, e o potencial de ROI está visível em cada interação, cada acordo futuro sendo gestado.",
+          "legenda": "\"\"\"\nPatrocínio no CybersecFEST é mais que visibilidade. É estar na sala onde as decisões realmente acontecem.\n\nConecte-se com líderes que transformam segurança digital em estratégia. \nSua marca ganha relevância ao lado de executivos de alto calibre.\n\nParticipar significa interagir com decisões estratégicas em tempo real. \nAs parcerias formadas aqui multiplicam resultados de forma exponencial.\n\nA associação com líderes visionários começa no CybersecFEST. \nNão perca a chance de posicionar sua empresa no epicentro das conversas que moldam o futuro.\n\n✅ SEJA PATROCINADOR: [link]\n\n#CybersecFEST #PatrocínioEstratégico #ROI #CLevel #LiderançaDigital #SegurançaDaInformação #Parcerias #Networking #EventoTech #CyberSecurity #Cibersegurança #LiderançaTech #InfoSec\n\"\"\"",
+          "cidade": "BH e SP"
+        },
+        {
+          "id": "prop-1782241704604-mnp0c",
+          "angulo": "Presença estratégica",
+          "tipo_post": "patrocinador",
+          "recomendada": false,
+          "headline": "Sua marca na vanguarda da cibersegurança",
+          "palavras_azuis": "Presença",
+          "subtitulo": "Posicione sua empresa como líder no campo da inovação em segurança cibernética.",
+          "cta_visual": "SEJA PATROCINADOR",
+          "contexto_visual": "Uma sala elegante, com decoração contemporânea e tecnologia de ponta. Telões exibem logomarcas, incluindo a de sua empresa, ao lado de gigantes do setor. Líderes de diferentes segmentos compartilham cases de sucesso, enquanto outros anotam insights em tablets e laptops. Cafés gourmets servidos ao fundo, o ambiente pulsa com discussões sobre o futuro e a transformação digital. A presença de sua marca é percebida e respeitada por todos presentes.",
+          "legenda": "No CybersecFEST, sua marca não é apenas vista. É reconhecida e valorizada.\n\nAqui, inovação e estratégia se unem em um encontro de líderes do setor.\n\n🔹 Demonstre liderança em segurança digital  \n🔹 Alinhe-se aos principais influenciadores do mercado  \n🔹 Fortaleça sua posição na vanguarda da tecnologia  \n\nÉ mais que visibilidade. É posicionamento estratégico.  \nSeu espaço está na conversa que define o futuro da cibersegurança.  \n\nGaranta seu lugar entre as marcas inovadoras do setor.\n\n✅ SEJA PATROCINADOR: [link]\n\n#CybersecFEST #Cibersegurança #Inovação #Liderança #CLevel #Patrocínio #Estratégia #SegurançaDigital #Networking #Parcerias #Tecnologia #Vanguarda #Influenciadores #EmpresasLíderes",
+          "cidade": "BH e SP"
+        },
+        {
+          "id": "prop-1782241704604-m763k",
+          "angulo": "Visibilidade C-Level",
+          "tipo_post": "evento",
+          "recomendada": false,
+          "headline": "A vitrine ideal para líderes de alto impacto",
+          "palavras_azuis": "Visibilidade",
+          "subtitulo": "Participe do evento exclusivo que conecta marcas a líderes decisivos no cenário digital.",
+          "cta_visual": "SEJA PATROCINADOR",
+          "contexto_visual": "No coração de um centro de convenções de renome, há uma atmosfera de expectativa e inovação. O evento reúne os mais brilhantes nomes do setor de cibersegurança. Telões mostram apresentações de alto nível, enquanto estandes interativos capturam o interesse dos participantes. Conversas animadas ressoam sobre novas tendências e tecnologias, um emaranhado de cliques de câmeras registra momentos importantes. Sua marca brilha nesse cenário repleto de decisões estratégicas e colaborações futuras.",
+          "legenda": "\"\"\"\nQuer que sua marca seja vista pelos que decidem? O CybersecFEST é a vitrine ideal.\n\nAqui, sua empresa se destaca diante dos líderes que estão moldando o futuro.\n\n🔹 Conexão direta com C-Levels influentes.\n🔹 Ambiente propício para negócios e inovação.\n🔹 Parcerias que impulsionam crescimento.\n\nNão é apenas sobre aparecer. É sobre impactar.\n\n🔒 As oportunidades para patrocínio são limitadas.\n\n✅ SEJA PATROCINADOR: [link]\n\n#CybersecFEST #CLevel #Visibilidade #Patrocínio #Inovação #Liderança #Tecnologia #EventoExclusivo #Networking #Cibersegurança #Empreendedorismo #TechEvent\n\"\"\"",
+          "cidade": "BH e SP"
+        }
+      ]
     }
   ]
 }

@@ -4,6 +4,11 @@ const { generateText } = require('./utils/llm.js');
 const { buildReferenciaCopyBlock, getMinLegendaChars, legendaDentroDoPadrao, contarLinhasCorpo, REGRAS_LEGENDA } = require('./utils/referencia-copy.js');
 const { suggestCtaExamples } = require('./utils/cta-pill.js');
 const {
+  HEADLINE_PROMPT_BLOCK,
+  enforceHeadlineText,
+  normalizePalavrasAzuis,
+} = require('./utils/headline-rules.js');
+const {
   loadStore, saveStore, newId, getLoteAguardando, countBanco, BANCO_MAX,
 } = require('./utils/propostas-store.js');
 
@@ -60,6 +65,8 @@ IMPORTANTE: posts MEDIANOS — ${REGRAS_LEGENDA.linhasCorpoIdeal[0]}–${REGRAS_
 
   const prompt = `${refBlock}
 
+${HEADLINE_PROMPT_BLOCK}
+
 Crie EXATAMENTE 3 rotas editoriais DISTINTAS para um post do CybersecFEST 2026.
 Cada rota deve ter um ÂNGULO diferente (ex.: FOMO de exclusividade, confraria vs palco, ROI para patrocinador, risco estratégico, etc.).
 ${temaExtra}${extraLong}
@@ -78,8 +85,8 @@ RETORNE APENAS JSON válido (sem markdown):
     {
       "angulo": "nome curto do ângulo (3-6 palavras)",
       "recomendada": false,
-      "headline": "8 a 14 palavras, impacto manifesto, nunca começa com O CybersecFEST",
-      "palavras_azuis": "1-3 palavras da headline, vírgula",
+      "headline": "máx 10 palavras, impacto manifesto; use <br> para até 5 linhas se couber",
+      "palavras_azuis": "1-3 palavras DA HEADLINE, vírgula",
       "subtitulo": "1 frase completa de convite, 15-25 palavras",
       "cta_visual": "opcional — mensagem curta para pill CTA na arte (máx 4 palavras, UPPERCASE). Exemplos: ${ctaExemplos}. Use quando couber inscrição, patrocínio ou urgência. Omita ou string vazia se não aplicável.",
       "contexto_visual": "descrição DETALHADA da cena fotográfica (80-200 palavras): quem/o quê, onde (cidade + marco se pedido), luz, atmosfera — SEM texto na cena. Se o briefing pedir ponto turístico, cite o monumento explicitamente (ex: MASP na Av. Paulista, Copan, Ibirapuera, Theatro Municipal)",
@@ -98,16 +105,13 @@ RETORNE APENAS JSON válido (sem markdown):
   if (!Array.isArray(list) || list.length < 1) throw new Error('JSON sem array propostas');
 
   const propostas = list.slice(0, 3).map((p, i) => {
-    let headline = (p.headline || '').trim();
-    if (headline.toLowerCase().startsWith('o cybersecfest')) {
-      headline = headline.replace(/^o cybersecfest\s*/i, '');
-    }
+    const { headline } = enforceHeadlineText(p.headline || '');
     return {
       id: newId('prop'),
       angulo: p.angulo || `Rota ${i + 1}`,
       recomendada: !!p.recomendada,
       headline,
-      palavras_azuis: p.palavras_azuis || '',
+      palavras_azuis: normalizePalavrasAzuis(headline, p.palavras_azuis || ''),
       subtitulo: p.subtitulo || '',
       cta_visual: (p.cta_visual || '').trim(),
       contexto_visual: p.contexto_visual || '',
@@ -186,4 +190,4 @@ async function criarLotePropostas({ tipoPost, tema = '', temas }) {
   return lote;
 }
 
-module.exports = { criarLotePropostas, gerarRotasLLM };
+module.exports = { criarLotePropostas, gerarRotasLLM, expandirLegenda };

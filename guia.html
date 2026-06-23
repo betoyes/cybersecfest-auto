@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CybersecFEST — Guia rápido do portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@700&family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #02050A;
+  --surface: #0a1020;
+  --surface-2: #0c1828;
+  --border: rgba(20,168,244,0.12);
+  --blue: #14A8F4;
+  --white: #F6F8FF;
+  --lav: #c8cddc;
+  --muted: #6b7a94;
+  --warn: #fbbf24;
+  --ok: #2ecc71;
+  --header-h: 58px;
+  --subnav-h: 44px;
+  --page-pad: clamp(18px, 4vw, 40px);
+  --radius: 12px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body.has-page-subnav {
+  background: var(--bg);
+  color: var(--white);
+  font-family: 'Montserrat', sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  min-height: 100vh;
+  background-image:
+    radial-gradient(ellipse 90% 50% at 50% -10%, rgba(20,168,244,0.08), transparent 55%);
+}
+a { color: var(--blue); text-decoration: none; }
+a:hover { text-decoration: underline; }
+code, kbd {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.85em;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 4px;
+  padding: 1px 6px;
+  color: #3ec8ff;
+}
+kbd { border-color: rgba(20,168,244,0.25); }
+
+.site-header {
+  position: sticky; top: 0; z-index: 200;
+  height: var(--header-h);
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding: 0 var(--page-pad);
+  background: rgba(2,5,10,0.88);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+}
+.site-header h1 {
+  font-family: 'Ubuntu', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+.site-header h1 span { color: var(--blue); }
+.site-header .sub { font-size: 0.72rem; color: var(--muted); font-weight: 500; margin-top: 1px; }
+.nav-top { display: flex; gap: 14px; font-size: 0.72rem; font-weight: 600; flex-shrink: 0; }
+
+main { max-width: 920px; margin: 0 auto; padding: 0 var(--page-pad) 80px; }
+
+.hero {
+  padding: 36px 0 20px;
+}
+.hero-badge {
+  display: inline-block;
+  font-size: 0.65rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--blue); background: rgba(20,168,244,0.1); border: 1px solid rgba(20,168,244,0.28);
+  padding: 5px 10px; border-radius: 999px; margin-bottom: 14px;
+}
+.hero h2 {
+  font-family: 'Ubuntu', sans-serif;
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  line-height: 1.25;
+  margin-bottom: 10px;
+}
+.hero p { color: var(--lav); max-width: 640px; font-size: 0.92rem; }
+.hero-steps {
+  margin-top: 18px;
+  display: flex; flex-wrap: wrap; gap: 10px;
+}
+.hero-step {
+  flex: 1 1 200px;
+  padding: 12px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 0.8rem;
+}
+.hero-step strong { display: block; color: var(--white); margin-bottom: 4px; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; }
+
+.page-subnav {
+  position: sticky;
+  top: var(--header-h);
+  z-index: 150;
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  padding: 8px 0;
+  margin-bottom: 8px;
+  background: rgba(2,5,10,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  scrollbar-width: none;
+}
+.page-subnav::-webkit-scrollbar { display: none; }
+.page-subnav a {
+  flex-shrink: 0;
+  padding: 6px 12px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  border-radius: 999px;
+  border: 1px solid transparent;
+  text-decoration: none;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+.page-subnav a:hover { color: var(--white); }
+.page-subnav a.is-active {
+  color: var(--blue);
+  background: rgba(20,168,244,0.1);
+  border-color: rgba(20,168,244,0.28);
+}
+
+.guia-section {
+  scroll-margin-top: calc(var(--header-h) + var(--subnav-h) + 12px);
+  padding: 28px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.guia-section:last-child { border-bottom: none; }
+.sec-num {
+  font-size: 0.62rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--blue); margin-bottom: 6px;
+}
+.guia-section h3 {
+  font-family: 'Ubuntu', sans-serif;
+  font-size: 1.25rem;
+  margin-bottom: 10px;
+}
+.guia-section > p { color: var(--lav); margin-bottom: 14px; font-size: 0.9rem; }
+
+.flow-box {
+  padding: 16px 18px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin: 14px 0;
+  font-size: 0.82rem;
+  color: var(--lav);
+  overflow-x: auto;
+}
+.flow-box .chain { color: var(--white); font-weight: 600; }
+.flow-arrow { color: var(--blue); margin: 0 6px; }
+
+.steps { list-style: none; display: flex; flex-direction: column; gap: 10px; margin: 12px 0; }
+.steps li {
+  display: flex; gap: 12px; align-items: flex-start;
+  padding: 12px 14px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: var(--radius);
+  font-size: 0.86rem;
+  color: var(--lav);
+}
+.step-n {
+  flex-shrink: 0;
+  width: 26px; height: 26px;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(20,168,244,0.15);
+  border: 1px solid rgba(20,168,244,0.3);
+  color: var(--blue);
+  font-size: 0.72rem; font-weight: 700;
+  border-radius: 50%;
+}
+.steps li strong { color: var(--white); }
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px;
+  margin: 14px 0;
+}
+.feat-card {
+  padding: 14px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.feat-card h4 {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--white);
+  margin-bottom: 6px;
+}
+.feat-card p { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
+.feat-why {
+  font-size: 0.8rem;
+  color: var(--lav);
+  line-height: 1.55;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.feat-why strong { color: var(--ok); font-weight: 600; }
+.feat-where { font-size: 0.72rem; color: var(--muted); margin-top: 4px; }
+.feat-where strong { color: var(--blue); font-weight: 600; }
+
+.purpose-block {
+  margin: 16px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.purpose-item {
+  padding: 16px 18px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.purpose-item h4 {
+  font-family: 'Ubuntu', sans-serif;
+  font-size: 0.95rem;
+  color: var(--white);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.purpose-num {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--blue);
+  background: rgba(20,168,244,0.12);
+  border: 1px solid rgba(20,168,244,0.25);
+  padding: 2px 7px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+.purpose-label {
+  display: block;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ok);
+  margin-bottom: 4px;
+}
+.purpose-item p { font-size: 0.86rem; color: var(--lav); line-height: 1.55; }
+.purpose-meta {
+  margin-top: 10px;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+.purpose-meta strong { color: var(--blue); font-weight: 600; }
+.purpose-group-title {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 20px 0 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.purpose-group-title:first-child { margin-top: 0; }
+.feat-tag {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--blue);
+  background: rgba(20,168,244,0.1);
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+
+.tip {
+  margin-top: 12px;
+  padding: 10px 14px;
+  border-left: 3px solid var(--blue);
+  background: rgba(20,168,244,0.06);
+  font-size: 0.82rem;
+  color: var(--lav);
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+.tip.warn { border-color: var(--warn); background: rgba(251,191,36,0.08); }
+
+.api-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.78rem;
+  margin: 12px 0;
+}
+.api-table th, .api-table td {
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.api-table th { color: var(--muted); font-weight: 600; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em; }
+.api-table td:first-child { color: #3ec8ff; font-family: ui-monospace, monospace; white-space: nowrap; }
+
+.hl-demo {
+  font-family: 'Ubuntu', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  padding: 14px 16px;
+  background: #02050A;
+  border: 1px solid rgba(20,168,244,0.2);
+  border-radius: var(--radius);
+  margin: 10px 0;
+}
+.hl-demo .azul { color: #14A8F4; }
+.hl-meta { font-size: 0.72rem; color: var(--muted); margin-top: 6px; }
+
+.site-footer {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 24px var(--page-pad) 40px;
+  border-top: 1px solid var(--border);
+  font-size: 0.75rem;
+  color: var(--muted);
+  text-align: center;
+}
+
+@media (max-width: 640px) {
+  .nav-top { display: none; }
+  .hero-steps { flex-direction: column; }
+}
+</style>
+</head>
+<body class="has-page-subnav">
+
+<header class="site-header">
+  <div>
+    <h1>Cybersec<span>FEST</span> — Guia</h1>
+    <div class="sub">Tutorial rápido do portal e do pipeline</div>
+  </div>
+  <nav class="nav-top" aria-label="Links rápidos">
+    <a href="index.html">← Galeria</a>
+    <a href="galeria-templates/index.html">Templates</a>
+    <a href="layouts-diagramacao.html">Diagramação</a>
+  </nav>
+</header>
+
+<main>
+  <section class="hero" id="inicio">
+    <span class="hero-badge">Atualizado · jun 2026</span>
+    <h2>Tudo que o site faz — e para que serve</h2>
+    <p>Cada ferramenta do portal existe para resolver um problema editorial concreto: economizar crédito de imagem, evitar surpresas no layout, manter a galeria limpa e publicar mais rápido.</p>
+    <div class="hero-steps">
+      <div class="hero-step">
+        <strong>1 · Subir o servidor</strong>
+        <code>cd _scripts && npm run dev</code><br>
+        Abra <a href="http://127.0.0.1:8765/">127.0.0.1:8765</a>
+      </div>
+      <div class="hero-step">
+        <strong>2 · Gerar copy</strong>
+        Briefing no painel superior ou campanha com 3–10 peças
+      </div>
+      <div class="hero-step">
+        <strong>3 · Aprovar e publicar</strong>
+        Escolha a rota → imagem IA + HTML + legenda na galeria
+      </div>
+    </div>
+  </section>
+
+  <nav class="page-subnav" id="pageSubnav" aria-label="Seções do guia">
+    <a href="#funcionalidades" data-subnav-anchor>Para quê?</a>
+    <a href="#fluxo" data-subnav-anchor>Fluxo</a>
+    <a href="#galeria" data-subnav-anchor>Galeria</a>
+    <a href="#pedido" data-subnav-anchor>Pedido</a>
+    <a href="#propostas" data-subnav-anchor>Propostas</a>
+    <a href="#campanha" data-subnav-anchor>Campanha</a>
+    <a href="#editor" data-subnav-anchor>Editor</a>
+    <a href="#acervo" data-subnav-anchor>Acervo</a>
+    <a href="#extras" data-subnav-anchor>Extras</a>
+    <a href="#auto" data-subnav-anchor>Automação</a>
+  </nav>
+
+  <!-- PARA QUE SERVE -->
+  <section class="guia-section" id="funcionalidades">
+    <div class="sec-num">Guia rápido</div>
+    <h3>Para que serve cada funcionalidade</h3>
+    <p>Resumo do <strong>porquê</strong> de cada peça do sistema — não só o que ela faz, mas qual problema ela resolve no dia a dia.</p>
+
+    <div class="purpose-group-title">Galeria e publicação</div>
+    <div class="purpose-block">
+      <article class="purpose-item">
+        <h4><span class="purpose-num">Galeria</span> Acervo de artes publicadas</h4>
+        <span class="purpose-label">Para que serve</span>
+        <p>Centralizar tudo que já foi gerado em um só lugar — visual, legenda pronta e metadados — para copiar e publicar no Instagram/LinkedIn sem caçar arquivos no GitHub.</p>
+        <div class="purpose-meta"><strong>Onde:</strong> página principal <code>index.html</code> · clique no card abre o modal</div>
+      </article>
+      <article class="purpose-item">
+        <h4><span class="purpose-num">Modal + legenda</span> Copy pronta para redes</h4>
+        <span class="purpose-label">Para que serve</span>
+        <p>Evitar reescrever legenda na hora de postar. A IA já gerou texto FOMO/aspiracional; você só copia e cola no agendador social.</p>
+        <div class="purpose-meta"><strong>Onde:</strong> clique no card · botão <strong>⎘ Copiar</strong> na seção Legenda pronta</div>
+      </article>
+      <article class="purpose-item">
+        <h4><span class="purpose-num">3</span> Filtro backup / teste</h4>
+        <span class="purpose-label">Para que serve</span>
+        <p>Manter a galeria <em>apresentável</em> para revisão ou demo, escondendo posts de teste, rascunhos e backups que poluem o acervo mas ainda precisam existir no repo.</p>
+        <div class="purpose-meta"><strong>Onde:</strong> barra acima da grade · toggle <strong>Mostrar testes / backup</strong> · padrão = ocultos</div>
+      </article>
+    </div>
+
+    <div class="purpose-group-title">Fluxo editorial (antes da imagem)</div>
+    <div class="purpose-block">
+      <article class="purpose-item">
+        <h4><span class="purpose-num">Pedido</span> Briefing → 3 propostas</h4>
+        <span class="purpose-label">Para que serve</span>
+        <p>Gerar opções de copy <strong>sem gastar crédito de imagem</strong>. Você escolhe a melhor rota editorial antes de comprometer tempo e API de geração visual.</p>
+        <div class="purpose-meta"><strong>Onde:</strong> painel superior · campo de briefing + botão <strong>✦</strong></div>
+      </article>
+      <article class="purpose-item">
+        <h4><span class="purpose-num">9</span> Calendário editorial</h4>
+        <span class="purpose-label">Para que serve</span>
+        <p>Lembrar qual tipo de post cabe em cada dia (seg = blog, qua = palestrante, sex = evento) e reduzir decisão manual — alinhado ao pipeline automático e ao <code>temas.json</code>.</p>
+        <div class="purpose-meta"><strong>Onde:</strong> barra Seg / Qua / Sex abaixo do painel de pedido · destaca o dia de hoje</div>
+      </article>
+      <article class="purpose-item">
+        <h4><span class="purpose-num">2</span> Preview do título na aprovação</h4>
+        <span class="purpose-label">Para que serve</span>
+        <p>Ver como o título vai <em>cair na arte</em> — quebras de linha, palavra azul e contagem — <strong>antes</strong> de gerar a imagem. Evita surpresas como título cortado ou destaque azul errado.</p>
+        <div class="purpose-meta"><strong>Onde:</strong> overlay de propostas/campanha · mini-preview em cada card + <code>X/10 · Y/5</code></div>
+      </article>
+      <article class="purpose-item">
+        <h4><span class="purpose-num">Banco</span> Reserva de copy aprovada</h4>
+        <span class="purpose-label">Para que serve</span>
+        <p>Não perder rotas boas que você não escolheu como principal. Guarda texto aprovado para gerar o visual depois, numa fila, sem refazer briefing.</p>
+        <div class="purpose-meta"><strong>Onde:</strong> overlay · checkbox <strong>Guardar no banco</strong> · painel Acervo → aba Banco</div>
+      </article>
+    </div>
+
+    <div class="purpose-group-title">Campanha e formatos</div>
+    <div class="purpose-block">
+      <article class="purpose-item">
+        <h4><span class="purpose-num">Campanha</span> 3–10 peças de uma vez</h4>
+        <span class="purpose-label">Para que serve</span>
+        <p>Planejar uma semana de conteúdo ou um push de patrocínio/inscrições com peças <strong>distintas mas coesas</strong> — sem repetir o fluxo de 3 propostas dez vezes.</p>
+        <div class="purpose-meta"><strong>Onde:</strong> painel de pedido → <strong>Modo campanha</strong> · objetivo + quantidade</div>
+      </article>
+      <article class="purpose-item">
+        <h4><span class="purpose-num">5</span> Formato por peça</h4>
+        <span class="purpose-label">Para que serve</span>
+        <p>Variety de canal: feed vertical, quadrado e stories na mesma campanha, sem decidir manualmente peça a peça. O sistema já rota o formato ideal para cada slot.</p>
+        <div class="purpose-meta"><strong>Onde:</strong> cards da campanha mostram badge Vertical / Quadrado / Stories · editor herda o formato ao gerar</div>
+      </article>
+      <article class="purpose-item">
+        <h4><span class="purpose-num">11</span> Export pack ZIP</h4>
+        <span class="purpose-label">Para que serve</span>
+        <p>Entregar copy e legendas ao time de mídia, agência ou calendário externo <strong>sem acesso ao repo</strong> — um ZIP por pasta com headline, legenda e metadados (e PNG/HTML quando já existirem).</p>
+        <div class="purpose-meta"><strong>Onde:</strong> overlay de campanha · botão <strong>⬇ Pack ZIP</strong></div>
+      </article>
+    </div>
+
+    <div class="purpose-group-title">Qualidade de headline</div>
+    <div class="purpose-block">
+      <article class="purpose-item">
+        <h4><span class="purpose-num">1</span> Contador no editor</h4>
+        <span class="purpose-label">Para que serve</span>
+        <p>Feedback imediato ao ajustar título no editor — você vê se estourou 10 palavras ou 5 linhas <em>antes</em> de exportar PNG, em vez de descobrir só no log do pipeline.</p>
+        <div class="purpose-meta"><strong>Onde:</strong> <code>arte.html</code> · painel direito → seção <strong>Título</strong> · atualiza em tempo real</div>
+      </article>
+      <article class="purpose-item">
+        <h4><span class="purpose-num">4</span> Guardian + regras de headline</h4>
+        <span class="purpose-label">Para que serve</span>
+        <p>Auditoria diária automática: nenhuma arte no acervo fica com headline inválida sem aviso. Transforma regra editorial em <strong>contrato</strong>, não só convenção no prompt da IA.</p>
+        <div class="purpose-meta"><strong>Onde:</strong> roda às 07h BRT via GitHub Actions · alertas no relatório do Guardian</div>
+      </article>
+      <article class="purpose-item">
+        <h4><span class="purpose-num">Regras</span> 10 palavras · 5 linhas · azul</h4>
+        <span class="purpose-label">Para que serve</span>
+        <p>Garantir que o título caiba nos layouts A–Q e que o destaque azul (#14A8F4) sempre corresponda a palavras reais da headline — legibilidade e consistência visual da marca.</p>
+        <div class="purpose-meta"><strong>Onde:</strong> pipeline, editor, preview de propostas e Guardian aplicam a mesma regra</div>
+      </article>
+    </div>
+
+    <div class="purpose-group-title">Editor e ferramentas</div>
+    <div class="purpose-block">
+      <article class="purpose-item">
+        <h4><span class="purpose-num">Editor v3</span> Ajuste fino visual</h4>
+        <span class="purpose-label">Para que serve</span>
+        <p>Corrigir enquadramento da foto IA, posição do logo/título e CTA sem regerar imagem — economia de crédito e controle criativo pós-geração.</p>
+        <div class="purpose-meta"><strong>Onde:</strong> modal → <strong>Abrir Editor</strong> · ou <code>artes/{slug}/arte.html</code></div>
+      </article>
+      <article class="purpose-item">
+        <h4><span class="purpose-num">Templates A–Q</span> Validação de layout</h4>
+        <span class="purpose-label">Para que serve</span>
+        <p>Testar diagramação e editor com copy fixo, isolado do acervo real — útil para aprovar padrão visual de cada letra antes de ir para produção.</p>
+        <div class="purpose-meta"><strong>Onde:</strong> <a href="galeria-templates/index.html">galeria-templates</a> · Comparar · Diagramação</div>
+      </article>
+      <article class="purpose-item">
+        <h4><span class="purpose-num">Acervo</span> Painel de distribuição</h4>
+        <span class="purpose-label">Para que serve</span>
+        <p>Entender o que já foi produzido — quais layouts, cidades e variantes de legenda dominam — para equilibrar rotação editorial e não repetir demais o mesmo layout.</p>
+        <div class="purpose-meta"><strong>Onde:</strong> aba <strong>Acervo</strong> no canto direito da galeria</div>
+      </article>
+      <article class="purpose-item">
+        <h4><span class="purpose-num">Pipeline</span> Publicação automática</h4>
+        <span class="purpose-label">Para que serve</span>
+        <p>Manter presença nas redes mesmo sem abrir o portal — seg/qua/sex gera e publica uma arte seguindo o calendário, sem intervenção manual.</p>
+        <div class="purpose-meta"><strong>Onde:</strong> GitHub Actions · 08h BRT · resultado aparece na galeria</div>
+      </article>
+    </div>
+  </section>
+
+  <!-- FLUXO -->
+  <section class="guia-section" id="fluxo">
+    <div class="sec-num">01</div>
+    <h3>Mapa do fluxo editorial</h3>
+    <p>O portal separa <strong>texto</strong> (barato, rápido) de <strong>visual</strong> (imagem IA + HTML). Você sempre revisa a copy antes de gastar crédito de imagem.</p>
+    <div class="flow-box">
+      <span class="chain">Briefing</span>
+      <span class="flow-arrow">→</span>
+      <span class="chain">3 propostas ou campanha (3–10)</span>
+      <span class="flow-arrow">→</span>
+      <span class="chain">Aprovação humana</span>
+      <span class="flow-arrow">→</span>
+      <span class="chain">Imagem + layout A–Q</span>
+      <span class="flow-arrow">→</span>
+      <span class="chain">Galeria + legenda</span>
+    </div>
+    <div class="flow-box">
+      <span class="chain">Propostas não escolhidas</span>
+      <span class="flow-arrow">→</span>
+      <span class="chain">Banco editorial</span>
+      <span class="flow-arrow">→</span>
+      <span class="chain">Gerar visual depois</span>
+    </div>
+    <div class="tip">Use <kbd>Esc</kbd> para fechar modais e overlays. Links diretos: <code>index.html#arte=slug-da-arte</code> reabre o modal da arte.</div>
+  </section>
+
+  <!-- GALERIA -->
+  <section class="guia-section" id="galeria">
+    <div class="sec-num">02</div>
+    <h3>Galeria de artes</h3>
+    <p><strong>Para que serve:</strong> ser o ponto único de consulta e publicação — ver a arte, copiar legenda e abrir o editor sem navegar pastas no repositório.</p>
+    <ol class="steps">
+      <li><span class="step-n">1</span><div><strong>Clique no card</strong> — abre o modal com preview, metadados e legenda completa pronta para copiar.</div></li>
+      <li><span class="step-n">2</span><div><strong>Hover no card</strong> — atalhos: Legenda · Editar · PNG.</div></li>
+      <li><span class="step-n">3</span><div><strong>Abrir Editor</strong> — vai para <code>artes/{slug}/arte.html</code> com painel visual v3.</div></li>
+      <li><span class="step-n">4</span><div><strong>Filtro backup</strong> — toggle “Mostrar testes / backup”. <em>Para quê:</em> esconder rascunhos de teste da vista principal; a galeria fica limpa para revisão e apresentação.</div></li>
+    </ol>
+    <div class="feature-grid">
+      <div class="feat-card">
+        <h4>Modal de legenda</h4>
+        <p class="feat-why"><strong>Para que serve:</strong> publicar no social em segundos — legenda completa, metadados e preview num só lugar.</p>
+        <p>Badge do tipo, headline, subtítulo, palavras azuis, cidade, layout, formato e botão copiar legenda.</p>
+        <span class="feat-tag">◀ Legenda recolhe o painel</span>
+      </div>
+      <div class="feat-card">
+        <h4>Badge de layout</h4>
+        <p>Canto do thumb mostra a letra A–Q e o nome do layout ao passar o mouse.</p>
+      </div>
+      <div class="feat-card">
+        <h4>Contador no header</h4>
+        <p>“Ao vivo · N artes” reflete apenas artes visíveis (sem backup, se o filtro estiver desligado).</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PEDIDO -->
+  <section class="guia-section" id="pedido">
+    <div class="sec-num">03</div>
+    <h3>Pedido de post e calendário</h3>
+    <p><strong>Para que serve:</strong> iniciar conteúdo novo sob demanda — com briefing livre ou seguindo o ritmo editorial da semana.</p>
+    <ol class="steps">
+      <li><span class="step-n">1</span><div><strong>Campo de briefing</strong> — descreva tema, tom, cidade, sugestão de fundo (MASP, Paulista…). Vazio = calendário automático.</div></li>
+      <li><span class="step-n">2</span><div><strong>Botão ✦</strong> — dispara <code>POST /api/pedido</code> e retorna 3 propostas de texto.</div></li>
+      <li><span class="step-n">3</span><div><strong>Calendário editorial</strong> — barra Seg / Qua / Sex. <em>Para quê:</em> saber qual tipo de post publicar hoje sem abrir planilha ou <code>temas.json</code>; alinha time humano e automação.</div></li>
+    </ol>
+    <div class="tip warn">Sem <code>npm run dev</code>, a galeria só exibe artes já publicadas — o painel de pedido não funciona.</div>
+  </section>
+
+  <!-- PROPOSTAS -->
+  <section class="guia-section" id="propostas">
+    <div class="sec-num">04</div>
+    <h3>Aprovação de propostas (3 rotas)</h3>
+    <p><strong>Para que serve:</strong> gate de qualidade antes da imagem — você valida copy, título e CTA enquanto ainda é barato mudar de ideia.</p>
+    <ol class="steps">
+      <li><span class="step-n">1</span><div><strong>Preview do título</strong> — mini-thumb com quebras e azul. <em>Para quê:</em> detectar título longo, quebra ruim ou palavra azul incorreta <strong>antes</strong> de gastar crédito de imagem.</div></li>
+      <li><span class="step-n">2</span><div><strong>Edite o CTA visual</strong> — campo por peça (ex.: INSCRIÇÕES ABERTAS). Aparece nos layouts E, J, L, O, P.</div></li>
+      <li><span class="step-n">3</span><div><strong>GERAR IMAGEM</strong> — radio na peça principal → gera visual agora.</div></li>
+      <li><span class="step-n">4</span><div><strong>Guardar no banco</strong> — checkbox nas outras rotas → copy reservada para gerar depois.</div></li>
+      <li><span class="step-n">5</span><div><strong>Sugestão de imagem</strong> — textarea opcional para forçar cenário visual na geração.</div></li>
+    </ol>
+    <div class="hl-demo">
+      O encontro que<br><span class="azul">redefine</span><br>cyber no Brasil
+      <div class="hl-meta">7/10 palavras · 3/5 linhas · azul: redefine</div>
+    </div>
+    <div class="tip">Rejeitar lote descarta todas as propostas. Se já houver lote pendente, o sistema pede confirmação antes de gerar outro.</div>
+  </section>
+
+  <!-- CAMPANHA -->
+  <section class="guia-section" id="campanha">
+    <div class="sec-num">05</div>
+    <h3>Modo campanha (3–10 peças)</h3>
+    <p><strong>Para que serve:</strong> produzir um lote editorial completo (semana de lançamento, push de patrocínio, etc.) numa única sessão, com variedade de tipo e formato.</p>
+    <div class="feature-grid">
+      <div class="feat-card">
+        <h4>Objetivos</h4>
+        <p>Inscrições · Patrocinadores · Palestrantes · Agenda — cada um com sequência de tipos de post.</p>
+      </div>
+      <div class="feat-card">
+        <h4>Formato por peça</h4>
+        <p class="feat-why"><strong>Para que serve:</strong> cobrir feed, quadrado e stories na mesma campanha — sem planejar formato manualmente em cada peça.</p>
+        <p>Rotação: Feed Vertical → Quadrado → Stories → Vertical… Cada card mostra o formato planejado.</p>
+      </div>
+      <div class="feat-card">
+        <h4>Pack ZIP</h4>
+        <p class="feat-why"><strong>Para que serve:</strong> handoff para mídia/agência — legendas e copy organizadas por pasta, prontas para agendar fora do portal.</p>
+        <p>Botão <strong>⬇ Pack ZIP</strong> exporta copy, legendas e headlines — inclui PNG/HTML se já gerados.</p>
+      </div>
+    </div>
+    <ol class="steps">
+      <li><span class="step-n">1</span><div>Abra <strong>Modo campanha</strong> no painel de pedido.</div></li>
+      <li><span class="step-n">2</span><div>Escolha objetivo e quantidade (3–10).</div></li>
+      <li><span class="step-n">3</span><div>Revise no overlay — mesma UI de propostas, com badge de formato.</div></li>
+      <li><span class="step-n">4</span><div>Baixe o pack antes de aprovar, se quiser enviar copy ao time de mídia.</div></li>
+    </ol>
+  </section>
+
+  <!-- EDITOR -->
+  <section class="guia-section" id="editor">
+    <div class="sec-num">06</div>
+    <h3>Editor visual v3</h3>
+    <p><strong>Para que serve:</strong> polimento final sem regerar IA — reposicionar foto, título e CTA até a arte ficar publicável.</p>
+    <div class="feature-grid">
+      <div class="feat-card">
+        <h4>Painel Fundo</h4>
+        <p>Posição, zoom, opacidade, espelhar, saturação, overlay e cor do canvas.</p>
+      </div>
+      <div class="feat-card">
+        <h4>Painel Elementos</h4>
+        <p>Logo, título, subtítulo, CTA pill e ecossistema — alinhamento, escala e deslocamento.</p>
+      </div>
+      <div class="feat-card">
+        <h4>Contador headline</h4>
+        <p class="feat-why"><strong>Para que serve:</strong> evitar exportar arte com título inválido — você vê palavras, linhas e palavras azuis enquanto ajusta o layout.</p>
+        <p>No painel Título: contador em tempo real + aviso se estourar as regras editoriais.</p>
+      </div>
+      <div class="feat-card">
+        <h4>Formato de export</h4>
+        <p class="feat-why"><strong>Para que serve:</strong> gerar PNG no tamanho certo para cada rede (feed 4:5, quadrado, stories) a partir da mesma arte base.</p>
+        <p>Seletor no topo: Vertical 4:5 · Quadrado 1:1 · Stories 9:16.</p>
+      </div>
+      <div class="feat-card">
+        <h4>💾 Salvar</h4>
+        <p>Persiste estado do editor e regenera thumb (requer servidor local).</p>
+      </div>
+      <div class="feat-card">
+        <h4>⬇ Exportar PNG</h4>
+        <p>Export na resolução do formato escolhido (1080×1350, 1080×1080 ou 1080×1920).</p>
+      </div>
+    </div>
+    <div class="tip">Templates A–Q em <a href="galeria-templates/index.html">galeria-templates</a> usam o mesmo editor — salvar um template promove o padrão do layout.</div>
+  </section>
+
+  <!-- ACERVO -->
+  <section class="guia-section" id="acervo">
+    <div class="sec-num">07</div>
+    <h3>Painel lateral — Acervo e banco</h3>
+    <p>Aba <strong>Acervo</strong> no canto direito abre estatísticas e o banco editorial.</p>
+    <div class="feature-grid">
+      <div class="feat-card">
+        <h4>Diagramação</h4>
+        <p>Distribuição de layouts A–Q no acervo.</p>
+      </div>
+      <div class="feat-card">
+        <h4>Cidade</h4>
+        <p>Frequência BH, SP, etc.</p>
+      </div>
+      <div class="feat-card">
+        <h4>Legenda A/B</h4>
+        <p>Variantes FOMO vs aspiracional (pipeline legado).</p>
+      </div>
+      <div class="feat-card">
+        <h4>Banco</h4>
+        <p>Reservas de copy aprovada. Botão “Gerar visual do próximo” consome a fila.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXTRAS -->
+  <section class="guia-section" id="extras">
+    <div class="sec-num">08</div>
+    <h3>Ferramentas auxiliares</h3>
+    <div class="feature-grid">
+      <div class="feat-card">
+        <h4><a href="galeria-templates/index.html">Templates A–Q</a></h4>
+        <p>17 layouts com copy genérico para validar diagramação e editor.</p>
+      </div>
+      <div class="feat-card">
+        <h4><a href="galeria-templates/comparar.html">Comparar</a></h4>
+        <p>Veja o mesmo conteúdo em layouts lado a lado.</p>
+      </div>
+      <div class="feat-card">
+        <h4><a href="layouts-diagramacao.html">Diagramação</a></h4>
+        <p>Mapa visual de zonas, tipografia e regras de cada layout.</p>
+      </div>
+    </div>
+    <h3 style="margin-top:24px;font-family:Ubuntu,sans-serif;font-size:1rem;">Regras de headline</h3>
+    <p style="color:var(--lav);font-size:0.88rem;margin-bottom:10px;">Contrato editorial aplicado no pipeline, no editor e no Guardian diário.</p>
+    <ul class="steps" style="list-style:none;">
+      <li><span class="step-n">≤</span><div><strong>10 palavras</strong> no total (contagem única, mesmo com quebras).</div></li>
+      <li><span class="step-n">≤</span><div><strong>5 linhas</strong> com <code>&lt;br&gt;</code> quando couber na arte.</div></li>
+      <li><span class="step-n">🔵</span><div><strong>palavras_azuis</strong> — 1–3 palavras que existem literalmente na headline (destaque #14A8F4).</div></li>
+      <li><span class="step-n">✕</span><div>Nunca começar com “O CybersecFEST”.</div></li>
+    </ul>
+  </section>
+
+  <!-- AUTOMAÇÃO -->
+  <section class="guia-section" id="auto">
+    <div class="sec-num">09</div>
+    <h3>Automação em segundo plano</h3>
+    <p><strong>Para que serve:</strong> manter o acervo saudável e publicação regular mesmo quando ninguém está no portal.</p>
+    <div class="feature-grid">
+      <div class="feat-card">
+        <h4>Pipeline</h4>
+        <p>Seg · Qua · Sex às 08h BRT — briefing → imagem → HTML → legenda → publicação.</p>
+      </div>
+      <div class="feat-card">
+        <h4>Guardian</h4>
+        <p class="feat-why"><strong>Para que serve:</strong> detectar artes com headline fora da regra, repo corrompido ou deploy offline — antes que o problema acumule.</p>
+        <p>Diário 07h BRT — backup integral, Vercel, commits externos, alertas de headline em <code>artes.json</code>.</p>
+      </div>
+      <div class="feat-card">
+        <h4>Layouts A–Q</h4>
+        <p>Rotação sem repetir layout no mesmo ciclo por tipo de post.</p>
+      </div>
+    </div>
+    <table class="api-table" aria-label="APIs do servidor local">
+      <thead>
+        <tr><th>Endpoint</th><th>Uso</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>POST /api/pedido</td><td>Gerar 3 propostas ou post direto</td></tr>
+        <tr><td>POST /api/campanha</td><td>Lote de 3–10 peças</td></tr>
+        <tr><td>GET /api/propostas</td><td>Estado do lote e banco</td></tr>
+        <tr><td>POST /api/propostas/aprovar</td><td>Gerar visual da peça escolhida</td></tr>
+        <tr><td>GET /api/campanha/export</td><td>Download ZIP da campanha</td></tr>
+        <tr><td>GET /api/temas/calendario</td><td>Calendário Seg/Qua/Sex</td></tr>
+        <tr><td>POST /api/arte/salvar</td><td>Salvar ajustes do editor</td></tr>
+      </tbody>
+    </table>
+    <div class="tip">Documentação completa para IAs: <code>DOCS.md</code> e <code>AGENTS.md</code> na raiz do repositório.</div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  CybersecFEST 2026 — Guia do portal · <a href="index.html">Voltar à galeria</a>
+</footer>
+
+<script>
+(function () {
+  const nav = document.getElementById('pageSubnav');
+  if (!nav) return;
+  const links = [...nav.querySelectorAll('[data-subnav-anchor]')];
+  const sections = links
+    .map(a => document.querySelector(a.getAttribute('href')))
+    .filter(Boolean);
+
+  links.forEach(a => {
+    a.addEventListener('click', e => {
+      const id = a.getAttribute('href');
+      const el = document.querySelector(id);
+      if (!el) return;
+      e.preventDefault();
+      el.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+      history.replaceState(null, '', id);
+    });
+  });
+
+  if (!sections.length || !('IntersectionObserver' in window)) return;
+  const obs = new IntersectionObserver(entries => {
+    const visible = entries.filter(e => e.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+    if (!visible) return;
+    const id = '#' + visible.target.id;
+    links.forEach(a => a.classList.toggle('is-active', a.getAttribute('href') === id));
+  }, { rootMargin: '-45% 0px -45% 0px', threshold: [0, 0.25, 0.5] });
+  sections.forEach(s => obs.observe(s));
+})();
+</script>
+</body>
+</html>

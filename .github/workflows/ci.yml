@@ -1,0 +1,31 @@
+name: CI — Smoke Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: _scripts/package-lock.json
+
+      - name: Install dependencies
+        working-directory: _scripts
+        run: npm ci
+
+      - name: Run smoke tests
+        working-directory: _scripts
+        run: npm test

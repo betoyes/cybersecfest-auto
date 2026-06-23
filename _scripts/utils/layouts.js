@@ -4,6 +4,11 @@
 
 const { assetDataUri } = require('./embed-assets.js');
 const { CTA_PILL_CSS, ctaPillBlock, ctaPillOptional } = require('./cta-pill.js');
+const {
+  normalizePalavrasAzuis,
+  enforceHeadlineText,
+  prepareHeadlineForLayout,
+} = require('./headline-rules.js');
 
 function hi(text, words) {
   if (!words || !text) return text || '';
@@ -163,7 +168,7 @@ function C({ imageBase64: b, headline: hl, subtitulo: sub, palavrasAzuis: pa }) 
 .art-ov-c{position:absolute;inset:0;z-index:1;background:linear-gradient(to right,rgba(2,5,10,0.97) 0%,rgba(2,5,10,0.93) 44%,rgba(2,5,10,0.28) 66%,rgba(2,5,10,0) 100%),linear-gradient(to top,rgba(2,5,10,0.75) 0%,rgba(2,5,10,0) 30%);}
 .art-cnt-c{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;justify-content:space-between;padding:32px 30px 26px 34px;}
 .inline-row{display:flex;align-items:flex-start;gap:0;}
-.headline-c{font-size:29px;white-space:nowrap;}
+.headline-c{font-size:29px;max-width:48%;line-height:1.08;flex-shrink:0;}
 .vsep-c{width:1px;align-self:stretch;margin:5px 18px;flex-shrink:0;background:linear-gradient(to bottom,rgba(20,168,244,0.7) 0%,rgba(20,168,244,0.2) 100%);}
 .sub-c{font-size:11.5px;line-height:1.7;padding-top:5px;word-break:keep-all;}
 `, `
@@ -680,9 +685,15 @@ function Q({ imageBase64: b, headline: hl, subtitulo: sub, palavrasAzuis: pa }) 
 const LAYOUTS = { A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q };
 
 function renderLayout(letter, params) {
-  const fn = LAYOUTS[letter.toUpperCase()];
+  const layout = letter.toUpperCase();
+  const fn = LAYOUTS[layout];
   if (!fn) throw new Error(`Layout "${letter}" não encontrado. Disponíveis: ${Object.keys(LAYOUTS).join(',')}`);
-  return fn({ ...params, layout: letter.toUpperCase() });
+
+  const { headline: trimmed } = enforceHeadlineText(params.headline);
+  const headline = prepareHeadlineForLayout(trimmed, layout);
+  const palavrasAzuis = normalizePalavrasAzuis(headline, params.palavrasAzuis);
+
+  return fn({ ...params, headline, palavrasAzuis, layout });
 }
 
 function getLayoutCss(letter) {

@@ -3,7 +3,7 @@
 > **Repositório:** https://github.com/betoyes/cybersecfest-auto  
 > **Galeria pública:** https://betoyes.github.io/cybersecfest-auto/  
 > **Vercel (mirror):** https://cybersecfest-auto.vercel.app/  
-> **Última atualização:** 2026-06-21
+> **Última atualização:** 2026-06-23
 
 ---
 
@@ -44,7 +44,19 @@ cybersecfest-auto/
 │   └── utils/
 │       ├── github.js           ← Wrapper GitHub API (get/put arquivos, commits, repos)
 │       ├── llm.js              ← OpenAI (GPT-4o + DALL-E 3) + Gemini (Flash + Imagen 3)
-│       └── layouts.js          ← 14 templates HTML dos layouts visuais (A–N)
+│       ├── layouts.js          ← 17 templates HTML dos layouts visuais (A–Q)
+│       ├── cta-pill.js         ← Componente CTA Pill reutilizável
+│       ├── template-padroes.js ← Padrões aprovados da galeria de templates
+│       ├── imagem-prompt.js    ← Regras rígidas de foco/zonas por layout
+│       └── propostas-store.js  ← Banco de propostas de texto (fase 1)
+│
+├── galeria-templates/          ← Validação visual A–Q (copy genérico fixo)
+│   ├── manifest.json
+│   ├── layout-padroes.json     ← Padrões oficiais A–Q aprovados
+│   ├── index.html
+│   └── artes/template-{a-q}/
+│
+├── propostas.json              ← Lotes de 3 rotas editoriais + banco de texto
 │
 ├── artes/                      ← Artes geradas (criadas automaticamente pelo pipeline)
 │   ├── .gitkeep
@@ -135,7 +147,7 @@ Gerencia chamadas LLM com fallback automático.
 ---
 
 ### 4.3 `_scripts/utils/layouts.js`
-14 templates HTML completos para os layouts visuais (A–N).
+17 templates HTML completos para os layouts visuais (A–Q). Padrões oficiais A–Q em `galeria-templates/layout-padroes.json`.
 
 **Design system fixo (imutável):**
 | Variável | Valor |
@@ -152,13 +164,17 @@ Gerencia chamadas LLM com fallback automático.
 | Logo cyberfest | Colorido, SEM filter |
 
 **Rotação de layouts por tipo de post:**
-| Tipo | Sequência | Layout preferencial |
-|------|-----------|---------------------|
-| blog | C → M → N → C... | Subtítulo ao Lado / Pull Quote / Acento Diagonal |
-| evento | E → L → J → E... | CTA Pill / L Invertido / 3 Blocos |
-| palestrante | D → G → K → D... | Diagonal / Magazine Cover / Tríptico |
-| patrocinador | F → I → B → F... | Coluna Sólida / Coluna Direita / Mirror Split |
-| cidade | A → H → J → A... | Banda Superior / Rodapé Luminoso / 3 Blocos |
+| Tipo | Pool (baralho) | Novos |
+|------|----------------|-------|
+| blog | C, M, N, **O** | Holofote |
+| evento | E, L, J, **P** | Moldura |
+| palestrante | D, G, K | — |
+| patrocinador | F, I, B, **Q** | Asa Dupla |
+| cidade | A, H, J | — |
+
+**Componente CTA Pill** (`cta-pill.js`): campo `cta_visual` nas propostas → pill na arte (E sempre; J/L/O/P quando preenchido).
+
+**Testes smoke:** `cd _scripts && npm test` — valida render A–Q, CTA, rotação e manifest.
 
 **Função exportada:**
 - `renderLayout(letter, params)` → string HTML completo
@@ -171,7 +187,9 @@ Gerencia chamadas LLM com fallback automático.
   subtitulo,        // texto secundário (opcional)
   palavrasAzuis,    // "PALAVRA1, PALAVRA2" para destacar em azul
   nomePalestrante,  // nome do speaker (layouts D, G, K)
-  cargoEmpresa      // cargo e empresa (layouts D, K)
+  cargoEmpresa,     // cargo e empresa (layouts D, K)
+  ctaVisual,        // pill CTA na arte (opcional; ver cta-pill.js)
+  tipoPost,         // influencia defaults de CTA
 }
 ```
 
@@ -363,6 +381,10 @@ O pipeline segue estas regras em TODO briefing gerado:
 - Repetir ângulos recentes (verificar `historico_recente`)
 
 **Tamanho das legendas:** 6–12 linhas + CTA + hashtags (máx 15 linhas)
+
+**Headline (título na arte) — regras em `_scripts/utils/headline-rules.js`:**
+- Máx **10 palavras** | até **5 linhas** com `<br>` | `palavras_azuis` = 1–3 palavras **da headline**
+- Enforcement automático no pipeline (`enforceHeadlineText`, `prepareHeadlineForLayout`, `normalizePalavrasAzuis`)
 
 ---
 

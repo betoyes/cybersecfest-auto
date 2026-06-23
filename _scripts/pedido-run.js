@@ -5,6 +5,7 @@ require('./load-env.js');
 const { getJSON } = require('./utils/storage.js');
 const { generateText } = require('./utils/llm.js');
 const { criarLotePropostas } = require('./gerar-propostas.js');
+const { HEADLINE_PROMPT_BLOCK, enforceHeadlineText, normalizePalavrasAzuis } = require('./utils/headline-rules.js');
 const { consumirBanco, getEstadoPropostas } = require('./aprovar-propostas.js');
 const { getLoteAguardando, countBanco, loadStore } = require('./utils/propostas-store.js');
 
@@ -36,6 +37,8 @@ PROIBIDO: começar com "O CybersecFEST", clichês (cadeados, hackers), tom técn
 
   const prompt = `Crie um briefing completo para post de ${tipoPost} do CybersecFEST 2026.
 ${temaExtra}
+${HEADLINE_PROMPT_BLOCK}
+
 CONTEXTO:
 - 2 edições: BH (Novembro 2026) e SP (Outubro 2026)
 - Marcas participantes: ${marcas}
@@ -44,8 +47,8 @@ CONTEXTO:
 
 RETORNE EXATAMENTE neste formato JSON (sem markdown, apenas JSON puro):
 {
-  "headline": "máx 8 palavras, impacto máximo, nunca começa com O CybersecFEST",
-  "palavras_azuis": "1-3 palavras da headline para destacar em azul, separadas por vírgula",
+  "headline": "máx 10 palavras, impacto máximo; use <br> para até 5 linhas",
+  "palavras_azuis": "1-3 palavras DA HEADLINE para destacar em azul, separadas por vírgula",
   "subtitulo": "máx 12 palavras, complementa com convite",
   "cta_visual": "opcional — pill CTA na arte (máx 4 palavras, UPPERCASE). Ex: INSCRIÇÕES ABERTAS, SEJA PATROCINADOR. Omita se não couber.",
   "contexto_visual": "cena aspiracional dark APENAS visual: quem, onde, atmosfera, iluminação — SEM texto, SEM palavras de headline, SEM clichês de hacking",
@@ -58,9 +61,10 @@ RETORNE EXATAMENTE neste formato JSON (sem markdown, apenas JSON puro):
 
   const briefing = JSON.parse(match[0]);
   if (!briefing.headline) throw new Error('Briefing sem headline');
-  if (briefing.headline.toLowerCase().startsWith('o cybersecfest')) {
-    briefing.headline = briefing.headline.replace(/^o cybersecfest\s*/i, '');
-  }
+  const enforced = enforceHeadlineText(briefing.headline);
+  briefing.headline = enforced.headline;
+  briefing.palavras_azuis = normalizePalavrasAzuis(briefing.headline, briefing.palavras_azuis || '');
+  enforced.warnings.forEach(w => console.log(`   ⚠️  briefing: ${w}`));
   return briefing;
 }
 

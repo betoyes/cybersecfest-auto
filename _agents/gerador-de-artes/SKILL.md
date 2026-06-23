@@ -70,10 +70,10 @@ Se houver erro, parar e exibir:
 Usando os dados já carregados na pré-validação (`rotacao_layouts` + `layout_ciclos`):
 
 **Pools por tipo_post** (definidos em `temas.json` → `rotacao_layouts`):
-- blog:        [C, M, N]
-- evento:      [E, L, J]
+- blog:        [C, M, N, O]
+- evento:      [E, L, J, P]
 - palestrante: [D, G, K]
-- patrocinador:[F, I, B]
+- patrocinador:[F, I, B, Q]
 - cidade:      [A, H, J]
 
 **Algoritmo OBRIGATÓRIO (baralho embaralhado):**
@@ -100,14 +100,14 @@ Manter no máximo os últimos 20 registros.
 
 ### PASSO 1 — Seleção e Montagem do Layout
 
-**14 layouts disponíveis (A–N):**
+**17 layouts disponíveis (A–Q):**
 
 | Layout | Nome | Auto-seleção | Foco da Imagem |
 |--------|------|-------------|----------------|
 | A | Banda Superior | cidade (rotação) | DIREITA |
 | B | Mirror Split | patrocinador (rotação) | ESQUERDA |
 | C | Subtítulo ao Lado | blog (rotação) | DIREITA |
-| D | Diagonal | palestrante (rotação) | CENTRO/DIREITA |
+| D | Diagonal | palestrante (rotação) | CENTRO |
 | E | CTA Pill | evento (rotação) | DIREITA |
 | F | Painel Lateral Escuro | patrocinador (rotação) | DIREITA |
 | G | Magazine Cover | override | CENTRO |
@@ -118,12 +118,26 @@ Manter no máximo os últimos 20 registros.
 | L | L Invertido + Traços | evento (rotação) | CENTRO entre zonas |
 | M | Pull Quote | blog (rotação) | DIREITA |
 | N | Acento Diagonal | blog (rotação) | DIREITA |
+| O | Holofote | blog (rotação) | CENTRO-INFERIOR |
+| P | Moldura | evento (rotação) | CENTRO-SUPERIOR |
+| Q | Asa Dupla | patrocinador (rotação) | LATERAIS |
+
+**Padrões oficiais:** diagramações A–Q validadas em `galeria-templates/layout-padroes.json`.
 
 **Lei de Foco da Imagem:** A imagem IA deve ser gerada com o sujeito principal na zona de foco do layout, garantindo que o texto não sobreponha o sujeito.
 
-**⚠️ REGRA CRÍTICA DE VARIAÇÃO:** Cada layout (A–N) deve gerar um HTML visualmente distinto — estrutura CSS, posicionamento dos elementos e hierarquia devem ser completamente diferentes entre layouts. Nunca usar o mesmo template HTML para layouts diferentes.
+**⚠️ REGRA CRÍTICA DE VARIAÇÃO:** Cada layout (A–Q) deve gerar um HTML visualmente distinto — estrutura CSS, posicionamento dos elementos e hierarquia devem ser completamente diferentes entre layouts. Nunca usar o mesmo template HTML para layouts diferentes.
 
-**⚠️ REGRA DO SUBTÍTULO:** O campo `subtitulo` é **sempre** texto livre fora de qualquer box, pill, badge ou container preenchido. Proibido injetar subtítulo dentro de `.pill`, `.cta`, chips ou fundos coloridos. Elementos de CTA decorativos usam copy fixa própria, separada do subtítulo.
+**⚠️ REGRA DO SUBTÍTULO:** O campo `subtitulo` é **sempre** texto livre fora de qualquer box, pill, badge ou container preenchido. Proibido injetar subtítulo dentro de `.pill`, `.cta`, chips ou fundos coloridos.
+
+**⚠️ REGRA DA HEADLINE (OBRIGATÓRIA — `_scripts/utils/headline-rules.js`):**
+- **Tamanho:** máximo **10 palavras** no total (contagem única, mesmo com quebras)
+- **Quebra:** até **5 linhas** com `<br>` na headline quando couber no layout (padrão ouro: `O encontro que<br>redefine<br>cyber no Brasil`)
+- **Proibido** começar com *"O CybersecFEST"*
+- **`palavras_azuis`:** **1–3 palavras que existem literalmente na headline**, separadas por vírgula → renderizadas como `<span style="color:#14A8F4">` via `layouts.js`
+- **Enforcement:** o pipeline trunca headlines longas, corrige `palavras_azuis` inválidas e aplica quebra automática por layout em `renderLayout()` (layouts estreitos: C, E, F, I; centralizados: G, L, M, N)
+
+**⚠️ CTA VISUAL (`cta_visual`):** Mensagem curta (máx. 4 palavras, UPPERCASE) para o componente **CTA Pill** (`_scripts/utils/cta-pill.js`). Layout **E** sempre exibe pill (default `INSCRIÇÕES ABERTAS`); **J, L, O, P** exibem quando `cta_visual` vier no briefing/proposta. Separado do subtítulo e da legenda.
 
 ---
 

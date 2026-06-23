@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Comparar Layouts — CybersecFEST</title>
+<link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@700&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/gallery.css">
+<style>
+.cmp-page { max-width: 1600px; margin: 0 auto; padding: 24px var(--page-pad) 48px; }
+.cmp-page h1 { font-family: 'Ubuntu', sans-serif; font-size: 1.35rem; margin-bottom: 8px; }
+.cmp-page > p { color: var(--lavanda); font-size: 0.88rem; max-width: 720px; line-height: 1.6; margin-bottom: 20px; }
+.cmp-nav { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 24px; }
+.cmp-nav a { color: var(--blue); font-size: 0.8rem; text-decoration: none; }
+.cmp-pick { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+.cmp-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 12px; border-radius: 999px; cursor: pointer;
+  font-size: 0.75rem; font-weight: 600; letter-spacing: 0.04em;
+  border: 1px solid var(--border); background: var(--surface-2); color: var(--lavanda);
+  transition: all 0.15s;
+}
+.cmp-chip.on { border-color: rgba(20,168,244,0.5); background: rgba(20,168,244,0.12); color: var(--elec); }
+.cmp-chip input { display: none; }
+.cmp-presets { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+.cmp-preset {
+  padding: 6px 14px; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.06em;
+  text-transform: uppercase; border: 1px solid rgba(20,168,244,0.25);
+  background: rgba(20,168,244,0.06); color: var(--blue); border-radius: var(--radius-sm);
+  cursor: pointer; font-family: inherit;
+}
+.cmp-preset:hover { background: rgba(20,168,244,0.14); }
+.cmp-grid {
+  display: grid; gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+.cmp-card {
+  border: 1px solid var(--border); border-radius: var(--radius-md);
+  background: var(--surface); overflow: hidden;
+}
+.cmp-card-head {
+  padding: 12px 16px; border-bottom: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.cmp-letter {
+  font-family: 'Ubuntu', sans-serif; font-size: 1.1rem; font-weight: 700; color: var(--elec);
+}
+.cmp-name { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+.cmp-thumb {
+  aspect-ratio: 4/5; background: #02050A; display: flex; align-items: center; justify-content: center;
+  padding: 12px;
+}
+.cmp-thumb img { max-width: 100%; max-height: 100%; object-fit: contain; box-shadow: 0 8px 32px rgba(0,0,0,0.5); }
+.cmp-meta { padding: 10px 16px; font-size: 0.72rem; color: var(--muted); }
+.cmp-copy {
+  margin-bottom: 20px; padding: 14px 18px; border: 1px solid var(--border);
+  border-radius: var(--radius-sm); background: var(--surface-2); font-size: 0.82rem; color: var(--muted);
+}
+.cmp-copy strong { color: var(--white); display: block; margin-bottom: 4px; }
+.cmp-empty { text-align: center; padding: 48px; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <span class="logo-top">Cybersec</span>
+    <div class="logo-divider"></div>
+    <span class="logo-fest">fest</span>
+  </div>
+  <div class="header-center">
+    <div class="live-dot"></div>
+    <span class="live-label">Comparador</span>
+    <span class="live-count" id="cmp-count">—</span>
+  </div>
+  <span class="header-right">Templates A–Q</span>
+</header>
+
+<section class="cmp-page">
+  <h1>Comparar diagramações</h1>
+  <p>Mesmo copy genérico em layouts diferentes — ideal para escolher rotação por tipo de post (blog, evento, patrocinador).</p>
+  <nav class="cmp-nav">
+    <a href="index.html">← Galeria de templates</a>
+    <a href="../layouts-diagramacao.html">Mapa de diagramação</a>
+    <a href="../index.html">Galeria principal</a>
+  </nav>
+
+  <div class="cmp-copy" id="cmp-copy" hidden>
+    <strong id="cmp-headline"></strong>
+    <span id="cmp-sub"></span>
+  </div>
+
+  <div class="cmp-presets">
+    <button type="button" class="cmp-preset" data-layouts="C,M,N,O">Blog (C,M,N,O)</button>
+    <button type="button" class="cmp-preset" data-layouts="E,L,J,P">Evento (E,L,J,P)</button>
+    <button type="button" class="cmp-preset" data-layouts="F,I,B,Q">Patrocinador (F,I,B,Q)</button>
+    <button type="button" class="cmp-preset" data-layouts="D,G,K">Palestrante (D,G,K)</button>
+    <button type="button" class="cmp-preset" data-layouts="A,H,J">Cidade (A,H,J)</button>
+  </div>
+
+  <div class="cmp-pick" id="cmp-pick"></div>
+  <div class="cmp-grid" id="cmp-grid">
+    <div class="cmp-empty">Selecione 2–4 layouts acima</div>
+  </div>
+</section>
+
+<script src="manifest.embed.js"></script>
+<script>
+const LETTERS = 'ABCDEFGHIJKLMNOPQ'.split('');
+let manifest = null;
+let LAYOUT_NAMES = {};
+let selected = new Set();
+
+function parseUrlLayouts() {
+  const q = new URLSearchParams(location.search).get('layouts');
+  if (!q) return null;
+  return q.split(',').map(s => s.trim().toUpperCase()).filter(L => LETTERS.includes(L));
+}
+
+async function loadNames() {
+  try {
+    const r = await fetch('../assets/layout-names.json?v=' + Date.now());
+    if (r.ok) LAYOUT_NAMES = await r.json();
+  } catch (_) {}
+}
+
+function buildPicker() {
+  const pick = document.getElementById('cmp-pick');
+  pick.innerHTML = LETTERS.map(L => `
+    <label class="cmp-chip${selected.has(L) ? ' on' : ''}">
+      <input type="checkbox" value="${L}" ${selected.has(L) ? 'checked' : ''}>
+      ${L}${LAYOUT_NAMES[L] ? ' · ' + LAYOUT_NAMES[L].split(' ')[0] : ''}
+    </label>`).join('');
+  pick.querySelectorAll('.cmp-chip').forEach(chip => {
+    chip.addEventListener('click', e => {
+      if (e.target.tagName === 'INPUT') return;
+      const cb = chip.querySelector('input');
+      cb.checked = !cb.checked;
+      cb.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+    chip.querySelector('input').addEventListener('change', () => {
+      const L = chip.querySelector('input').value;
+      if (chip.querySelector('input').checked) {
+        if (selected.size >= 4) {
+          chip.querySelector('input').checked = false;
+          return;
+        }
+        selected.add(L);
+      } else selected.delete(L);
+      chip.classList.toggle('on', selected.has(L));
+      renderCompare();
+      history.replaceState(null, '', '?layouts=' + [...selected].sort().join(','));
+    });
+  });
+}
+
+function renderCompare() {
+  const grid = document.getElementById('cmp-grid');
+  document.getElementById('cmp-count').textContent = selected.size + ' layouts';
+  if (!selected.size) {
+    grid.innerHTML = '<div class="cmp-empty">Selecione 2–4 layouts acima</div>';
+    return;
+  }
+  const artes = manifest?.artes || [];
+  grid.innerHTML = [...selected].sort().map(L => {
+    const arte = artes.find(a => a.layout === L);
+    if (!arte) return `<div class="cmp-card"><div class="cmp-empty">Layout ${L} — sem template</div></div>`;
+    const focus = arte.image_rules?.focus || '';
+    return `
+    <article class="cmp-card">
+      <div class="cmp-card-head">
+        <span class="cmp-letter">${L}</span>
+        <span class="cmp-name">${LAYOUT_NAMES[L] || ''}</span>
+      </div>
+      <div class="cmp-thumb">
+        <img src="artes/${arte.slug}/thumb.png?v=${arte.salvo_em || arte.created_at || ''}" alt="Layout ${L}" loading="lazy">
+      </div>
+      <div class="cmp-meta">foco: ${focus} · ${arte.tipo || '—'}</div>
+    </article>`;
+  }).join('');
+}
+
+document.querySelectorAll('.cmp-preset').forEach(btn => {
+  btn.addEventListener('click', () => {
+    selected = new Set(btn.dataset.layouts.split(',').map(s => s.trim().toUpperCase()));
+    buildPicker();
+    renderCompare();
+    history.replaceState(null, '', '?layouts=' + [...selected].join(','));
+  });
+});
+
+(async () => {
+  await loadNames();
+  const fromUrl = parseUrlLayouts();
+  if (fromUrl?.length) selected = new Set(fromUrl.slice(0, 4));
+  else selected = new Set(['C', 'M', 'E']);
+  manifest = window.__TPL_MANIFEST__;
+  if (!manifest?.artes?.length && location.protocol !== 'file:') {
+    try {
+      const r = await fetch('manifest.json?v=' + Date.now());
+      if (r.ok) manifest = await r.json();
+    } catch (_) {}
+  }
+  if (manifest?.copy) {
+    document.getElementById('cmp-copy').hidden = false;
+    document.getElementById('cmp-headline').textContent = manifest.copy.headline || '';
+    document.getElementById('cmp-sub').textContent = manifest.copy.subtitulo || '';
+  }
+  buildPicker();
+  renderCompare();
+})();
+</script>
+</body>
+</html>

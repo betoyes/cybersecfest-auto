@@ -28,6 +28,7 @@ function propostaParaArtePayload(proposta, tipoPost, opts = {}) {
     propostaId: proposta.id,
     angulo: proposta.angulo,
     ctaVisual: proposta.cta_visual,
+    formato: proposta.formato || opts.formato || 'feed_vertical',
   };
 }
 
@@ -35,7 +36,7 @@ function itemBancoFromProposta(proposta, lote, destino = 'fila') {
   return {
     id: newId('banco'),
     status: 'aprovado_texto',
-    tipo_post: lote.tipo_post,
+    tipo_post: proposta.tipo_post || lote.tipo_post,
     angulo: proposta.angulo,
     headline: proposta.headline,
     subtitulo: proposta.subtitulo,
@@ -44,6 +45,7 @@ function itemBancoFromProposta(proposta, lote, destino = 'fila') {
     contexto_visual: proposta.contexto_visual,
     cidade: proposta.cidade,
     cta_visual: proposta.cta_visual || '',
+    formato: proposta.formato || 'feed_vertical',
     aprovado_em: new Date().toISOString(),
     origem_lote: lote.id,
     destino,
@@ -78,7 +80,11 @@ async function aprovarLote(opts) {
   console.log(`\n✅ Aprovando lote ${loteId}`);
   console.log(`   Principal: ${principal.angulo} → gerando visual...`);
 
-  const resultadoPrincipal = await gerarArte(propostaParaArtePayload(principal, lote.tipo_post, { publicacao: 'normal' }));
+  const resultadoPrincipal = await gerarArte(propostaParaArtePayload(
+    principal,
+    principal.tipo_post || lote.tipo_post,
+    { publicacao: 'normal' },
+  ));
 
   const bancoNovos = [];
   for (const bid of bancoIds) {
@@ -90,7 +96,7 @@ async function aprovarLote(opts) {
 
     if (gerarBackupVisual) {
       console.log(`   Backup visual: ${prop.angulo}...`);
-      await gerarArte(propostaParaArtePayload(prop, lote.tipo_post, { publicacao: 'backup' }));
+      await gerarArte(propostaParaArtePayload(prop, prop.tipo_post || lote.tipo_post, { publicacao: 'backup' }));
     } else {
       if (countBanco(data) + bancoNovos.length >= BANCO_MAX) {
         throw new Error(`Banco cheio (${BANCO_MAX}). Remova reservas ou não selecione tantas para o banco.`);
@@ -150,6 +156,7 @@ async function consumirBanco(opts = {}) {
     propostaId: item.id,
     angulo: item.angulo,
     ctaVisual: item.cta_visual,
+    formato: item.formato || 'feed_vertical',
   });
 
   return { ...resultado, fromBanco: true, bancoId: item.id };

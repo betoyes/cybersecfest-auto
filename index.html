@@ -10,7 +10,7 @@
 <title>CybersecFEST — Galeria de Artes</title>
 <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&family=Montserrat:ital,wght@0,300;0,400;0,600;1,300&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/dom-to-image-more@3.3.1/dist/dom-to-image-more.min.js"></script>
-<link rel="stylesheet" href="assets/css/gallery.css">
+<link rel="stylesheet" href="assets/css/gallery.css?v=20260623-ui2">
 <script>
 if (location.protocol === 'file:') {
   document.documentElement.classList.add('file-protocol');
@@ -31,23 +31,30 @@ if (location.protocol === 'file:') {
     <p class="file-protocol-path">Pasta do projeto:<br><code id="file-protocol-path"></code></p>
   </div>
 </div>
-<header>
-  <div class="logo">
+<header class="site-header">
+  <a href="index.html" class="logo" aria-label="CybersecFEST — Galeria">
     <span class="logo-top">Cybersec</span>
     <div class="logo-divider"></div>
     <span class="logo-fest">fest</span>
-  </div>
+  </a>
   <div class="header-center">
     <div class="live-dot"></div>
     <span class="live-label">Ao vivo</span>
     <span class="live-count" id="header-count">—</span>
   </div>
-  <span class="header-right"><a href="galeria-templates/index.html" style="color:inherit;text-decoration:none;opacity:0.85" title="Validação A–Q">Templates</a> · <a href="layouts-diagramacao.html" style="color:inherit;text-decoration:none;opacity:0.85" title="Mapa de diagramação A–Q">Diagramação</a> · Portal · 2026</span>
+  <nav class="main-nav" aria-label="Navegação principal">
+    <a href="guia.html" class="nav-link" title="Tutorial do portal">Guia</a>
+    <a href="galeria-templates/index.html" class="nav-link" title="Validação A–Q">Templates</a>
+    <a href="galeria-templates/comparar.html" class="nav-link" title="Comparar layouts">Comparar</a>
+    <a href="layouts-diagramacao.html" class="nav-link" title="Mapa de diagramação A–Q">Diagramação</a>
+    <span class="nav-divider" aria-hidden="true"></span>
+    <span class="nav-year">2026</span>
+  </nav>
 </header>
 
 <!-- ══ AVISO SERVIDOR ANTIGO ══ -->
 <div class="server-warn" id="server-warn" hidden>
-  <span>Servidor desatualizado — reinicie com <code>cd _scripts && npm run dev</code> para o fluxo de aprovação (3 propostas → você escolhe → imagem).</span>
+  <span id="server-warn-text">Servidor desatualizado — reinicie com <code>cd _scripts && npm run dev</code> (fluxo v2 + modo campanha).</span>
   <button type="button" class="server-warn-close" onclick="document.getElementById('server-warn').hidden=true" aria-label="Fechar">✕</button>
 </div>
 
@@ -58,9 +65,36 @@ if (location.protocol === 'file:') {
     <button class="pedido-btn" id="pedido-btn" type="button" title="Gerar post" aria-label="Gerar post">✦</button>
   </div>
   <div class="pedido-status" id="pedido-status"></div>
+  <details class="pedido-campanha" id="pedido-campanha">
+    <summary>Modo campanha (3–10 peças) — lote editorial com rotação de tipos</summary>
+    <div class="pedido-campanha-body">
+      <p class="pedido-camp-hint">Gera <strong>várias peças de uma vez</strong> (não só 3): cada uma com tipo de post, CTA e ângulo distintos — ideal para semana de lançamento ou push de patrocínio.</p>
+      <label class="pedido-camp-label">Objetivo
+        <select id="campanha-objetivo" class="pedido-camp-select">
+          <option value="inscricoes">Inscrições</option>
+          <option value="patrocinadores">Patrocinadores</option>
+          <option value="speakers">Palestrantes</option>
+          <option value="agenda">Agenda</option>
+        </select>
+      </label>
+      <label class="pedido-camp-label">Peças
+        <input type="number" id="campanha-qtd" class="pedido-camp-num" min="3" max="10" value="5">
+      </label>
+      <button type="button" class="pedido-camp-btn" id="campanha-btn">Gerar campanha</button>
+    </div>
+  </details>
   <div class="pedido-pending" id="pedido-pending" hidden>
     <button type="button" class="pedido-revisar-btn" id="pedido-revisar-btn">Revisar 3 propostas pendentes</button>
   </div>
+</div>
+
+<!-- ══ CALENDÁRIO EDITORIAL ══ -->
+<div class="calendario-bar" id="calendario-bar" hidden>
+  <div class="calendario-head">
+    <span class="calendario-title">Calendário editorial</span>
+    <span class="calendario-hoje" id="calendario-hoje"></span>
+  </div>
+  <div class="calendario-slots" id="calendario-slots"></div>
 </div>
 
 <!-- ══ APROVAÇÃO DE PROPOSTAS (fase 1) ══ -->
@@ -84,6 +118,7 @@ if (location.protocol === 'file:') {
         <span>Gerar visual imediato também para itens do banco (backup)</span>
       </label>
       <div class="propostas-actions">
+        <button type="button" class="propostas-btn ghost" id="propostas-export-pack" hidden>⬇ Pack ZIP</button>
         <button type="button" class="propostas-btn ghost" id="propostas-rejeitar">Rejeitar lote</button>
         <button type="button" class="propostas-btn primary" id="propostas-aprovar">Gerar imagem</button>
       </div>
@@ -94,6 +129,13 @@ if (location.protocol === 'file:') {
 
 <!-- ══ GALERIA ══ -->
 <div class="gallery-wrap">
+  <div class="gallery-toolbar" id="gallery-toolbar" hidden>
+    <label class="gallery-filter">
+      <input type="checkbox" id="filter-show-backup">
+      <span>Mostrar testes / backup</span>
+    </label>
+    <span class="gallery-filter-hint" id="gallery-filter-hint"></span>
+  </div>
   <div class="grid" id="grid">
     <div class="empty">
       <div class="empty-icon">✦</div>
@@ -185,6 +227,61 @@ let arteMap = {};
 let creationOrderMap = {};
 let LAYOUT_NAMES = {};
 let propostasEstado = { lotePendente: null, banco: [], bancoCount: 0 };
+let devServerApis = [];
+let showBackupArtes = false;
+let calendarioData = null;
+let modalSlug = null;
+
+const FORMATO_LABELS = {
+  feed_vertical: 'Vertical',
+  feed_quadrado: 'Quadrado',
+  stories: 'Stories',
+};
+
+function isDevHost() {
+  return location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+}
+
+function canDeleteArte() {
+  return isDevHost();
+}
+
+function escRegex(s) {
+  return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function renderHeadlinePreview(headline, palavrasAzuis) {
+  let h = escHtml(headline || '');
+  h = h.replace(/&lt;br\s*\/?&gt;/gi, '<br>');
+  const words = String(palavrasAzuis || '').split(',').map(w => w.trim()).filter(Boolean);
+  for (const w of words) {
+    const ew = escHtml(w);
+    const re = new RegExp(`(${escRegex(ew)})`, 'gi');
+    h = h.replace(re, '<span class="prop-hl-blue">$1</span>');
+  }
+  return h;
+}
+
+function headlineStats(headline) {
+  const plain = String(headline || '').replace(/<br\s*\/?>/gi, ' ').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+  const words = plain ? plain.split(/\s+/).filter(Boolean).length : 0;
+  const lines = /<br\s*\/?>|\n/i.test(headline || '')
+    ? String(headline).split(/<br\s*\/?>|\n/i).map(l => l.replace(/<[^>]+>/g, '').trim()).filter(Boolean).length
+    : (plain ? 1 : 0);
+  return { words, lines };
+}
+
+async function parseApiJson(res) {
+  const text = await res.text();
+  try {
+    return JSON.parse(text);
+  } catch {
+    if (res.status === 405 || /method not allowed/i.test(text)) {
+      throw new Error('Servidor desatualizado — pare o terminal e reinicie: cd _scripts && npm run dev');
+    }
+    throw new Error(text.slice(0, 160) || `Erro HTTP ${res.status}`);
+  }
+}
 
 function buildCreationOrder(artes) {
   creationOrderMap = {};
@@ -258,15 +355,26 @@ function showLoadError(kind, detail) {
 }
 
 function renderStats() {
-  const total = allArtes.length;
+  const visiveis = allArtes.filter(a => showBackupArtes || a.publicacao !== 'backup');
+  const total = visiveis.length;
+  const backupCount = allArtes.filter(a => a.publicacao === 'backup').length;
   const headerCount = document.getElementById('header-count');
   if (headerCount) {
     headerCount.textContent = total + ' arte' + (total !== 1 ? 's' : '');
   }
+  const toolbar = document.getElementById('gallery-toolbar');
+  const hint = document.getElementById('gallery-filter-hint');
+  if (toolbar) toolbar.hidden = allArtes.length === 0;
+  if (hint && backupCount > 0 && !showBackupArtes) {
+    hint.textContent = `${backupCount} teste(s) oculto(s)`;
+  } else if (hint) {
+    hint.textContent = '';
+  }
 }
 
 function renderGallery() {
-  const sorted = [...allArtes].sort((a, b) => (getCreationNum(a.slug) || 0) - (getCreationNum(b.slug) || 0));
+  const filtered = allArtes.filter(a => showBackupArtes || a.publicacao !== 'backup');
+  const sorted = [...filtered].sort((a, b) => (getCreationNum(a.slug) || 0) - (getCreationNum(b.slug) || 0));
   renderGrid(sorted);
 }
 
@@ -293,6 +401,7 @@ function renderGrid(artes) {
             <button class="btn-action btn-view" onclick="event.stopPropagation(); openModalBySlug('${arte.slug}')">📋 Legenda</button>
             <button class="btn-action btn-view" onclick="event.stopPropagation(); goToEditor('${arte.slug}')">✏️ Editar</button>
             <a class="btn-action btn-dl" href="artes/${arte.slug}/thumb.png" download onclick="event.stopPropagation()">↓ PNG</a>
+            ${canDeleteArte() ? `<button type="button" class="btn-action btn-del" title="Excluir post" onclick="event.stopPropagation(); deletarArte('${arte.slug}')">🗑</button>` : ''}
           </div>
         </div>
       </div>
@@ -403,6 +512,7 @@ function goToEditor(slug) {
 function openModal(slug, arte) {
   const modal = document.getElementById('modal');
   const img = document.getElementById('modal-img');
+  modalSlug = slug;
 
   history.replaceState(null, '', '#arte=' + slug);
 
@@ -414,10 +524,12 @@ function openModal(slug, arte) {
     return n ? `#${n} de ${allArtes.length}` : 'Arte';
   })();
   document.getElementById('modal-headline').textContent = arte.headline;
+  const canDelete = canDeleteArte();
   document.getElementById('modal-actions').innerHTML = `
     <button class="btn-arte btn-arte-primary" onclick="goToEditor('${slug}')">✏️ Abrir Editor</button>
     <button class="btn-arte btn-arte-secondary" onclick="downloadArtePNG('${slug}', this)">↓ PNG</button>
     <a class="btn-arte btn-arte-secondary" href="artes/${slug}/arte.html" download="cybersecfest_${slug}.html">↓ HTML</a>
+    ${canDelete ? `<button type="button" class="btn-arte btn-arte-danger" id="btn-delete-arte" onclick="deletarArte('${slug}')">🗑 Excluir</button>` : ''}
   `;
   const metaEl = document.getElementById('modal-meta');
   const rows = [];
@@ -525,9 +637,47 @@ function closeModal(e) {
   if (!e || e.target === document.getElementById('modal')) {
     document.getElementById('modal').classList.remove('open');
     var mi=document.getElementById('modal-img'); if(mi) mi.src='';
+    modalSlug = null;
     if (location.hash.startsWith('#arte=')) {
       history.replaceState(null, '', location.pathname + location.search);
     }
+  }
+}
+
+async function deletarArte(slug) {
+  const arte = arteMap[slug];
+  if (!arte) return;
+
+  const num = getCreationNum(slug);
+  const titulo = (arte.headline || slug).replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 80);
+  const msg = `Excluir permanentemente${num ? ` o post #${num}` : ''}?\n\n“${titulo}”\n\nRemove a entrada em artes.json, a pasta artes/${slug}/ e o histórico editorial. Esta ação não pode ser desfeita.`;
+  if (!confirm(msg)) return;
+
+  const btn = document.getElementById('btn-delete-arte');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Excluindo…'; }
+
+  try {
+    const res = await fetch('/api/arte/deletar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ slug }),
+    });
+    const data = await parseApiJson(res);
+    if (!res.ok || !data.ok) throw new Error(data.erro || 'Falha ao excluir');
+
+    closeModal();
+    await loadArtes();
+    const pedidoStatus = document.getElementById('pedido-status');
+    if (pedidoStatus) {
+      pedidoStatus.className = 'pedido-status ok';
+      pedidoStatus.textContent = `🗑 Post excluído: ${slug}`;
+    }
+  } catch (e) {
+    const msg = /405|method not allowed|desatualizado/i.test(e.message)
+      ? 'Servidor desatualizado — pare o terminal e reinicie:\ncd _scripts && npm run dev'
+      : e.message;
+    alert(msg);
+    if (btn) { btn.disabled = false; btn.textContent = '🗑 Excluir'; }
   }
 }
 
@@ -589,19 +739,37 @@ function closeSideDrawer() {
 
 async function checkDevServerFluxo() {
   const warn = document.getElementById('server-warn');
-  if (!warn) return;
   try {
     const res = await fetch('/api/status?v=' + Date.now());
     if (!res.ok) throw new Error('no status');
-    const data = await res.json();
-    warn.hidden = data.fluxo === 'v2-propostas';
+    const data = await parseApiJson(res);
+    devServerApis = data.apis || [];
+    const campanhaOk = devServerApis.includes('campanha');
+    const deleteOk = devServerApis.includes('arte/deletar');
+    if (warn) {
+      warn.hidden = data.fluxo === 'v2-propostas' && campanhaOk && deleteOk;
+      if (!warn.hidden) {
+        const el = document.getElementById('server-warn-text');
+        if (el) {
+          if (!deleteOk) {
+            el.textContent = 'Servidor sem exclusão de posts — reinicie: cd _scripts && npm run dev';
+          } else if (!campanhaOk) {
+            el.textContent = 'Servidor sem modo campanha — reinicie: cd _scripts && npm run dev';
+          }
+        }
+      }
+    }
+    if (allArtes.length) renderGallery();
+    if (modalSlug && arteMap[modalSlug]) openModal(modalSlug, arteMap[modalSlug]);
     return;
   } catch (_) {}
-  try {
-    const r2 = await fetch('/api/propostas?v=' + Date.now());
-    warn.hidden = r2.ok;
-  } catch {
-    warn.hidden = false;
+  if (warn) {
+    try {
+      const r2 = await fetch('/api/propostas?v=' + Date.now());
+      warn.hidden = r2.ok;
+    } catch {
+      warn.hidden = false;
+    }
   }
 }
 
@@ -700,6 +868,42 @@ function initPedidoPanel() {
   }
 
   btn.addEventListener('click', submitPedido);
+  document.getElementById('campanha-btn')?.addEventListener('click', async () => {
+    const campBtn = document.getElementById('campanha-btn');
+    const objetivo = document.getElementById('campanha-objetivo')?.value || 'inscricoes';
+    const quantidade = Number(document.getElementById('campanha-qtd')?.value || 5);
+    const tema = document.getElementById('pedido-tema')?.value.trim() || '';
+    if (propostasEstado.lotePendente) {
+      if (!confirm('Existe lote pendente. Descartar e gerar campanha?')) return;
+      await fetch('/api/propostas/rejeitar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ loteId: propostasEstado.lotePendente.id }),
+      });
+      await loadPropostasEstado();
+    }
+    campBtn.disabled = true;
+    status.className = 'pedido-status';
+    status.textContent = `⏳ Gerando campanha (${quantidade} peças)…`;
+    try {
+      const res = await fetch('/api/campanha', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ objetivo, quantidade, tema }),
+      });
+      const data = await parseApiJson(res);
+      if (!res.ok || !data.ok) throw new Error(data.erro || 'Falha na campanha');
+      status.className = 'pedido-status ok';
+      status.textContent = `✅ Campanha: ${data.lote.propostas.length} rotas prontas`;
+      await loadPropostasEstado();
+      openPropostasOverlay(data.lote);
+    } catch (e) {
+      status.className = 'pedido-status erro';
+      status.textContent = '❌ ' + e.message;
+    } finally {
+      campBtn.disabled = false;
+    }
+  });
   document.getElementById('pedido-revisar-btn')?.addEventListener('click', () => {
     if (propostasEstado.lotePendente) openPropostasOverlay(propostasEstado.lotePendente);
   });
@@ -803,15 +1007,32 @@ function openPropostasOverlay(lote) {
   const overlay = document.getElementById('propostas-overlay');
   const grid = document.getElementById('propostas-grid');
   const sub = document.getElementById('propostas-sub');
-  sub.textContent = `${lote.propostas.length} propostas · escolha 1 para gerar imagem`;
+  sub.textContent = lote.modo === 'campanha'
+    ? `Campanha · ${lote.propostas.length} rotas · objetivo: ${lote.objetivo || '—'}`
+    : `${lote.propostas.length} propostas · escolha 1 para gerar imagem`;
   const defaultId = (lote.propostas.find(p => p.recomendada) || lote.propostas[0]).id;
+  const exportBtn = document.getElementById('propostas-export-pack');
+  if (exportBtn) {
+    exportBtn.hidden = lote.modo !== 'campanha';
+    exportBtn.dataset.loteId = lote.id;
+  }
 
-  grid.innerHTML = lote.propostas.map(p => `
+  grid.innerHTML = lote.propostas.map(p => {
+    const stats = headlineStats(p.headline);
+    const statsClass = stats.words > 10 || stats.lines > 5 ? ' warn' : '';
+    const fmt = FORMATO_LABELS[p.formato] || p.formato || '';
+    return `
     <article class="prop-card${p.recomendada ? ' recommended' : ''}" data-id="${p.id}">
       ${p.recomendada ? '<span class="prop-rec">Recomendada</span>' : ''}
-      <div class="prop-angulo">${escHtml(p.angulo)}</div>
-      <h3 class="prop-headline">${escHtml(p.headline)}</h3>
+      <div class="prop-angulo">${escHtml(p.angulo)}${p.tipo_post ? ` · <span class="prop-tipo">${escHtml(p.tipo_post)}</span>` : ''}${fmt ? ` · <span class="prop-fmt">${escHtml(fmt)}</span>` : ''}</div>
+      <div class="prop-hl-preview" aria-label="Preview do título">${renderHeadlinePreview(p.headline, p.palavras_azuis)}</div>
+      <div class="prop-hl-stats${statsClass}">${stats.words}/10 palavras · ${stats.lines}/5 linhas${p.palavras_azuis ? ` · azul: ${escHtml(p.palavras_azuis)}` : ''}</div>
       <p class="prop-sub">${escHtml(p.subtitulo || '')}</p>
+      <div class="prop-legenda-label">CTA visual na arte</div>
+      <input type="text" class="prop-cta-input" data-prop-id="${p.id}" maxlength="48"
+        placeholder="INSCRIÇÕES ABERTAS · SEJA PATROCINADOR · VAGAS LIMITADAS"
+        value="${escHtml(p.cta_visual || '')}">
+      ${p.cta_visual ? `<div class="prop-cta-hint">Sugerido pela IA — edite se quiser</div>` : '<div class="prop-cta-hint">Aparece no layout E (sempre) e em J/L/O/P quando preenchido</div>'}
       ${p.contexto_visual ? `<div class="prop-legenda-label">Cena visual (IA)</div><div class="prop-contexto">${escHtml(p.contexto_visual)}</div>` : ''}
       <div class="prop-legenda-label">Legenda completa</div>
       <div class="prop-legenda">${escHtml(p.legenda || '')}</div>
@@ -825,7 +1046,8 @@ function openPropostasOverlay(lote) {
           <span>Guardar no banco</span>
         </label>
       </div>
-    </article>`).join('');
+    </article>`;
+  }).join('');
 
   overlay.dataset.loteId = lote.id;
   const sugEl = document.getElementById('propostas-sugestao-visual');
@@ -871,8 +1093,20 @@ async function submitAprovarPropostas() {
   const gerarBackupVisual = document.getElementById('propostas-backup-visual')?.checked;
   const sugestaoVisual = document.getElementById('propostas-sugestao-visual')?.value.trim();
   const edicoes = {};
-  if (sugestaoVisual) {
-    edicoes[principal] = { contexto_visual: sugestaoVisual };
+  function patchFromCard(cardId) {
+    const card = overlay.querySelector(`.prop-card[data-id="${cardId}"]`);
+    if (!card) return null;
+    const patch = {};
+    if (cardId === principal && sugestaoVisual) patch.contexto_visual = sugestaoVisual;
+    const ctaVal = card.querySelector('.prop-cta-input')?.value.trim();
+    if (ctaVal) patch.cta_visual = ctaVal;
+    return Object.keys(patch).length ? patch : null;
+  }
+  const principalPatch = patchFromCard(principal);
+  if (principalPatch) edicoes[principal] = principalPatch;
+  for (const bid of bancoIds) {
+    const b = patchFromCard(bid);
+    if (b) edicoes[bid] = b;
   }
 
   status.textContent = '⏳ Gerando visual da principal… (30–90s)';
@@ -925,9 +1159,99 @@ async function submitRejeitarPropostas() {
   }
 }
 
+async function loadCalendarioEditorial() {
+  const bar = document.getElementById('calendario-bar');
+  const slotsEl = document.getElementById('calendario-slots');
+  const hojeEl = document.getElementById('calendario-hoje');
+  if (!bar || !slotsEl) return;
+
+  try {
+    const res = await fetch('/api/temas/calendario?v=' + Date.now());
+    if (!res.ok) throw new Error('API indisponível');
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.erro || 'Falha');
+    calendarioData = data;
+    bar.hidden = false;
+
+    const dias = [
+      { key: 'segunda', label: 'Seg' },
+      { key: 'quarta', label: 'Qua' },
+      { key: 'sexta', label: 'Sex' },
+    ];
+    const dow = new Date().getDay();
+    const hojeKey = dow === 1 ? 'segunda' : dow === 3 ? 'quarta' : dow === 5 ? 'sexta' : null;
+    if (hojeEl) {
+      hojeEl.textContent = hojeKey
+        ? `Hoje: ${dias.find(d => d.key === hojeKey)?.label || ''} · ${data.calendario[hojeKey]?.tipo_post || '—'}`
+        : 'Fora do calendário fixo (seg/qua/sex)';
+    }
+
+    slotsEl.innerHTML = dias.map(({ key, label }) => {
+      const slot = data.calendario[key] || {};
+      const recent = (data.historico || []).filter(h => h.tipo_post === slot.tipo_post).slice(-1)[0];
+      return `
+        <div class="cal-slot${key === hojeKey ? ' today' : ''}">
+          <div class="cal-slot-day">${label}</div>
+          <div class="cal-slot-tipo">${escHtml(slot.tipo_post || '—')}</div>
+          <div class="cal-slot-obs">${escHtml(slot.observacao || '')}</div>
+          ${recent ? `<div class="cal-slot-last">Último: ${escHtml(recent.slug)}</div>` : ''}
+        </div>`;
+    }).join('');
+  } catch (_) {
+    try {
+      const res = await fetch('temas.json?v=' + Date.now());
+      if (!res.ok) return;
+      const temas = await res.json();
+      calendarioData = { calendario: temas.calendario_editorial || {}, historico: (temas.historico_recente || []).slice(-8) };
+      bar.hidden = false;
+      const slots = calendarioData.calendario;
+      slotsEl.innerHTML = ['segunda', 'quarta', 'sexta'].map((key, i) => {
+        const labels = ['Seg', 'Qua', 'Sex'];
+        const slot = slots[key] || {};
+        return `<div class="cal-slot"><div class="cal-slot-day">${labels[i]}</div><div class="cal-slot-tipo">${escHtml(slot.tipo_post || '—')}</div><div class="cal-slot-obs">${escHtml(slot.observacao || '')}</div></div>`;
+      }).join('');
+    } catch (e2) { /* silencioso */ }
+  }
+}
+
+async function exportCampanhaPack() {
+  const btn = document.getElementById('propostas-export-pack');
+  const status = document.getElementById('propostas-status');
+  const loteId = btn?.dataset.loteId;
+  if (!loteId) return;
+  btn.disabled = true;
+  if (status) status.textContent = '⏳ Gerando pack ZIP…';
+  try {
+    const res = await fetch('/api/campanha/export?loteId=' + encodeURIComponent(loteId));
+    const data = await res.json();
+    if (!res.ok || !data.ok) throw new Error(data.erro || 'Falha no export');
+    if (status) status.textContent = '✅ Pack pronto — baixando…';
+    const a = document.createElement('a');
+    a.href = data.url + '?v=' + Date.now();
+    a.download = data.filename || 'campanha.zip';
+    a.click();
+  } catch (e) {
+    if (status) status.textContent = '❌ ' + e.message;
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function initGalleryFilters() {
+  const cb = document.getElementById('filter-show-backup');
+  if (!cb) return;
+  cb.checked = showBackupArtes;
+  cb.addEventListener('change', () => {
+    showBackupArtes = cb.checked;
+    renderStats();
+    renderGallery();
+  });
+}
+
 function initPropostasUI() {
   document.getElementById('propostas-aprovar')?.addEventListener('click', submitAprovarPropostas);
   document.getElementById('propostas-rejeitar')?.addEventListener('click', submitRejeitarPropostas);
+  document.getElementById('propostas-export-pack')?.addEventListener('click', exportCampanhaPack);
   document.getElementById('propostas-overlay')?.addEventListener('click', e => {
     if (e.target.id === 'propostas-overlay') closePropostasOverlay();
   });
@@ -962,11 +1286,14 @@ loadArtes().then(async () => {
     return;
   }
   resetModaisFechados();
+  await checkDevServerFluxo();
   await loadPropostasEstado();
   openModalFromHash();
   initPedidoPanel();
   initPropostasUI();
+  initGalleryFilters();
   initSideDrawer();
+  loadCalendarioEditorial();
 });
 window.addEventListener('resize', () => { scaleModalArt(); });
 document.addEventListener('keydown', e => {

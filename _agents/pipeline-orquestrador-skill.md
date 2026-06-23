@@ -108,8 +108,8 @@ TIPO DE POST:      <tipo_post>
 LAYOUT SUGERIDO:   <letra> — <nome do layout>
 FOCO DA IMAGEM:    <zona>
 
-HEADLINE:          <para o scroll — máx 8 palavras>
-PALAVRAS AZUIS:    <1–3 palavras de impacto>
+HEADLINE:          <para o scroll — máx 10 palavras; use <br> para até 5 linhas>
+PALAVRAS AZUIS:    <1–3 palavras DA HEADLINE — devem existir literalmente no título>
 SUBTÍTULO:         <complementa com convite — máx 12 palavras>
 
 CONTEXTO VISUAL:   <cena aspiracional: quem, onde, atmosfera, iluminação,

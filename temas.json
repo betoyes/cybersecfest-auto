@@ -260,11 +260,9 @@
   ],
   "layout_ciclos": {
     "blog": [
-      "C",
       "N"
     ],
     "evento": [
-      "J",
       "L"
     ]
   },
@@ -360,6 +358,12 @@
       "layout": "E",
       "slug": "evento-1782143777641",
       "data": "2026-06-22"
+    },
+    {
+      "tipo_post": "blog",
+      "layout": "C",
+      "slug": "blog-1782236441882",
+      "data": "2026-06-23"
     }
   ],
   "historico_aprovacoes": []

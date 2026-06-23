@@ -5,6 +5,7 @@
 require('./load-env.js');
 
 const { getJSON, putJSON, getFile, getCommits, createRepo, repoExists, listTree, putFile, putBinary, REPO } = require('./utils/github.js');
+const { validateHeadlineArte } = require('./utils/validate-headline-arte.js');
 
 const PRIMARY_REPO = 'betoyes/cybersecfest-auto';
 const BACKUP_REPO  = 'betoyes/cybersecfest-backup';
@@ -30,6 +31,8 @@ async function checkArtesJson() {
     for (const c of campos) {
       if (!a[c]) alertas.push(`slug "${a.slug}": campo "${c}" vazio/nulo`);
     }
+    const hlAlertas = validateHeadlineArte(a);
+    hlAlertas.forEach(msg => alertas.push(`slug "${a.slug}": ${msg}`));
     if (slugs.has(a.slug)) alertas.push(`slug duplicado: ${a.slug}`);
     slugs.add(a.slug);
   }

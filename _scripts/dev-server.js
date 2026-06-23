@@ -27,6 +27,7 @@ const MIME = {
   '.jpg':  'image/jpeg',
   '.jpeg': 'image/jpeg',
   '.svg':  'image/svg+xml',
+  '.zip':  'application/zip',
 };
 
 let gerando = false;
@@ -222,22 +223,103 @@ async function handleSalvarArte(req, res) {
   }
 }
 
-const server = http.createServer((req, res) => {
-  const urlPath = decodeURIComponent((req.url || '/').split('?')[0]);
+async function handleCampanha(req, res) {
+  if (gerando) return json(res, 409, { ok: false, erro: 'Operação em andamento' });
+  const payload = await readBody(req);
+  if (!payload) return json(res, 400, { ok: false, erro: 'JSON inválido' });
 
+  gerando = true;
+  try {
+    const { getJSON } = require('./utils/storage.js');
+    const { criarLoteCampanha } = require('./gerar-campanha.js');
+    const temasFile = await getJSON('temas.json');
+    if (!temasFile) throw new Error('temas.json não encontrado');
+
+    const lote = await criarLoteCampanha({
+      objetivo: payload.objetivo || 'inscricoes',
+      quantidade: payload.quantidade || 5,
+      tema: payload.tema?.trim() || '',
+      temas: temasFile.data,
+    });
+
+    json(res, 200, { ok: true, modo: 'campanha', lote });
+  } catch (e) {
+    json(res, 500, { ok: false, erro: e.message });
+  } finally {
+    gerando = false;
+  }
+}
+
+async function handleCampanhaExport(req, res, query) {
+  const loteId = query.get('loteId') || '';
+  if (!loteId) return json(res, 400, { ok: false, erro: 'loteId obrigatório' });
+
+  try {
+    const { loadStore } = require('./utils/propostas-store.js');
+    const { exportCampanhaPack } = require('./utils/export-campanha-pack.js');
+    const { data } = await loadStore();
+    const lote = (data.lotes || []).find(l => l.id === loteId);
+    if (!lote) return json(res, 404, { ok: false, erro: 'Lote não encontrado' });
+
+    const zipPath = exportCampanhaPack(lote, ROOT);
+    const rel = path.relative(ROOT, zipPath).split(path.sep).join('/');
+    json(res, 200, { ok: true, url: `/${rel}`, path: rel, filename: path.basename(zipPath) });
+  } catch (e) {
+    json(res, 500, { ok: false, erro: e.message });
+  }
+}
+
+async function handleCalendario(_req, res) {
+  try {
+    const { getJSON } = require('./utils/storage.js');
+    const temasFile = await getJSON('temas.json');
+    if (!temasFile) return json(res, 404, { ok: false, erro: 'temas.json não encontrado' });
+    const cal = temasFile.data.calendario_editorial || {};
+    json(res, 200, { ok: true, calendario: cal, historico: (temasFile.data.historico_recente || []).slice(-8) });
+  } catch (e) {
+    json(res, 500, { ok: false, erro: e.message });
+  }
+}
+
+async function handleDeletarArte(req, res) {
+  const payload = await readBody(req);
+  if (!payload) return json(res, 400, { ok: false, erro: 'JSON inválido' });
+
+  const slug = String(payload.slug || '').trim();
+  if (!slug) return json(res, 400, { ok: false, erro: 'slug obrigatório' });
+
+  try {
+    const { removerArte } = require('./utils/remover-arte.js');
+    const resultado = await removerArte(slug);
+    console.log(`🗑️  Arte removida: ${slug}`);
+    json(res, 200, { ok: true, ...resultado });
+  } catch (e) {
+    console.error('❌ Deletar arte:', e.message);
+    json(res, 500, { ok: false, erro: e.message });
+  }
+}
+
+const server = http.createServer((req, res) => {
+  const url = new URL(req.url || '/', `http://${HOST}:${PORT}`);
+  const urlPath = decodeURIComponent(url.pathname);
+
+  if (req.method === 'POST' && urlPath === '/api/campanha') return handleCampanha(req, res);
   if (req.method === 'POST' && urlPath === '/api/pedido') return handlePedido(req, res);
   if (req.method === 'GET'  && urlPath === '/api/propostas') return handlePropostasGet(req, res);
   if (req.method === 'POST' && urlPath === '/api/propostas/aprovar') return handleAprovar(req, res);
   if (req.method === 'POST' && urlPath === '/api/propostas/rejeitar') return handleRejeitar(req, res);
   if (req.method === 'POST' && urlPath === '/api/banco/consumir') return handleConsumirBanco(req, res);
   if (req.method === 'POST' && urlPath === '/api/arte/salvar') return handleSalvarArte(req, res);
+  if (req.method === 'POST' && urlPath === '/api/arte/deletar') return handleDeletarArte(req, res);
+  if (req.method === 'GET'  && urlPath === '/api/campanha/export') return handleCampanhaExport(req, res, url.searchParams);
+  if (req.method === 'GET'  && urlPath === '/api/temas/calendario') return handleCalendario(req, res);
   if (req.method === 'GET'  && urlPath === '/api/status') {
     return json(res, 200, {
       ok: true,
       gerando,
       fluxo: 'v2-propostas',
-      build: '2026-06-22-editor-save',
-      apis: ['pedido', 'propostas', 'aprovar', 'banco', 'arte/salvar', 'template/padroes'],
+      build: '2026-06-23-arte-deletar',
+      apis: ['pedido', 'campanha', 'campanha/export', 'propostas', 'aprovar', 'banco', 'arte/salvar', 'arte/deletar', 'template/padroes', 'temas/calendario'],
     });
   }
 
@@ -262,7 +344,7 @@ server.listen(PORT, HOST, () => {
   console.log(`\n🚀 CybersecFEST — Dev Server`);
   console.log(`   Galeria:  http://${HOST}:${PORT}/`);
   console.log(`   Templates: http://${HOST}:${PORT}/galeria-templates/`);
-  console.log(`   API:      POST /api/pedido · GET /api/propostas · POST /api/arte/salvar`);
+  console.log(`   API:      POST /api/pedido · POST /api/campanha · GET /api/campanha/export · GET /api/propostas`);
   console.log(`   Modo:     ${local ? 'LOCAL (grava no disco)' : 'REMOTO (GitHub API)'}`);
   console.log(`   Raiz:     ${ROOT}\n`);
 });
