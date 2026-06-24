@@ -3,23 +3,7 @@
     "versao": "1.0.0",
     "descricao": "Propostas de texto (fase 1) e banco editorial antes da geração visual"
   },
-  "banco": [
-    {
-      "id": "banco-1782143791788-92a51",
-      "status": "aprovado_texto",
-      "tipo_post": "evento",
-      "angulo": "ROI para Patrocinadores",
-      "headline": "Aproveite o ROI do CybersecFEST BH 2026",
-      "subtitulo": "Patrocinadores, o CybersecFEST Belo Horizonte é a vitrine ideal para destacar sua marca.",
-      "palavras_azuis": "ROI, CybersecFEST",
-      "legenda": "O CybersecFEST Belo Horizonte é mais do que um evento — é uma plataforma estratégica.\n\nCom expansão de 160 para 200 participantes, os patrocinadores brilham entre líderes e decisores.\n\nUnimedBH e Drogaria Araujo já entenderam o potencial. Você também pode estar na linha de frente.\n\nConexões aqui não são apenas trocas de cartões. São portas para novas parcerias e negócios.\n\n🔹 Amplifique sua marca no cenário de cibersegurança.\n🔹 Alinhe-se com a inovação e visão de futuro.\n\n✅ Torne-se um patrocinador: [link]\n\n#CybersecFEST #Cibersegurança #Patrocínio #ROI #BeloHorizonte #UnimedBH #DrogariaAraujo #Negócios #Oportunidade #Visibilidade #MarketingEstratégico #Parcerias #CLevel #TechLeadership",
-      "contexto_visual": "Um skyline noturno de Belo Horizonte, capturando o movimentado centro da cidade com arranha-céus iluminados. O edifício da Prefeitura de Belo Horizonte aparece em destaque, simbolizando o poder e a influência dos negócios na cidade. Carros passando e luzes piscando criam uma sensação de dinamismo e oportunidade.",
-      "cidade": "BH e SP",
-      "aprovado_em": "2026-06-22T15:56:31.788Z",
-      "origem_lote": "lote-1782143777550-bnlwo",
-      "destino": "fila"
-    }
-  ],
+  "banco": [],
   "lotes": [
     {
       "id": "lote-1782101387453-ypu3a",
