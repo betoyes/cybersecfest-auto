@@ -406,37 +406,246 @@ Quando o usuário clica "+ Nova Versão", o servidor:
 
 ---
 
-## 9. AGENTES — PROTOCOLO MULTI-AGENTE
+## 9. AGENTES — QUEM SÃO, COMO FUNCIONAM E PROTOCOLO
 
-### Agentes ativos:
-| Agente | Plataforma | Responsabilidade |
-|--------|-----------|-----------------|
-| **SuperAgent** | CREAO | Geração de artes, orquestração editorial, manutenção do stack |
-| **AnimAgent** | Cursor | Criação de animações motion, render MP4 |
+### 9.1 Visão Geral — Dois Agentes Distintos
 
-### Regras de AGENTS.md (obrigatórias):
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    USUÁRIO (Beto)                                │
+│  Orquestra ambos os agentes, aprova outputs, dá direção         │
+└────────────────┬──────────────────────────┬────────────────────-┘
+                 │                          │
+     ┌───────────▼──────────┐   ┌───────────▼──────────┐
+     │     SUPERAGENT       │   │      ANIMAGENT        │
+     │   Plataforma: CREAO  │   │   Plataforma: Cursor  │
+     │                      │   │                       │
+     │ Gera artes estáticas │   │ Cria animações motion │
+     │ Orquestra editorial  │   │ Render MP4            │
+     │ Mantém artes.json    │   │ Mantém animacoes.json │
+     │ Deploy Vercel        │   │ Mantém motion/        │
+     └──────────────────────┘   └───────────────────────┘
+```
 
-1. **Fetch fresco antes de escrever:** Nunca use dados em cache para fazer PUT/PATCH via GitHub API. Sempre `GET` o SHA atual primeiro.
+---
 
-2. **Commits com prefixo de agente:**
-   ```
-   [SuperAgent] feat: adiciona arte blog-1782xxxxxx
-   [AnimAgent]  feat: motion cinematic-reveal-13s — evento-1782045624931
-   [Cursor]     feat: Motion System v1
-   ```
+### 9.2 SuperAgent (CREAO)
 
-3. **Arquivos com dono:**
-   - `artes.json` → SuperAgent (outros só leem)
-   - `temas.json` → SuperAgent
-   - `index.html` → SuperAgent
-   - `_agents/` → SuperAgent
-   - `animacoes.json` → AnimAgent (append-only)
-   - `artes/{slug}/motion/` → AnimAgent
+**Plataforma:** CREAO (plataforma proprietária de agentes IA)  
+**Prefixo de commit:** `[SuperAgent]`
 
-4. **Mudanças em arquivos centrais → Branch + PR:**
-   Para `temas.json`, `index.html`, `_agents/`, criar branch `superagent/...` ou `animagent/...`, PR, aprovação do usuário.
+#### O que o SuperAgent faz — fluxo completo:
 
-5. **Verificação inicial:** Antes de operar, conferir os últimos 5 commits para identificar outros agentes.
+```
+1. Recebe instrução do usuário
+   ("gere um post de blog sobre IAM")
+         ↓
+2. Lê temas.json
+   - Identifica tema editorial
+   - Verifica rotação de layouts (qual layout usar)
+   - Consulta historico_recente para não repetir
+         ↓
+3. Gera texto criativo (via GPT-4 / LLM)
+   - headline (maiúsculas, 3–5 palavras impactantes)
+   - palavras_azuis (quais palavras ficam em #14A8F4)
+   - subtitulo (1–2 frases de apoio)
+   - legenda (texto completo para Instagram)
+         ↓
+4. Gera imagem de fundo (via DALL-E / GPT-4o Vision)
+   - Estilo: fotografia dark, cidade à noite, luz azul
+   - Dimensões: ~1122×1402 (maior que o canvas para o Ken Burns)
+   - Salva como base64 em arte.html (#art-bg)
+         ↓
+5. Renderiza arte.html
+   - Usa layouts.js para montar o HTML (layout A–Q)
+   - Insere imagem como background-image no #art-bg
+   - Insere texto em #art-content (logo, headline, subtítulo, CTAs)
+   - Salva em artes/{slug}/arte.html
+         ↓
+6. Captura screenshot (Puppeteer/Playwright)
+   - Tira screenshot de arte.html em 1080×1350
+   - Salva como artes/{slug}/thumb.png
+         ↓
+7. Registra em artes.json
+   - Append da entrada com slug, tipo, headline, layout, paths
+   - Atualiza temas.json (historico_recente)
+         ↓
+8. Atualiza index.html
+   - Adiciona o novo card na galeria pública
+   - Via branch + PR (nunca direto na main)
+         ↓
+9. Commit [SuperAgent] + push para repo público
+```
+
+#### Onde vive o conteúdo gerado pelo SuperAgent:
+```
+artes/{slug}/
+  arte.html       ← HTML completo da arte (NÃO editar)
+  thumb.png       ← composição final capturada (logo+texto+fundo, tudo em uma imagem)
+  fundo.png       ← pode ser igual ao thumb.png (composição) OU foto limpa
+```
+
+> ⚠️ **IMPORTANTE:** `thumb.png` é uma imagem composta — tem o logo, headline, subtítulo, logos parceiros TUDO BAKED como pixels. Não é só o fundo. Isso é o que causa o problema de "ghost text" nas animações se usada diretamente.
+
+#### Quando o SuperAgent usa o GitHub API diretamente:
+O SuperAgent opera via API do GitHub (não via git local). Ele usa `PUT /repos/betoyes/cybersecfest/contents/arquivo` para commitar. Por isso a regra de "fetch fresco antes de escrever" — ele precisa do SHA atual para não criar conflitos.
+
+---
+
+### 9.3 AnimAgent (Cursor)
+
+**Plataforma:** Cursor IDE (este ambiente)  
+**Prefixo de commit:** `[AnimAgent]` ou `[Cursor]`
+
+#### O que o AnimAgent faz — fluxo completo:
+
+```
+1. Recebe instrução do usuário
+   ("crie animação para evento-1782045624931")
+         ↓
+2. Leitura obrigatória (PASSO 0 do SKILL.md)
+   - AGENTS.md
+   - _agents/animador/config.json
+   - artes.json (metadados do post: headline, palavras_azuis, etc.)
+   - artes/{slug}/arte.html (somente leitura — referência visual)
+   - artes/{slug}/motion/versions.json (se existir)
+         ↓
+3. Prepara assets
+   - Extrai fundo-raw.png de arte.html (#art-bg background-image)
+   - Salva em artes/{slug}/fundo-raw.png (foto limpa, sem texto)
+   - Copia logos, fontes para motion/v{N}/assets/
+         ↓
+4. Compõe index.html (HyperFrames + GSAP)
+   - Canvas 1080×1350
+   - Fundo: fundo-raw.png (foto limpa)
+   - Overlay: gradiente sólido na esquerda (cobre área do texto)
+   - Camadas: bg → overlay → luz azul → partículas → vinheta → conteúdo HTML
+   - Timeline GSAP: paused, determinística, sem repeat:-1
+   - window.__timelines["preset-id"] = tl
+         ↓
+5. Valida
+   cd artes/{slug}/motion/v{N}
+   npx hyperframes@0.7.3 lint    ← 0 erros obrigatório
+         ↓
+6. Registra em versions.json (append)
+   {
+     "id": N,
+     "dir": "vN",
+     "preset": "nome-do-preset",
+     "duracao_s": 13,
+     "created_at": "...",
+     "note": "descrição",
+     "mp4": null
+   }
+         ↓
+7. Registra em animacoes.json (append ou update)
+         ↓
+8. Render MP4 (quando solicitado)
+   cd artes/{slug}/motion/v{N}
+   npm run render
+   → preview.mp4
+         ↓
+9. Commit [AnimAgent] feat: motion {preset} — {slug}
+```
+
+#### Como o AnimAgent cria animações manualmente vs automaticamente:
+
+**Modo automático (via UI "Nova Versão"):**
+- Usuário clica "+ Nova Versão" na galeria
+- Frontend chama `POST /api/motion/pedido`
+- `dev-server.js` cria um pedido em `pedidos.json` e dispara `motion-pedido-run.js` como processo filho
+- `motion-pedido-run.js` chama `motion-gerador.js` → `motion-presets.js`
+- O preset gera o HTML completo automaticamente usando os dados de `artes.json`
+- Versão criada em `motion/v{N}/`
+
+**Modo manual (via Cursor/AnimAgent):**
+- Usuário descreve a animação desejada (pode usar `BRIEF-PROMPT-ANIMACAO.md` como guia)
+- O AnimAgent lê o brief, entende o conceito criativo
+- Escreve o `index.html` manualmente com GSAP timeline customizada
+- Permite animações muito mais sofisticadas que os presets automáticos
+- Exemplo: `cinematic-reveal-13s` (v1 de `evento-1782045624931`)
+
+#### Arquivos de skill do AnimAgent:
+```
+_agents/animador/
+  SKILL.md                    ← procedimento passo a passo (ler antes de operar)
+  config.json                 ← catálogo de presets, paths, regras
+  BRIEF-PROMPT-ANIMACAO.md    ← guia para criar briefs de animação com IA externa
+```
+
+---
+
+### 9.4 Interação entre os Agentes
+
+Os agentes **NÃO se comunicam diretamente**. O usuário é o ponto de contato entre eles.
+
+```
+SuperAgent cria arte
+    → artes.json atualizado
+    → artes/{slug}/arte.html + thumb.png criados
+    
+Usuário pede ao AnimAgent para animar
+    → AnimAgent lê artes.json para pegar metadados
+    → AnimAgent NÃO modifica arte.html ou artes.json
+    → AnimAgent cria artes/{slug}/motion/ com animações
+    → AnimAgent atualiza animacoes.json
+```
+
+#### Verificação de estado cruzado:
+Antes de qualquer operação, verificar os últimos commits:
+```bash
+git log --oneline -10
+```
+Se houver commits com prefixo diferente do seu, reportar ao usuário antes de prosseguir.
+
+---
+
+### 9.5 Protocolo de Commits e Branches
+
+**Prefixos de commit obrigatórios:**
+```
+[SuperAgent] feat: adiciona arte blog-1782xxxxxx — Layout N
+[AnimAgent]  feat: motion cinematic-reveal-13s — evento-1782045624931
+[Cursor]     feat: Motion System v1 — pipeline completo
+[Cursor]     fix: ghost text — overlay sólido + fundo-raw.png
+```
+
+**Mudanças em arquivos centrais → Branch + PR:**
+```bash
+# Criar branch com prefixo do agente
+git checkout -b animagent/update-motion-presets
+
+# Fazer o commit na branch
+git commit -m "[AnimAgent] feat: novo preset premium signal-v2"
+
+# Abrir PR para o usuário aprovar
+gh pr create --title "AnimAgent: novo preset signal-v2"
+```
+
+**Arquivos com dono definido:**
+| Arquivo/Pasta | Dono | Outros agentes |
+|---------------|------|----------------|
+| `artes.json` | SuperAgent | Apenas leitura |
+| `temas.json` | SuperAgent | Leitura; edições via branch |
+| `index.html` | SuperAgent | Leitura; edições via branch |
+| `_agents/` | SuperAgent | Apenas leitura |
+| `animacoes.json` | AnimAgent | Append-only |
+| `artes/{slug}/motion/` | AnimAgent | Escrita livre |
+| `AGENTS.md` | Qualquer agente | PR obrigatório |
+| `HANDOFF.md` | Qualquer agente | PR obrigatório |
+
+---
+
+### 9.6 Onboarding de Nova IA neste Protocolo
+
+Se uma nova IA/agente for integrada:
+
+1. Solicitar ao usuário um GitHub Token com permissão `push`
+2. Leitura obrigatória: `AGENTS.md`, `HANDOFF.md`, `artes.json`, `temas.json`
+3. Verificar últimos 5 commits para identificar atividade recente
+4. Escolher prefixo de commit único (ex: `[ClaudeAgent]`, `[GPTAgent]`)
+5. Adicionar linha na tabela de agentes em `AGENTS.md` via PR
+6. **Nunca** usar `artes.json` como escrita se não for o SuperAgent
 
 ---
 
