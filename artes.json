@@ -216,5 +216,34 @@
     "image_path": "artes/blog-1782238181309/thumb.png",
     "html_path": "artes/blog-1782238181309/arte.html",
     "created_at": "2026-06-23T18:09:45.122Z"
+  },
+  {
+    "slug": "patrocinador-1782316675205",
+    "tipo": "patrocinador",
+    "headline": "Seu investimento está na sala certa no CybersecFEST",
+    "palavras_azuis": "investimento, CybersecFEST",
+    "subtitulo": "Alcance os líderes que definem o rumo da segurança digital no Brasil.",
+    "cidade": "BH e SP",
+    "formato": "feed_vertical",
+    "layout": "I",
+    "legenda": "\"\"\"\nPatrocínio no CybersecFEST é mais que visibilidade. É estar na sala onde as decisões realmente acontecem.\n\nConecte-se com líderes que transformam segurança digital em estratégia. \nSua marca ganha relevância ao lado de executivos de alto calibre.\n\nParticipar significa interagir com decisões estratégicas em tempo real. \nAs parcerias formadas aqui multiplicam resultados de forma exponencial.\n\nA associação com líderes visionários começa no CybersecFEST. \nNão perca a chance de posicionar sua empresa no epicentro das conversas que moldam o futuro.\n\n✅ SEJA PATROCINADOR: [link]\n\n#CybersecFEST #PatrocínioEstratégico #ROI #CLevel #LiderançaDigital #SegurançaDaInformação #Parcerias #Networking #EventoTech #CyberSecurity #Cibersegurança #LiderançaTech #InfoSec\n\"\"\"",
+    "legenda_variante": "aprovada",
+    "contexto_visual": "Um auditório cheio, rostos atentos, slides projetando insights sobre a tela. Executivos trocam cartões, conversam em pequenos grupos, discutem colaborações futuras. A cena é de um fervilhante caldeirão de ideias e estratégias. No centro, stands personalizados das marcas patrocinadoras atraem olhares curiosos, oportunidades de networking e parcerias ganham vida. A energia é tangível, e o potencial de ROI está visível em cada interação, cada acordo futuro sendo gestado.",
+    "cta_visual": "SEJA PATROCINADOR",
+    "publicacao": "normal",
+    "proposta_id": "prop-1782241704604-6c8ge",
+    "angulo_editorial": "ROI sala certa",
+    "image_rules": {
+      "layout": "I",
+      "focus": "ESQUERDA",
+      "focus_en": "center of the LEFT 59% image strip (left side of canvas)",
+      "clear_zones": [
+        "RIGHT 41%: dark HTML text panel — NO subject or readable detail.",
+        "Subject confined to LEFT 59% only."
+      ]
+    },
+    "image_path": "artes/patrocinador-1782316675205/thumb.png",
+    "html_path": "artes/patrocinador-1782316675205/arte.html",
+    "created_at": "2026-06-24T15:57:55.205Z"
   }
 ]

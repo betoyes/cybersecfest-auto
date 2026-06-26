@@ -237,7 +237,7 @@
     },
     {
       "id": "lote-1782241708317-nq40z",
-      "status": "aguardando_aprovacao",
+      "status": "concluido",
       "modo": "campanha",
       "objetivo": "patrocinadores",
       "quantidade": 3,
@@ -284,7 +284,10 @@
           "legenda": "\"\"\"\nQuer que sua marca seja vista pelos que decidem? O CybersecFEST é a vitrine ideal.\n\nAqui, sua empresa se destaca diante dos líderes que estão moldando o futuro.\n\n🔹 Conexão direta com C-Levels influentes.\n🔹 Ambiente propício para negócios e inovação.\n🔹 Parcerias que impulsionam crescimento.\n\nNão é apenas sobre aparecer. É sobre impactar.\n\n🔒 As oportunidades para patrocínio são limitadas.\n\n✅ SEJA PATROCINADOR: [link]\n\n#CybersecFEST #CLevel #Visibilidade #Patrocínio #Inovação #Liderança #Tecnologia #EventoExclusivo #Networking #Cibersegurança #Empreendedorismo #TechEvent\n\"\"\"",
           "cidade": "BH e SP"
         }
-      ]
+      ],
+      "concluido_em": "2026-06-24T15:58:12.315Z",
+      "principal_id": "prop-1782241704604-6c8ge",
+      "slug_gerado": "patrocinador-1782316675205"
     }
   ]
 }

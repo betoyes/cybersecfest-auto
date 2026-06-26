@@ -1,0 +1,853 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1350" />
+    <title>CybersecFEST — Cyber Command Impact · Motion v3</title>
+    <style>
+      @font-face {
+        font-family: 'Ubuntu';
+        font-style: normal;
+        font-weight: 700;
+        src: url('assets/fonts/Ubuntu-Bold.woff2') format('woff2');
+      }
+      @font-face {
+        font-family: 'Montserrat';
+        font-style: normal;
+        font-weight: 400;
+        src: url('assets/fonts/Montserrat-Regular.woff2') format('woff2');
+      }
+      @font-face {
+        font-family: 'Montserrat';
+        font-style: normal;
+        font-weight: 600;
+        src: url('assets/fonts/Montserrat-SemiBold.woff2') format('woff2');
+      }
+      @font-face {
+        font-family: 'Montserrat';
+        font-style: normal;
+        font-weight: 700;
+        src: url('assets/fonts/Montserrat-Bold.woff2') format('woff2');
+      }
+
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+      html, body {
+        width: 1080px;
+        height: 1350px;
+        overflow: hidden;
+        background: #000;
+        font-family: 'Montserrat', sans-serif;
+        color: #F6F8FF;
+      }
+
+      #root {
+        position: relative;
+        width: 1080px;
+        height: 1350px;
+        overflow: hidden;
+        background: #000;
+      }
+
+      .scene {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+      }
+
+      #blackout {
+        position: absolute;
+        inset: 0;
+        z-index: 20;
+        background: #000;
+        pointer-events: none;
+      }
+
+      .bg-wrap {
+        position: absolute;
+        inset: -14%;
+        z-index: 0;
+        transform-origin: 74% 46%;
+        opacity: 0;
+      }
+
+      #bg {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: right center;
+      }
+
+      #overlay {
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        pointer-events: none;
+        opacity: 0;
+        background:
+          linear-gradient(to right, rgba(2,5,10,0.9) 0%, rgba(2,5,10,0.72) 34%, rgba(2,5,10,0.18) 56%, rgba(2,5,10,0) 100%),
+          linear-gradient(to top, rgba(2,5,10,0.72) 0%, rgba(2,5,10,0) 32%);
+      }
+
+      #startup-flash {
+        position: absolute;
+        inset: 0;
+        z-index: 18;
+        pointer-events: none;
+        opacity: 0;
+        background: linear-gradient(108deg, transparent 28%, rgba(255,255,255,0.92) 48%, rgba(20,168,244,0.75) 54%, transparent 72%);
+        transform: translateX(110%);
+      }
+
+      #signal-distortion {
+        position: absolute;
+        inset: 0;
+        z-index: 17;
+        pointer-events: none;
+        opacity: 0;
+        background: repeating-linear-gradient(
+          0deg,
+          transparent 0px,
+          transparent 3px,
+          rgba(20,168,244,0.08) 3px,
+          rgba(20,168,244,0.08) 4px
+        );
+        mix-blend-mode: screen;
+      }
+
+      #light-beams {
+        position: absolute;
+        inset: 0;
+        z-index: 2;
+        pointer-events: none;
+        overflow: hidden;
+        mask-image: linear-gradient(to right, transparent 45%, black 58%);
+      }
+
+      .beam {
+        position: absolute;
+        width: 140%;
+        height: 3px;
+        background: linear-gradient(90deg, transparent, rgba(20,168,244,0.85), rgba(255,255,255,0.35), transparent);
+        transform-origin: left center;
+        opacity: 0;
+        box-shadow: 0 0 24px rgba(20,168,244,0.55);
+      }
+
+      .beam-1 { top: 22%; left: -20%; transform: rotate(-18deg); }
+      .beam-2 { top: 38%; left: -15%; transform: rotate(-12deg); }
+      .beam-3 { top: 54%; left: -25%; transform: rotate(-22deg); }
+      .beam-4 { top: 70%; left: -18%; transform: rotate(-8deg); }
+
+      #mesh {
+        position: absolute;
+        inset: 0;
+        z-index: 3;
+        pointer-events: none;
+        mask-image: linear-gradient(to right, transparent 38%, black 52%, black 100%);
+        opacity: 0;
+      }
+
+      #mesh svg {
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+
+      .mesh-line {
+        fill: none;
+        stroke: rgba(20,168,244,0.55);
+        stroke-width: 1.3;
+        stroke-linecap: round;
+      }
+
+      .mesh-node {
+        fill: rgba(20,168,244,0.95);
+        transform-box: fill-box;
+        transform-origin: center center;
+        filter: drop-shadow(0 0 6px rgba(20,168,244,0.8));
+      }
+
+      .node-burst {
+        fill: none;
+        stroke: rgba(20,168,244,0.7);
+        stroke-width: 2;
+        opacity: 0;
+        transform-box: fill-box;
+        transform-origin: center center;
+      }
+
+      #signal-path-1,
+      #signal-path-2,
+      #signal-path-3 {
+        fill: #fff;
+        opacity: 0;
+        filter: drop-shadow(0 0 10px rgba(20,168,244,1));
+      }
+
+      #mesh-to-cta {
+        fill: none;
+        stroke: rgba(20,168,244,0.65);
+        stroke-width: 1.6;
+        stroke-linecap: round;
+        stroke-dasharray: 520;
+        stroke-dashoffset: 520;
+        opacity: 0;
+        filter: drop-shadow(0 0 8px rgba(20,168,244,0.6));
+      }
+
+      #network-wave {
+        position: absolute;
+        z-index: 4;
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        border: 2px solid rgba(20,168,244,0.55);
+        background: radial-gradient(circle, rgba(20,168,244,0.18) 0%, transparent 70%);
+        top: 42%;
+        left: 78%;
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      #scanline {
+        position: absolute;
+        top: -40px;
+        bottom: auto;
+        left: 0;
+        right: 0;
+        height: 4px;
+        z-index: 16;
+        opacity: 0;
+        pointer-events: none;
+        background: linear-gradient(90deg, transparent 4%, rgba(20,168,244,0.85) 50%, transparent 96%);
+        box-shadow: 0 0 28px rgba(20,168,244,0.65);
+      }
+
+      #scanline-v {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: -40px;
+        width: 3px;
+        z-index: 16;
+        opacity: 0;
+        pointer-events: none;
+        background: linear-gradient(180deg, transparent 4%, rgba(20,168,244,0.75) 50%, transparent 96%);
+        box-shadow: 0 0 24px rgba(20,168,244,0.5);
+      }
+
+      #impact-flash {
+        position: absolute;
+        inset: 0;
+        z-index: 15;
+        pointer-events: none;
+        opacity: 0;
+        background: radial-gradient(circle at 32% 48%, rgba(20,168,244,0.55) 0%, transparent 55%);
+      }
+
+      #vignette {
+        position: absolute;
+        inset: 0;
+        z-index: 9;
+        pointer-events: none;
+        opacity: 0;
+        background: radial-gradient(ellipse at 24% 42%, transparent 30%, rgba(0,0,0,0.72) 100%);
+      }
+
+      #grain {
+        position: absolute;
+        inset: 0;
+        z-index: 12;
+        opacity: 0.028;
+        pointer-events: none;
+        mix-blend-mode: overlay;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      }
+
+      .art-content-e {
+        position: absolute;
+        inset: 0;
+        z-index: 6;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 64px 60px 52px 68px;
+      }
+
+      .logo-wrap {
+        overflow: hidden;
+        width: fit-content;
+      }
+
+      .logo {
+        height: 128px;
+        width: auto;
+        max-width: 440px;
+        object-fit: contain;
+        object-position: left center;
+        clip-path: inset(0 100% 0 0);
+      }
+
+      .center-e {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        max-width: 56%;
+        padding: 20px 0;
+      }
+
+      .headline {
+        font-family: 'Ubuntu', sans-serif;
+        font-weight: 700;
+        font-size: 58px;
+        line-height: 1.08;
+        text-transform: uppercase;
+        color: #F6F8FF;
+        letter-spacing: -0.01em;
+        margin-bottom: 32px;
+      }
+
+      .hl-row {
+        display: block;
+        overflow: hidden;
+      }
+
+      .hl-inner {
+        display: inline-block;
+        position: relative;
+      }
+
+      .blue {
+        color: #14A8F4;
+        position: relative;
+      }
+
+      #row-4 .blue {
+        text-shadow: 0 0 0 rgba(20,168,244,0);
+      }
+
+      .divider {
+        width: 72px;
+        height: 4px;
+        background: linear-gradient(90deg, #14A8F4, rgba(20,168,244,0.2));
+        margin-bottom: 26px;
+        transform-origin: left center;
+        box-shadow: 0 0 12px rgba(20,168,244,0.45);
+      }
+
+      .subtitle {
+        font-size: 24px;
+        line-height: 1.65;
+        color: #D5D8ED;
+        max-width: 480px;
+      }
+
+      .bottom-e {
+        max-width: 72%;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .cta-wrap {
+        position: relative;
+        display: inline-block;
+        width: fit-content;
+      }
+
+      #cta-outline {
+        position: absolute;
+        inset: -3px -6px;
+        border-radius: 999px;
+        border: 2px solid rgba(20,168,244,0.9);
+        opacity: 0;
+        pointer-events: none;
+        clip-path: inset(0 100% 0 0);
+        box-shadow: 0 0 20px rgba(20,168,244,0.5);
+      }
+
+      #cta-pulse {
+        position: absolute;
+        inset: -16px -22px;
+        border-radius: 999px;
+        border: 1px solid rgba(20,168,244,0.65);
+        opacity: 0;
+        pointer-events: none;
+        transform-origin: center center;
+      }
+
+      .cta-pill {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        overflow: hidden;
+        width: fit-content;
+        background: rgba(20,168,244,0.14);
+        border: 1px solid rgba(20,168,244,0.58);
+        color: #14A8F4;
+        font-size: 17px;
+        font-weight: 700;
+        letter-spacing: 0.24em;
+        text-transform: uppercase;
+        padding: 16px 32px;
+        z-index: 1;
+        opacity: 0;
+        box-shadow: 0 0 0 rgba(20,168,244,0);
+      }
+
+      #cta-shine {
+        position: absolute;
+        top: -15%;
+        bottom: -15%;
+        left: 0;
+        width: 45%;
+        background: linear-gradient(115deg, transparent, rgba(255,255,255,0.55), transparent);
+        opacity: 0;
+        pointer-events: none;
+        z-index: 2;
+        transform: skewX(-20deg);
+      }
+
+      .pill-arrow {
+        margin-left: 20px;
+        font-size: 24px;
+        display: inline-block;
+      }
+
+      .eco-row {
+        display: flex;
+        align-items: center;
+        gap: 32px;
+        padding-top: 20px;
+        border-top: 1px solid rgba(246,248,255,0.1);
+      }
+
+      .eco-row img {
+        height: 60px;
+        width: auto;
+        object-fit: contain;
+        filter: brightness(0) invert(1);
+        opacity: 0;
+      }
+
+      .eco-sep {
+        width: 1px;
+        height: 28px;
+        background: rgba(246,248,255,0.12);
+      }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+  </head>
+  <body>
+    <div id="root" data-composition-id="cyber-command-impact-9s" data-start="0" data-width="1080" data-height="1350" data-duration="9">
+      <section id="scene" class="clip scene" data-start="0" data-duration="9" data-track-index="1">
+        <div id="blackout"></div>
+
+        <div class="bg-wrap" id="bg-wrap">
+          <img id="bg" src="assets/fundo.png" alt="" />
+        </div>
+        <div id="overlay"></div>
+
+        <div id="light-beams">
+          <div class="beam beam-1"></div>
+          <div class="beam beam-2"></div>
+          <div class="beam beam-3"></div>
+          <div class="beam beam-4"></div>
+        </div>
+
+        <div id="mesh">
+          <svg viewBox="0 0 1080 1350" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <g id="mesh-lines">
+              <path class="mesh-line" d="M600 140 L760 80 L900 170 L840 320 L700 355 L620 255 Z" />
+              <path class="mesh-line" d="M660 390 L820 335 L960 455 L885 595 L725 555 L645 475 Z" />
+              <path class="mesh-line" d="M700 650 L860 595 L1000 735 L920 895 L760 835 L680 735 Z" />
+              <path class="mesh-line" d="M620 890 L780 835 L920 955 L845 1095 L685 1035 L605 955 Z" />
+              <path class="mesh-line" d="M760 80 L820 335 L860 595 L780 835" />
+              <path class="mesh-line" d="M900 170 L960 455 L1000 735 L920 955" />
+              <path class="mesh-line" d="M700 355 L725 555 L760 835 L685 1035" />
+            </g>
+            <g id="mesh-nodes">
+              <circle class="mesh-node" cx="760" cy="80" r="4.5" />
+              <circle class="mesh-node" cx="900" cy="170" r="4" />
+              <circle class="mesh-node" cx="840" cy="320" r="4.5" />
+              <circle class="mesh-node" cx="700" cy="355" r="3.5" />
+              <circle class="mesh-node" cx="820" cy="335" r="4" />
+              <circle class="mesh-node" cx="960" cy="455" r="4.5" />
+              <circle class="mesh-node" cx="885" cy="595" r="3.5" />
+              <circle class="mesh-node" cx="860" cy="595" r="4" />
+              <circle class="mesh-node" cx="1000" cy="735" r="4.5" />
+              <circle class="mesh-node" cx="920" cy="895" r="3.5" />
+              <circle class="node-burst" cx="960" cy="455" r="12" />
+              <circle class="node-burst" cx="1000" cy="735" r="14" />
+              <circle class="node-burst" cx="840" cy="320" r="11" />
+              <circle class="node-burst" cx="885" cy="595" r="10" />
+            </g>
+            <circle id="signal-path-1" r="6" cx="760" cy="80" />
+            <circle id="signal-path-2" r="5.5" cx="900" cy="170" />
+            <circle id="signal-path-3" r="5" cx="960" cy="455" />
+            <path id="mesh-to-cta" d="M920 895 L720 980 L420 1080" />
+          </svg>
+        </div>
+
+        <div id="network-wave"></div>
+
+        <div id="scanline"></div>
+        <div id="scanline-v"></div>
+        <div id="startup-flash"></div>
+        <div id="signal-distortion"></div>
+        <div id="impact-flash"></div>
+        <div id="vignette"></div>
+
+        <div class="art-content-e" id="content">
+          <div class="top-e">
+            <div class="logo-wrap">
+              <img class="logo" id="logo" src="assets/logo-cyberfest.png" alt="CybersecFEST" />
+            </div>
+          </div>
+          <div class="center-e">
+            <h1 class="headline headline-e" id="headline">
+              <span class="hl-row"><span class="hl-inner" id="row-1"><span class="blue">C-Levels</span></span></span>
+              <span class="hl-row"><span class="hl-inner" id="row-2">reunidos em BH,</span></span>
+              <span class="hl-row"><span class="hl-inner" id="row-3">a maior</span></span>
+              <span class="hl-row"><span class="hl-inner" id="row-4"><span class="blue">confraria</span></span></span>
+              <span class="hl-row"><span class="hl-inner" id="row-5">cyber</span></span>
+            </h1>
+            <div class="divider divider-e" id="divider"></div>
+            <p class="subtitle subtitle-e" id="subtitle">Participe da edição mais exclusiva do CybersecFEST em Belo Horizonte e transforme seu networking.</p>
+          </div>
+          <div class="bottom-e">
+            <div class="cta-wrap">
+              <div id="cta-outline"></div>
+              <div id="cta-pulse"></div>
+              <div class="cta-pill" id="cta">
+                INSCRIÇÕES ABERTAS
+                <span class="pill-arrow" id="cta-arrow">→</span>
+              </div>
+              <div id="cta-shine"></div>
+            </div>
+            <div class="eco-row" id="ecosystem">
+              <img src="assets/logo-devops.webp" alt="" />
+              <div class="eco-sep"></div>
+              <img src="assets/logo-iam.webp" alt="" />
+              <div class="eco-sep"></div>
+              <img src="assets/logo-alcatraz.webp" alt="" />
+            </div>
+          </div>
+        </div>
+
+        <div id="grain"></div>
+      </section>
+    </div>
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      document.querySelectorAll('#mesh-lines path').forEach((path) => {
+        const len = path.getTotalLength();
+        path.style.strokeDasharray = len;
+        path.style.strokeDashoffset = len;
+      });
+      const meshToCta = document.getElementById('mesh-to-cta');
+      meshToCta.style.strokeDasharray = meshToCta.getTotalLength();
+      meshToCta.style.strokeDashoffset = meshToCta.getTotalLength();
+
+      function shake(el, at, dur) {
+        tl.to(el, { x: 4, duration: 0.03, ease: 'none' }, at);
+        tl.to(el, { x: -3, duration: 0.03, ease: 'none' }, at + 0.03);
+        tl.to(el, { x: 2, duration: 0.03, ease: 'none' }, at + 0.06);
+        tl.to(el, { x: -2, duration: 0.03, ease: 'none' }, at + 0.09);
+        tl.to(el, { x: 0, duration: 0.06, ease: 'power2.out' }, at + 0.12);
+      }
+
+      /* 0.0–0.35 — Blackout + ruptura */
+      tl.set('#blackout', { opacity: 1 }, 0);
+
+      tl.fromTo('#startup-flash',
+        { x: '110%', opacity: 0 },
+        { x: '-40%', opacity: 1, duration: 0.18, ease: 'power4.in' },
+        0.04
+      );
+      tl.to('#startup-flash', { opacity: 0, duration: 0.14, ease: 'power2.in' }, 0.22);
+
+      tl.fromTo('#signal-distortion',
+        { opacity: 0, skewX: 0, scaleY: 1 },
+        { opacity: 0.85, skewX: -4, scaleY: 1.04, duration: 0.06, ease: 'none' },
+        0.08
+      );
+      tl.to('#signal-distortion', { opacity: 0, skewX: 0, scaleY: 1, duration: 0.06, ease: 'power2.in' }, 0.14);
+
+      tl.to('#blackout', { opacity: 0, duration: 0.22, ease: 'power2.out' }, 0.18);
+
+      tl.fromTo('#bg-wrap',
+        { opacity: 0, scale: 1.22 },
+        { opacity: 1, scale: 1.05, duration: 0.85, ease: 'power3.out' },
+        0.2
+      );
+
+      tl.fromTo('#bg',
+        { filter: 'brightness(0.15) saturate(0.6)' },
+        { filter: 'brightness(1.05) saturate(1.1)', duration: 0.55, ease: 'power3.out' },
+        0.2
+      );
+
+      tl.fromTo('#overlay',
+        { opacity: 0 },
+        { opacity: 1, duration: 0.4, ease: 'power2.out' },
+        0.25
+      );
+
+      tl.fromTo('#vignette',
+        { opacity: 0 },
+        { opacity: 1, duration: 0.5, ease: 'power2.out' },
+        0.3
+      );
+
+      /* 0.35–1.20 — Cidade em ativação */
+      tl.to('#bg-wrap', { scale: 1.03, duration: 7.65, ease: 'none' }, 1.05);
+
+      tl.fromTo('.beam',
+        { x: '-30%', opacity: 0 },
+        { x: '55%', opacity: 0.75, duration: 0.35, stagger: 0.06, ease: 'power3.out' },
+        0.38
+      );
+      tl.to('.beam', { opacity: 0, duration: 0.25, stagger: 0.04, ease: 'power2.in' }, 0.78);
+
+      tl.fromTo('#mesh',
+        { opacity: 0, scale: 0.96 },
+        { opacity: 1, scale: 1, duration: 0.25, ease: 'power2.out' },
+        0.42
+      );
+
+      tl.fromTo('#mesh-lines path',
+        { strokeDashoffset: (i, el) => el.getTotalLength(), opacity: 0 },
+        { strokeDashoffset: 0, opacity: 0.65, duration: 0.42, stagger: 0.04, ease: 'power3.out' },
+        0.45
+      );
+
+      tl.fromTo('#mesh-nodes .mesh-node',
+        { scale: 2.2, opacity: 0, transformOrigin: 'center center' },
+        { scale: 1, opacity: 1, duration: 0.18, stagger: 0.035, ease: 'power3.out' },
+        0.62
+      );
+
+      tl.fromTo('#mesh-nodes .node-burst',
+        { scale: 0.4, opacity: 0.8, transformOrigin: 'center center' },
+        { scale: 2.8, opacity: 0, duration: 0.45, stagger: 0.08, ease: 'power2.out' },
+        0.68
+      );
+
+      /* 1.10–2.20 — Logo + C-LEVELS */
+      tl.fromTo('#logo',
+        { clipPath: 'inset(0 100% 0 0)' },
+        { clipPath: 'inset(0 0% 0 0)', duration: 0.38, ease: 'power4.out' },
+        1.12
+      );
+
+      tl.fromTo('#row-1',
+        { scale: 1.18, opacity: 0, filter: 'blur(8px)', y: 20 },
+        { scale: 1, opacity: 1, filter: 'blur(0px)', y: 0, duration: 0.32, ease: 'power4.out' },
+        1.35
+      );
+
+      tl.fromTo('#impact-flash',
+        { opacity: 0 },
+        { opacity: 0.55, duration: 0.05, ease: 'power2.out' },
+        1.35
+      );
+      tl.to('#impact-flash', { opacity: 0, duration: 0.12, ease: 'power2.in' }, 1.4);
+
+      /* 2.20–3.70 — Headline transmissão */
+      tl.fromTo('#row-2',
+        { x: -80, opacity: 0, clipPath: 'inset(0 100% 0 0)' },
+        { x: 0, opacity: 1, clipPath: 'inset(0 0% 0 0)', duration: 0.28, ease: 'power4.out' },
+        2.22
+      );
+
+      tl.fromTo('#row-3',
+        { y: 70, opacity: 0, clipPath: 'inset(100% 0 0 0)' },
+        { y: 0, opacity: 1, clipPath: 'inset(0% 0 0 0)', duration: 0.26, ease: 'power4.out' },
+        2.32
+      );
+
+      /* CONFRARIA — impact frame 2.8–3.8s peak */
+      tl.fromTo('#row-4',
+        { y: 70, opacity: 0, clipPath: 'inset(100% 0 0 0)', scale: 1.08 },
+        { y: 0, opacity: 1, clipPath: 'inset(0% 0 0 0)', scale: 1, duration: 0.24, ease: 'power4.out' },
+        2.82
+      );
+
+      tl.fromTo('#impact-flash',
+        { opacity: 0 },
+        { opacity: 0.85, duration: 0.06, ease: 'power2.out' },
+        2.82
+      );
+      tl.to('#impact-flash', { opacity: 0, duration: 0.2, ease: 'power2.in' }, 2.88);
+
+      tl.to('#row-4 .blue', {
+        textShadow: '0 0 28px rgba(20,168,244,0.95), 0 0 48px rgba(20,168,244,0.45)',
+        duration: 0.15,
+        ease: 'power2.out',
+      }, 2.82);
+      tl.to('#row-4 .blue', {
+        textShadow: '0 0 0 rgba(20,168,244,0)',
+        duration: 0.35,
+        ease: 'power2.in',
+      }, 3.05);
+
+      tl.to('#mesh-nodes .node-burst',
+        { scale: 3.2, opacity: 0, duration: 0.35, stagger: 0.05, ease: 'power2.out' },
+        2.85
+      );
+
+      shake('#headline', 2.86, 0.18);
+
+      tl.fromTo('#row-5',
+        { y: 80, opacity: 0, scale: 1.12, filter: 'blur(4px)' },
+        { y: 0, opacity: 1, scale: 1, filter: 'blur(0px)', duration: 0.34, ease: 'power4.out' },
+        3.18
+      );
+
+      /* 3.70–4.70 — Rede explode */
+      tl.fromTo('#signal-path-1',
+        { opacity: 0, attr: { cx: 760, cy: 80 } },
+        { opacity: 1, duration: 0.05 },
+        3.72
+      );
+      tl.to('#signal-path-1', { attr: { cx: 820, cy: 335 }, duration: 0.22, ease: 'none' }, 3.72);
+      tl.to('#signal-path-1', { attr: { cx: 860, cy: 595 }, duration: 0.24, ease: 'none' }, 3.94);
+      tl.to('#signal-path-1', { attr: { cx: 780, cy: 835 }, duration: 0.2, ease: 'none' }, 4.18);
+      tl.to('#signal-path-1', { opacity: 0, duration: 0.1 }, 4.35);
+
+      tl.fromTo('#signal-path-2',
+        { opacity: 0, attr: { cx: 900, cy: 170 } },
+        { opacity: 1, duration: 0.05 },
+        3.85
+      );
+      tl.to('#signal-path-2', { attr: { cx: 960, cy: 455 }, duration: 0.24, ease: 'none' }, 3.85);
+      tl.to('#signal-path-2', { attr: { cx: 1000, cy: 735 }, duration: 0.26, ease: 'none' }, 4.09);
+      tl.to('#signal-path-2', { attr: { cx: 920, cy: 895 }, duration: 0.22, ease: 'none' }, 4.35);
+      tl.to('#signal-path-2', { opacity: 0, duration: 0.1 }, 4.54);
+
+      tl.fromTo('#signal-path-3',
+        { opacity: 0, attr: { cx: 700, cy: 355 } },
+        { opacity: 1, duration: 0.05 },
+        3.95
+      );
+      tl.to('#signal-path-3', { attr: { cx: 725, cy: 555 }, duration: 0.2, ease: 'none' }, 3.95);
+      tl.to('#signal-path-3', { attr: { cx: 760, cy: 835 }, duration: 0.22, ease: 'none' }, 4.15);
+      tl.to('#signal-path-3', { attr: { cx: 685, cy: 1035 }, duration: 0.2, ease: 'none' }, 4.37);
+      tl.to('#signal-path-3', { opacity: 0, duration: 0.1 }, 4.54);
+
+      tl.fromTo('#network-wave',
+        { scale: 0, opacity: 0.75 },
+        { scale: 8, opacity: 0, duration: 0.75, ease: 'power2.out' },
+        3.78
+      );
+
+      tl.fromTo('#scanline-v',
+        { left: -40, opacity: 0 },
+        { left: 1120, opacity: 0.7, duration: 0.55, ease: 'power3.inOut' },
+        3.88
+      );
+      tl.to('#scanline-v', { opacity: 0, duration: 0.15 }, 4.43);
+
+      /* 4.60–5.60 — Subtítulo */
+      tl.fromTo('#divider',
+        { scaleX: 0, transformOrigin: 'left center' },
+        { scaleX: 1, duration: 0.28, ease: 'power4.out' },
+        4.62
+      );
+
+      tl.fromTo('#subtitle',
+        { opacity: 0, filter: 'blur(6px)', y: 12 },
+        { opacity: 1, filter: 'blur(0px)', y: 0, duration: 0.55, ease: 'power3.out' },
+        4.78
+      );
+
+      /* 5.40–6.60 — CTA liberação */
+      tl.fromTo('#cta-outline',
+        { opacity: 1, clipPath: 'inset(0 100% 0 0)' },
+        { clipPath: 'inset(0 0% 0 0)', duration: 0.38, ease: 'power3.inOut' },
+        5.42
+      );
+      tl.to('#cta-outline', { opacity: 0.35, duration: 0.2 }, 5.82);
+
+      tl.fromTo('#cta',
+        { scale: 0.75, opacity: 0, boxShadow: '0 0 0 rgba(20,168,244,0)' },
+        { scale: 1.04, opacity: 1, boxShadow: '0 0 36px rgba(20,168,244,0.35)', duration: 0.28, ease: 'power3.out' },
+        5.55
+      );
+      tl.to('#cta', { scale: 1, duration: 0.18, ease: 'power2.inOut' }, 5.83);
+
+      tl.fromTo('#cta-pulse',
+        { scale: 0.4, opacity: 0.85 },
+        { scale: 2.1, opacity: 0, duration: 0.65, ease: 'power2.out' },
+        5.58
+      );
+
+      tl.fromTo('#cta-arrow',
+        { x: -24, opacity: 0 },
+        { x: 0, opacity: 1, duration: 0.22, ease: 'power4.out' },
+        5.88
+      );
+
+      tl.fromTo('#mesh-to-cta',
+        { strokeDashoffset: () => meshToCta.getTotalLength(), opacity: 0 },
+        { strokeDashoffset: 0, opacity: 0.72, duration: 0.55, ease: 'power2.inOut' },
+        5.48
+      );
+
+      /* 6.60–9.0 — Encerramento */
+      tl.fromTo('#cta-shine',
+        { xPercent: -200, opacity: 0 },
+        { xPercent: 240, opacity: 0.95, duration: 0.55, ease: 'power3.inOut' },
+        6.65
+      );
+      tl.to('#cta-shine', { opacity: 0, duration: 0.2, overwrite: 'auto' }, 7.2);
+
+      tl.to('#cta', {
+        boxShadow: '0 0 52px rgba(20,168,244,0.5)',
+        duration: 0.35,
+        ease: 'power2.out',
+      }, 6.65);
+      tl.to('#cta', {
+        boxShadow: '0 0 28px rgba(20,168,244,0.28)',
+        duration: 0.45,
+        ease: 'power2.in',
+      }, 7.05);
+
+      tl.fromTo('#scanline',
+        { y: 120, opacity: 0 },
+        { y: 1280, opacity: 0.12, duration: 2.4, ease: 'none' },
+        6.8
+      );
+
+      tl.to('#mesh-nodes .node-burst',
+        { scale: 2.4, opacity: 0, duration: 0.6, stagger: 0.5, ease: 'power1.out' },
+        7.2
+      );
+
+      tl.from('#ecosystem img',
+        { opacity: 0, filter: 'brightness(0) invert(1)', duration: 0.3, stagger: 0.08, ease: 'power2.out' },
+        6.75
+      );
+      tl.to('#ecosystem img',
+        { filter: 'brightness(1.2) invert(1) drop-shadow(0 0 8px rgba(20,168,244,0.5))', duration: 0.25, stagger: 0.1, ease: 'power2.out' },
+        7.05
+      );
+      tl.to('#ecosystem img',
+        { filter: 'brightness(0) invert(1)', opacity: 0.88, duration: 0.35, stagger: 0.08, ease: 'power2.in' },
+        7.3
+      );
+
+      tl.to('#bg-wrap', { scale: 1.025, duration: 2.2, ease: 'sine.inOut' }, 6.8);
+
+      window.__timelines['cyber-command-impact-9s'] = tl;
+    </script>
+  </body>
+</html>

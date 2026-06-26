@@ -1,0 +1,63 @@
+{
+  "agent": "AnimAgent",
+  "version": "0.2.0",
+  "prefixo_commit": "[AnimAgent]",
+  "canvas_padrao": {
+    "feed_vertical": { "width": 1080, "height": 1350 },
+    "stories": { "width": 1080, "height": 1920 },
+    "feed_quadrado": { "width": 1080, "height": 1080 }
+  },
+  "render": {
+    "fps": 30,
+    "quality": "high",
+    "format": "mp4"
+  },
+  "presets": [
+    {
+      "id": "entrance-premium-6s",
+      "nome": "Entrada premium",
+      "label": "entrada",
+      "duracao_s": 6.5,
+      "auto": true,
+      "descricao": "Ken Burns suave no fundo, headline sobe em stagger, CTA com bounce."
+    },
+    {
+      "id": "kinetic-swipe-7s",
+      "nome": "Kinetic swipe",
+      "label": "swipe",
+      "duracao_s": 7,
+      "auto": true,
+      "descricao": "Headline entra pela esquerda, flash azul e linha lateral."
+    },
+    {
+      "id": "confraria-lite-8s",
+      "nome": "Confraria HUD",
+      "label": "hud",
+      "duracao_s": 8,
+      "auto": true,
+      "descricao": "Cantos HUD, orb atmosférico e headline com rotação 3D leve."
+    },
+    {
+      "id": "confraria-signal",
+      "nome": "Confraria Signal",
+      "label": "signal",
+      "duracao_s": 9,
+      "auto": false,
+      "descricao": "Grid, scan HUD, parallax duplo e CTA com shine — preset premium manual."
+    }
+  ],
+  "paths": {
+    "motion_dir": "artes/{slug}/motion",
+    "motion_html": "artes/{slug}/motion/index.html",
+    "motion_mp4": "artes/{slug}/motion/preview.mp4",
+    "fundo_relativo": "../fundo.png",
+    "assets_logo": "assets/logo-cyberfest.png"
+  },
+  "regras": {
+    "nao_editar": ["artes/{slug}/arte.html", "artes.json", "temas.json", "index.html"],
+    "registro": "animacoes.json",
+    "cli_render": "cd artes/{slug}/motion && npm run render",
+    "post_sandbox": "evento-1782143777641",
+    "post_sandbox_label": "Post #10 · Layout E · BH"
+  }
+}

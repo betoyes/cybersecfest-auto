@@ -1,0 +1,564 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1350" />
+    <title>CybersecFEST — Signal Mesh · Motion</title>
+    <style>
+      @font-face {
+        font-family: 'Ubuntu';
+        font-style: normal;
+        font-weight: 700;
+        src: url('assets/fonts/Ubuntu-Bold.woff2') format('woff2');
+      }
+      @font-face {
+        font-family: 'Montserrat';
+        font-style: normal;
+        font-weight: 400;
+        src: url('assets/fonts/Montserrat-Regular.woff2') format('woff2');
+      }
+      @font-face {
+        font-family: 'Montserrat';
+        font-style: normal;
+        font-weight: 600;
+        src: url('assets/fonts/Montserrat-SemiBold.woff2') format('woff2');
+      }
+      @font-face {
+        font-family: 'Montserrat';
+        font-style: normal;
+        font-weight: 700;
+        src: url('assets/fonts/Montserrat-Bold.woff2') format('woff2');
+      }
+
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+      html, body {
+        width: 1080px;
+        height: 1350px;
+        overflow: hidden;
+        background: #02050A;
+        font-family: 'Montserrat', sans-serif;
+        color: #F6F8FF;
+      }
+
+      #root {
+        position: relative;
+        width: 1080px;
+        height: 1350px;
+        overflow: hidden;
+        background: #02050A;
+      }
+
+      .scene {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+      }
+
+      .bg-img {
+        position: absolute;
+        inset: -8%;
+        width: 116%;
+        height: 116%;
+        object-fit: cover;
+        object-position: right center;
+        transform-origin: 72% 50%;
+        z-index: 0;
+      }
+
+      #overlay {
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        pointer-events: none;
+        background:
+          linear-gradient(to right, rgba(2,5,10,0.95) 0%, rgba(2,5,10,0.85) 38%, rgba(2,5,10,0.25) 60%, rgba(2,5,10,0) 100%),
+          linear-gradient(to top, rgba(2,5,10,0.75) 0%, rgba(2,5,10,0) 35%);
+      }
+
+      #vignette {
+        position: absolute;
+        inset: 0;
+        z-index: 8;
+        pointer-events: none;
+        opacity: 0;
+        background: radial-gradient(ellipse at 28% 42%, transparent 32%, rgba(2,5,10,0.62) 100%);
+      }
+
+      #flash {
+        position: absolute;
+        inset: 0;
+        z-index: 7;
+        pointer-events: none;
+        opacity: 0;
+        background: radial-gradient(circle at 78% 42%, rgba(20,168,244,0.22) 0%, transparent 42%);
+      }
+
+      #mesh {
+        position: absolute;
+        inset: 0;
+        z-index: 3;
+        pointer-events: none;
+        mask-image: linear-gradient(to right, transparent 42%, black 58%, black 100%);
+      }
+
+      #mesh svg {
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+
+      .mesh-line {
+        fill: none;
+        stroke: rgba(20,168,244,0.42);
+        stroke-width: 1;
+        stroke-linecap: round;
+      }
+
+      .mesh-node {
+        fill: rgba(20,168,244,0.85);
+        transform-box: fill-box;
+        transform-origin: center center;
+      }
+
+      .node-pulse {
+        fill: none;
+        stroke: rgba(20,168,244,0.55);
+        stroke-width: 1.5;
+        opacity: 0;
+        transform-box: fill-box;
+        transform-origin: center center;
+      }
+
+      #mesh-link {
+        fill: none;
+        stroke: rgba(20,168,244,0.35);
+        stroke-width: 1;
+        stroke-dasharray: 320;
+        stroke-dashoffset: 320;
+        opacity: 0;
+      }
+
+      #particles {
+        position: absolute;
+        inset: 0;
+        z-index: 4;
+        pointer-events: none;
+        mask-image: linear-gradient(to right, transparent 50%, black 70%);
+      }
+
+      .particle {
+        position: absolute;
+        width: 3px;
+        height: 3px;
+        border-radius: 50%;
+        background: rgba(20,168,244,0.55);
+        box-shadow: 0 0 6px rgba(20,168,244,0.45);
+        opacity: 0;
+      }
+
+      #scanline {
+        position: absolute;
+        left: 0;
+        right: 0;
+        height: 2px;
+        top: -80px;
+        z-index: 6;
+        opacity: 0;
+        pointer-events: none;
+        background: linear-gradient(90deg, transparent 8%, rgba(20,168,244,0.55) 50%, transparent 92%);
+        box-shadow: 0 0 18px rgba(20,168,244,0.35);
+      }
+
+      #grain {
+        position: absolute;
+        inset: 0;
+        z-index: 11;
+        opacity: 0.035;
+        pointer-events: none;
+        mix-blend-mode: overlay;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      }
+
+      .art-content-e {
+        position: absolute;
+        inset: 0;
+        z-index: 5;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 64px 60px 52px 68px;
+      }
+
+      .logo {
+        height: 128px;
+        width: auto;
+        max-width: 440px;
+        object-fit: contain;
+        object-position: left center;
+      }
+
+      .center-e {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        max-width: 56%;
+        padding: 20px 0;
+      }
+
+      .headline {
+        font-family: 'Ubuntu', sans-serif;
+        font-weight: 700;
+        font-size: 58px;
+        line-height: 1.08;
+        text-transform: uppercase;
+        color: #F6F8FF;
+        letter-spacing: -0.01em;
+        margin-bottom: 32px;
+      }
+
+      .hl-row {
+        display: block;
+        overflow: hidden;
+      }
+
+      .hl-inner {
+        display: inline-block;
+        position: relative;
+      }
+
+      .blue {
+        color: #14A8F4;
+        position: relative;
+      }
+
+      .blue-shine {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(105deg, transparent 35%, rgba(255,255,255,0.55) 50%, transparent 65%);
+        opacity: 0;
+        pointer-events: none;
+        mix-blend-mode: screen;
+      }
+
+      .divider {
+        width: 72px;
+        height: 4px;
+        background: linear-gradient(90deg, #14A8F4, transparent);
+        margin-bottom: 26px;
+        transform-origin: left center;
+      }
+
+      .subtitle {
+        font-size: 24px;
+        line-height: 1.65;
+        color: #D5D8ED;
+        max-width: 480px;
+      }
+
+      .bottom-e {
+        max-width: 72%;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .cta-wrap {
+        position: relative;
+        display: inline-block;
+        width: fit-content;
+      }
+
+      #cta-pulse {
+        position: absolute;
+        inset: -12px -18px;
+        border-radius: 999px;
+        border: 1px solid rgba(20,168,244,0.45);
+        opacity: 0;
+        pointer-events: none;
+        transform-origin: center center;
+      }
+
+      .cta-pill {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        overflow: hidden;
+        width: fit-content;
+        background: rgba(20,168,244,0.10);
+        border: 1px solid rgba(20,168,244,0.45);
+        color: #14A8F4;
+        font-size: 17px;
+        font-weight: 700;
+        letter-spacing: 0.24em;
+        text-transform: uppercase;
+        padding: 16px 32px;
+        z-index: 1;
+      }
+
+      #cta-shine {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        width: 42%;
+        background: linear-gradient(105deg, transparent, rgba(255,255,255,0.35), transparent);
+        opacity: 0;
+        pointer-events: none;
+        z-index: 2;
+      }
+
+      .pill-arrow {
+        margin-left: 20px;
+        font-size: 24px;
+        display: inline-block;
+      }
+
+      .eco-row {
+        display: flex;
+        align-items: center;
+        gap: 32px;
+        padding-top: 20px;
+        border-top: 1px solid rgba(246,248,255,0.1);
+      }
+
+      .eco-row img {
+        height: 60px;
+        width: auto;
+        object-fit: contain;
+        filter: brightness(0) invert(1);
+        opacity: 0.88;
+      }
+
+      .eco-sep {
+        width: 1px;
+        height: 28px;
+        background: rgba(246,248,255,0.12);
+      }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+  </head>
+  <body>
+    <div id="root" data-composition-id="signal-mesh-10s" data-start="0" data-width="1080" data-height="1350" data-duration="10">
+      <section id="scene" class="clip scene" data-start="0" data-duration="10" data-track-index="1">
+        <img class="bg-img" id="bg" src="assets/fundo.png" alt="" />
+        <div id="overlay"></div>
+        <div id="vignette"></div>
+        <div id="flash"></div>
+
+        <div id="mesh">
+          <svg viewBox="0 0 1080 1350" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <g id="mesh-lines">
+              <path class="mesh-line" d="M620 180 L780 120 L920 200 L860 340 L720 380 L640 280 Z" />
+              <path class="mesh-line" d="M680 420 L840 360 L980 480 L900 620 L740 580 L660 500 Z" />
+              <path class="mesh-line" d="M720 680 L880 620 L1020 760 L940 920 L780 860 L700 760 Z" />
+              <path class="mesh-line" d="M640 920 L800 860 L940 980 L860 1120 L700 1060 L620 980 Z" />
+              <path class="mesh-line" d="M780 120 L840 360 L880 620 L800 860" />
+              <path class="mesh-line" d="M920 200 L980 480 L1020 760 L940 980" />
+              <path class="mesh-line" d="M720 380 L740 580 L780 860 L700 1060" />
+            </g>
+            <g id="mesh-nodes">
+              <circle class="mesh-node" cx="780" cy="120" r="4" />
+              <circle class="mesh-node" cx="920" cy="200" r="3.5" />
+              <circle class="mesh-node" cx="860" cy="340" r="4" />
+              <circle class="mesh-node" cx="720" cy="380" r="3" />
+              <circle class="mesh-node" cx="840" cy="360" r="3.5" />
+              <circle class="mesh-node" cx="980" cy="480" r="4" />
+              <circle class="mesh-node" cx="900" cy="620" r="3" />
+              <circle class="mesh-node" cx="880" cy="620" r="3.5" />
+              <circle class="mesh-node" cx="1020" cy="760" r="4" />
+              <circle class="mesh-node" cx="940" cy="920" r="3" />
+              <circle class="node-pulse" cx="980" cy="480" r="8" />
+              <circle class="node-pulse" cx="1020" cy="760" r="9" />
+              <circle class="node-pulse" cx="860" cy="340" r="7" />
+            </g>
+            <path id="mesh-link" d="M700 760 L520 980 L340 1080" />
+          </svg>
+        </div>
+
+        <div id="particles">
+          <span class="particle" style="left:72%;top:22%"></span>
+          <span class="particle" style="left:84%;top:38%"></span>
+          <span class="particle" style="left:78%;top:58%"></span>
+          <span class="particle" style="left:88%;top:72%"></span>
+          <span class="particle" style="left:68%;top:84%"></span>
+        </div>
+
+        <div id="scanline"></div>
+
+        <div class="art-content-e">
+          <div class="top-e">
+            <img class="logo" id="logo" src="assets/logo-cyberfest.png" alt="CybersecFEST" />
+          </div>
+          <div class="center-e">
+            <h1 class="headline headline-e" id="headline">
+              <span class="hl-row"><span class="hl-inner" id="row-1"><span class="blue">C-Levels<span class="blue-shine"></span></span> reunidos em BH,</span></span>
+              <span class="hl-row"><span class="hl-inner" id="row-2">a maior <span class="blue">confraria<span class="blue-shine"></span></span></span></span>
+              <span class="hl-row"><span class="hl-inner" id="row-3">cyber</span></span>
+            </h1>
+            <div class="divider divider-e" id="divider"></div>
+            <p class="subtitle subtitle-e" id="subtitle">Participe da edição mais exclusiva do CybersecFEST em Belo Horizonte e transforme seu networking.</p>
+          </div>
+          <div class="bottom-e">
+            <div class="cta-wrap">
+              <div id="cta-pulse"></div>
+              <div class="cta-pill" id="cta">
+                INSCRIÇÕES ABERTAS
+                <span class="pill-arrow" id="cta-arrow">→</span>
+              </div>
+              <div id="cta-shine"></div>
+            </div>
+            <div class="eco-row" id="ecosystem">
+              <img src="assets/logo-devops.webp" alt="" />
+              <div class="eco-sep"></div>
+              <img src="assets/logo-iam.webp" alt="" />
+              <div class="eco-sep"></div>
+              <img src="assets/logo-alcatraz.webp" alt="" />
+            </div>
+          </div>
+        </div>
+
+        <div id="grain"></div>
+      </section>
+    </div>
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      tl.fromTo('#bg',
+        { scale: 1.12, x: 24, filter: 'brightness(0.35) saturate(0.8)' },
+        { scale: 1.04, x: 0, filter: 'brightness(0.92) saturate(1)', duration: 10, ease: 'none' },
+        0
+      );
+
+      tl.fromTo('#overlay',
+        { opacity: 0.95 },
+        { opacity: 0.72, duration: 1.2, ease: 'power2.out' },
+        0
+      );
+
+      tl.fromTo('#vignette',
+        { opacity: 0 },
+        { opacity: 1, duration: 0.8, ease: 'power2.out' },
+        0
+      );
+
+      tl.fromTo('#flash',
+        { opacity: 0 },
+        { opacity: 0.85, duration: 0.08, ease: 'power2.out' },
+        0.18
+      );
+      tl.to('#flash', { opacity: 0, duration: 0.35, ease: 'power2.in' }, 0.26);
+
+      tl.from('#logo',
+        { y: -18, opacity: 0, duration: 0.55, ease: 'power3.out' },
+        0.35
+      );
+
+      tl.fromTo('#mesh-lines path',
+        { strokeDasharray: 260, strokeDashoffset: 260, opacity: 0 },
+        { strokeDashoffset: 0, opacity: 0.48, duration: 1.3, stagger: 0.08, ease: 'power2.out' },
+        0.7
+      );
+
+      tl.fromTo('#mesh-nodes .mesh-node',
+        { scale: 0, opacity: 0, transformOrigin: 'center center' },
+        { scale: 1, opacity: 0.9, duration: 0.28, stagger: 0.07, ease: 'back.out(2)' },
+        1.15
+      );
+
+      tl.fromTo('#row-1, #row-2, #row-3',
+        { y: 42, opacity: 0, clipPath: 'inset(100% 0 0 0)' },
+        { y: 0, opacity: 1, clipPath: 'inset(0% 0 0 0)', duration: 0.58, stagger: 0.12, ease: 'expo.out' },
+        1.45
+      );
+
+      tl.fromTo('.blue-shine',
+        { x: '-120%', opacity: 0 },
+        { x: '120%', opacity: 0.75, duration: 0.5, stagger: 0.15, ease: 'power2.inOut' },
+        2.05
+      );
+      tl.set('.blue-shine', { opacity: 0 }, 2.58);
+
+      tl.fromTo('#divider',
+        { scaleX: 0, transformOrigin: 'left center' },
+        { scaleX: 1, duration: 0.45, ease: 'power3.out' },
+        3.05
+      );
+
+      tl.fromTo('#subtitle',
+        { y: 16, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.6, ease: 'power3.out' },
+        3.3
+      );
+
+      tl.to('#mesh-lines path:nth-child(3)',
+        { opacity: 0.72, duration: 0.35, ease: 'power2.out' },
+        3.15
+      );
+      tl.to('#mesh-lines path:nth-child(3)',
+        { opacity: 0.48, duration: 0.45, ease: 'power2.in' },
+        3.5
+      );
+
+      tl.fromTo('#cta-pulse',
+        { scale: 0.5, opacity: 0.7 },
+        { scale: 1.75, opacity: 0, duration: 0.9, ease: 'power2.out' },
+        4.05
+      );
+
+      tl.fromTo('#cta',
+        { y: 18, scale: 0.88, opacity: 0 },
+        { y: 0, scale: 1, opacity: 1, duration: 0.7, ease: 'back.out(1.6)' },
+        4.1
+      );
+
+      tl.fromTo('#cta-arrow',
+        { x: -8, opacity: 0 },
+        { x: 0, opacity: 1, duration: 0.35, ease: 'power3.out' },
+        4.55
+      );
+
+      tl.from('#ecosystem img',
+        { y: 14, opacity: 0, duration: 0.38, stagger: 0.08, ease: 'power2.out' },
+        4.85
+      );
+
+      tl.fromTo('#scanline',
+        { y: -80, opacity: 0 },
+        { y: 1430, opacity: 0.26, duration: 2.1, ease: 'none' },
+        5.15
+      );
+
+      tl.to('#mesh-nodes .node-pulse',
+        { scale: 2.4, opacity: 0, duration: 0.8, stagger: 0.35, ease: 'power2.out' },
+        5.7
+      );
+
+      tl.to('.particle',
+        { opacity: 0.65, duration: 1.2, stagger: 0.25, ease: 'sine.inOut' },
+        5.4
+      );
+      tl.to('.particle',
+        { y: -12, duration: 3.5, stagger: 0.3, ease: 'sine.inOut' },
+        5.6
+      );
+
+      tl.fromTo('#mesh-link',
+        { strokeDashoffset: 320, opacity: 0 },
+        { strokeDashoffset: 0, opacity: 0.55, duration: 1.1, ease: 'power2.inOut' },
+        7.35
+      );
+
+      tl.fromTo('#cta-shine',
+        { xPercent: -160, opacity: 0 },
+        { xPercent: 180, opacity: 0.72, duration: 0.85, ease: 'power2.inOut' },
+        7.2
+      );
+      tl.to('#cta-shine', { opacity: 0, duration: 0.2 }, 8.05);
+
+      window.__timelines['signal-mesh-10s'] = tl;
+    </script>
+  </body>
+</html>

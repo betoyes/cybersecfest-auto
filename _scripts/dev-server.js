@@ -9,9 +9,13 @@ const fs   = require('fs');
 const path = require('path');
 const { executarPedido, getEstadoPropostas } = require('./pedido-run.js');
 const { aprovarLote, rejeitarLote, consumirBanco } = require('./aprovar-propostas.js');
-const { upsertEditorState } = require('./utils/editor-state.js');
+const { upsertEditorState, extractEditorState } = require('./utils/editor-state.js');
 const { gerarThumbComposto } = require('./utils/thumb-composto.js');
 const { resolveArtePaths, promoteTemplatePadrao, isTemplateSlug } = require('./utils/template-padroes.js');
+const { generateImage } = require('./utils/llm.js');
+const { buildImagePrompt, validateLayout } = require('./utils/imagem-prompt.js');
+const { renderLayout } = require('./utils/layouts.js');
+const { wrapWithEditor } = require('./utils/editor-wrap.js');
 
 const ROOT = path.join(__dirname, '..');
 const PORT = Number(process.env.PORT || 8765);
@@ -76,7 +80,14 @@ function serveStatic(req, res, urlPath) {
       res.writeHead(404); return res.end('Not found');
     }
     const ext = path.extname(file).toLowerCase();
-    res.writeHead(200, { 'Content-Type': MIME[ext] || 'application/octet-stream' });
+    const headers = { 'Content-Type': MIME[ext] || 'application/octet-stream' };
+    const rel = path.relative(ROOT, file).replace(/\\/g, '/');
+    if (rel.startsWith('effects-preview/')) {
+      headers['Cache-Control'] = 'no-cache, no-store, must-revalidate';
+      headers.Pragma = 'no-cache';
+      headers.Expires = '0';
+    }
+    res.writeHead(200, headers);
     res.end(data);
   });
 }
@@ -281,6 +292,87 @@ async function handleCalendario(_req, res) {
   }
 }
 
+async function handleMudarImagem(req, res) {
+  if (gerando) return json(res, 409, { ok: false, erro: 'Já existe uma operação em andamento. Aguarde.' });
+
+  const payload = await readBody(req);
+  const slug = String(payload?.slug || '').trim();
+  const instrucao = String(payload?.instrucao || '').trim();
+
+  if (!slug || !/^[\w-]+$/.test(slug)) return json(res, 400, { ok: false, erro: 'slug inválido' });
+  if (!instrucao) return json(res, 400, { ok: false, erro: 'instrucao é obrigatória' });
+
+  const artesJsonPath = path.join(ROOT, 'artes.json');
+  const artes = JSON.parse(fs.readFileSync(artesJsonPath, 'utf8'));
+  const arte = artes.find(a => a.slug === slug);
+  if (!arte) return json(res, 404, { ok: false, erro: `Arte não encontrada: ${slug}` });
+
+  const { artePath, thumbPath } = resolveArtePaths(slug);
+  if (!fs.existsSync(artePath)) return json(res, 404, { ok: false, erro: 'arte.html não encontrada' });
+
+  gerando = true;
+  try {
+    const layout = (arte.layout || (arte.tipo === 'evento' ? 'E' : arte.tipo === 'patrocinador' ? 'F' : 'C')).toUpperCase();
+    validateLayout(layout);
+
+    /* Prompt base + instrução do usuário como modificador */
+    const basePrompt = buildImagePrompt({
+      tipo:           arte.tipo,
+      layout,
+      contextoVisual: arte.contexto_visual || '',
+      slug,
+      cidade:         arte.cidade || 'BH',
+    });
+    const prompt = `${basePrompt}\n\nMODIFICAÇÃO SOLICITADA: ${instrucao}`;
+
+    console.log(`\n🖼️  Mudar imagem: ${slug}`);
+    console.log(`   Instrução: ${instrucao}`);
+
+    const imgBuffer = await generateImage(prompt, {
+      tipo:           arte.tipo,
+      layout,
+      contextoVisual: arte.contexto_visual || '',
+      cidade:         arte.cidade || 'BH',
+    });
+
+    if (!imgBuffer?.length || imgBuffer.length < 5000) {
+      throw new Error(`Imagem gerada muito pequena (${imgBuffer?.length || 0} bytes)`);
+    }
+
+    const slugDir  = path.join(ROOT, 'artes', slug);
+    const fundoPath = path.join(slugDir, 'fundo.png');
+    fs.mkdirSync(slugDir, { recursive: true });
+    fs.writeFileSync(fundoPath, imgBuffer);
+    console.log(`💾 fundo.png atualizado (${Math.round(imgBuffer.length / 1024)} KB)`);
+
+    /* Recompor arte.html preservando estado do editor */
+    const imageBase64 = imgBuffer.toString('base64');
+    const editorState = extractEditorState(fs.readFileSync(artePath, 'utf8'));
+    const simpleHtml  = renderLayout(layout, {
+      imageBase64,
+      headline:        arte.headline,
+      subtitulo:       arte.subtitulo || '',
+      palavrasAzuis:   arte.palavras_azuis || '',
+      nomePalestrante: arte.nome_palestrante || '',
+      cargoEmpresa:    arte.cargo_empresa || '',
+    });
+    const html = wrapWithEditor(simpleHtml, { layout, headline: arte.headline, slug, editorState });
+    fs.writeFileSync(artePath, html);
+    console.log(`📝 arte.html recomposto`);
+
+    /* Regenerar thumb */
+    await gerarThumbComposto(artePath, thumbPath);
+    console.log(`📸 thumb regenerado`);
+
+    json(res, 200, { ok: true, slug, thumb: `artes/${slug}/thumb.png?t=${Date.now()}` });
+  } catch (e) {
+    console.error('❌ Mudar imagem falhou:', e.message);
+    json(res, 500, { ok: false, erro: e.message });
+  } finally {
+    gerando = false;
+  }
+}
+
 async function handleDeletarArte(req, res) {
   const payload = await readBody(req);
   if (!payload) return json(res, 400, { ok: false, erro: 'JSON inválido' });
@@ -299,6 +391,162 @@ async function handleDeletarArte(req, res) {
   }
 }
 
+async function handleMotionSelecionar(req, res) {
+  const payload = await readBody(req);
+  if (!payload) return json(res, 400, { ok: false, erro: 'JSON inválido' });
+  const slug = String(payload.slug || '').trim();
+  const version = Number(payload.version);
+  if (!slug || !Number.isFinite(version)) {
+    return json(res, 400, { ok: false, erro: 'slug e version obrigatórios' });
+  }
+  try {
+    const { setPreview } = require('./utils/motion-versoes.js');
+    const data = setPreview(slug, ROOT, version);
+    console.log(`🎬 Motion preview: ${slug} → v${version}`);
+    json(res, 200, { ok: true, versions: data });
+  } catch (e) {
+    json(res, 500, { ok: false, erro: e.message });
+  }
+}
+
+async function handleMotionAprovarMp4(req, res) {
+  const payload = await readBody(req);
+  if (!payload) return json(res, 400, { ok: false, erro: 'JSON inválido' });
+  const slug = String(payload.slug || '').trim();
+  const version = Number(payload.version);
+  if (!slug || !Number.isFinite(version)) {
+    return json(res, 400, { ok: false, erro: 'slug e version obrigatórios' });
+  }
+  try {
+    const { setMp4From } = require('./utils/motion-versoes.js');
+    const { resolveMp4ForVersion } = require('./utils/motion-mp4.js');
+    const data = setMp4From(slug, ROOT, version);
+    const resolved = resolveMp4ForVersion(slug, ROOT, version);
+    console.log(`🎬 Motion MP4 aprovado: ${slug} → v${version}`);
+    json(res, 200, {
+      ok: true,
+      versions: data,
+      mp4: resolved?.mp4 || null,
+    });
+  } catch (e) {
+    json(res, 500, { ok: false, erro: e.message });
+  }
+}
+
+async function handleMotionMp4Get(req, res, searchParams) {
+  const slug = String(searchParams.get('slug') || '').trim();
+  const version = Number(searchParams.get('version'));
+  if (!slug || !Number.isFinite(version)) {
+    return json(res, 400, { ok: false, erro: 'slug e version obrigatórios' });
+  }
+  try {
+    const { resolveMp4ForVersion } = require('./utils/motion-mp4.js');
+    const resolved = resolveMp4ForVersion(slug, ROOT, version);
+    if (!resolved) return json(res, 404, { ok: false, erro: 'Sem versões motion' });
+    json(res, 200, { ok: true, ...resolved });
+  } catch (e) {
+    json(res, 500, { ok: false, erro: e.message });
+  }
+}
+
+async function handleMotionDeletar(req, res) {
+  const payload = await readBody(req);
+  if (!payload) return json(res, 400, { ok: false, erro: 'JSON inválido' });
+  const slug = String(payload.slug || '').trim();
+  const version = Number(payload.version);
+  if (!slug || !Number.isFinite(version)) {
+    return json(res, 400, { ok: false, erro: 'slug e version obrigatórios' });
+  }
+  try {
+    const { deleteVersion } = require('./utils/motion-versoes.js');
+    const data = deleteVersion(slug, ROOT, version);
+    console.log(`🗑️  Motion versão removida: ${slug} → v${version}`);
+    json(res, 200, { ok: true, versions: data });
+  } catch (e) {
+    json(res, 500, { ok: false, erro: e.message });
+  }
+}
+
+async function handleMotionVersoesGet(req, res, searchParams) {
+  const slug = String(searchParams.get('slug') || '').trim();
+  if (!slug) return json(res, 400, { ok: false, erro: 'slug obrigatório' });
+  try {
+    const { readVersions } = require('./utils/motion-versoes.js');
+    const data = readVersions(slug, ROOT);
+    if (!data) return json(res, 404, { ok: false, erro: 'Sem versões motion' });
+    json(res, 200, { ok: true, versions: data });
+  } catch (e) {
+    json(res, 500, { ok: false, erro: e.message });
+  }
+}
+
+async function handleMotionPedidoPost(req, res) {
+  const payload = await readBody(req);
+  if (!payload) return json(res, 400, { ok: false, erro: 'JSON inválido' });
+  const slug = String(payload.slug || '').trim();
+  const mode = payload.mode === 'ajustar' ? 'ajustar' : 'surpresa';
+  const instrucoes = String(payload.instrucoes || '').trim();
+  const baseVersion = payload.baseVersion != null ? Number(payload.baseVersion) : null;
+  const presetId = payload.presetId ? String(payload.presetId).trim() : null;
+
+  if (!slug) return json(res, 400, { ok: false, erro: 'slug obrigatório' });
+  if (mode === 'ajustar' && !instrucoes) {
+    return json(res, 400, { ok: false, erro: 'Descreva o que mudar' });
+  }
+
+  try {
+    const { createPedido } = require('./utils/motion-pedidos.js');
+    const { PRESET_IDS } = require('./utils/motion-presets.js');
+    if (presetId && !PRESET_IDS.includes(presetId)) {
+      return json(res, 400, { ok: false, erro: 'Preset inválido ou não automatizado: ' + presetId });
+    }
+    const pedido = createPedido(slug, ROOT, { mode, instrucoes, baseVersion, presetId });
+
+    const { spawn } = require('child_process');
+    const worker = path.join(__dirname, 'motion-pedido-run.js');
+    spawn(process.execPath, [worker, '--slug', slug, '--pedido-id', pedido.id], {
+      detached: true,
+      stdio: 'ignore',
+      cwd: __dirname,
+    }).unref();
+
+    const presetLabel = presetId || 'surpresa';
+    console.log(`🎬 Motion pedido: ${slug} → v${pedido.targetVersion} (${mode}${presetId ? ' · ' + presetId : ''})`);
+    json(res, 200, { ok: true, pedido });
+  } catch (e) {
+    json(res, 500, { ok: false, erro: e.message });
+  }
+}
+
+async function handleMotionPresetsGet(req, res, searchParams) {
+  const slug = String(searchParams.get('slug') || '').trim();
+  try {
+    const { listPresets } = require('./utils/motion-presets.js');
+    const { readVersions } = require('./utils/motion-versoes.js');
+    let used = [];
+    if (slug) {
+      const versions = readVersions(slug, ROOT);
+      if (versions) used = versions.versions.map(v => v.preset).filter(Boolean);
+    }
+    json(res, 200, { ok: true, presets: listPresets(used) });
+  } catch (e) {
+    json(res, 500, { ok: false, erro: e.message });
+  }
+}
+
+async function handleMotionPedidoGet(req, res, searchParams) {
+  const slug = String(searchParams.get('slug') || '').trim();
+  if (!slug) return json(res, 400, { ok: false, erro: 'slug obrigatório' });
+  try {
+    const { getActivePedido, readPedidos } = require('./utils/motion-pedidos.js');
+    const pedidos = readPedidos(slug, ROOT);
+    const pedido = getActivePedido(slug, ROOT) || pedidos.slice(-1)[0] || null;
+    json(res, 200, { ok: true, pedido, pedidos: pedidos.slice(-5) });
+  } catch (e) {
+    json(res, 500, { ok: false, erro: e.message });
+  }
+}
+
 const server = http.createServer((req, res) => {
   const url = new URL(req.url || '/', `http://${HOST}:${PORT}`);
   const urlPath = decodeURIComponent(url.pathname);
@@ -311,6 +559,14 @@ const server = http.createServer((req, res) => {
   if (req.method === 'POST' && urlPath === '/api/banco/consumir') return handleConsumirBanco(req, res);
   if (req.method === 'POST' && urlPath === '/api/arte/salvar') return handleSalvarArte(req, res);
   if (req.method === 'POST' && urlPath === '/api/arte/deletar') return handleDeletarArte(req, res);
+  if (req.method === 'POST' && urlPath === '/api/arte/imagem/mudar') return handleMudarImagem(req, res);
+  if (req.method === 'POST' && urlPath === '/api/motion/selecionar') return handleMotionSelecionar(req, res);
+  if (req.method === 'POST' && urlPath === '/api/motion/aprovar-mp4') return handleMotionAprovarMp4(req, res);
+  if (req.method === 'POST' && urlPath === '/api/motion/deletar') return handleMotionDeletar(req, res);
+  if (req.method === 'POST' && urlPath === '/api/motion/pedido') return handleMotionPedidoPost(req, res);
+  if (req.method === 'GET'  && urlPath === '/api/motion/versoes') return handleMotionVersoesGet(req, res, url.searchParams);
+  if (req.method === 'GET'  && urlPath === '/api/motion/pedido') return handleMotionPedidoGet(req, res, url.searchParams);
+  if (req.method === 'GET'  && urlPath === '/api/motion/mp4') return handleMotionMp4Get(req, res, url.searchParams);
   if (req.method === 'GET'  && urlPath === '/api/campanha/export') return handleCampanhaExport(req, res, url.searchParams);
   if (req.method === 'GET'  && urlPath === '/api/temas/calendario') return handleCalendario(req, res);
   if (req.method === 'GET'  && urlPath === '/api/status') {
@@ -319,7 +575,7 @@ const server = http.createServer((req, res) => {
       gerando,
       fluxo: 'v2-propostas',
       build: '2026-06-23-arte-deletar',
-      apis: ['pedido', 'campanha', 'campanha/export', 'propostas', 'aprovar', 'banco', 'arte/salvar', 'arte/deletar', 'template/padroes', 'temas/calendario'],
+      apis: ['pedido', 'campanha', 'campanha/export', 'propostas', 'aprovar', 'banco', 'arte/salvar', 'arte/deletar', 'motion/selecionar', 'motion/aprovar-mp4', 'motion/deletar', 'motion/mp4', 'motion/versoes', 'motion/pedido', 'motion/presets', 'template/padroes', 'temas/calendario'],
     });
   }
 

@@ -1,0 +1,34 @@
+[
+  {
+    "slug": "evento-1782143777641",
+    "preset": "cyber-command-impact-9s",
+    "duracao_s": 9,
+    "formato": "feed_vertical",
+    "layout": "E",
+    "headline": "C-Levels reunidos em BH, a maior confraria cyber",
+    "arte_estatica": "artes/evento-1782143777641/arte.html",
+    "motion_html": "artes/evento-1782143777641/motion/v3/index.html",
+    "motion_mp4": "artes/evento-1782143777641/motion/v3/preview.mp4",
+    "status": "preview_mp4",
+    "sandbox": true,
+    "created_at": "2026-06-24T12:00:00.000Z",
+    "updated_at": "2026-06-24T22:00:00.000Z",
+    "agente": "AnimAgent"
+  },
+  {
+    "slug": "evento-1782045624931",
+    "preset": "cinematic-reveal-13s",
+    "duracao_s": 13,
+    "formato": "feed_vertical",
+    "layout": "E",
+    "headline": "O RISCO NÃO\nESPERA VOCÊ\nSE ATUALIZAR.",
+    "arte_estatica": "artes/evento-1782045624931/arte.html",
+    "motion_html": "artes/evento-1782045624931/motion/v1/index.html",
+    "motion_mp4": null,
+    "status": "preview_html",
+    "sandbox": false,
+    "created_at": "2026-06-25T23:30:00.000Z",
+    "updated_at": "2026-06-26T01:35:38.510Z",
+    "agente": "AnimAgent"
+  }
+]

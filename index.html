@@ -10,7 +10,11 @@
 <title>CybersecFEST — Galeria de Artes</title>
 <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&family=Montserrat:ital,wght@0,300;0,400;0,600;1,300&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/dom-to-image-more@3.3.1/dist/dom-to-image-more.min.js"></script>
-<link rel="stylesheet" href="assets/css/gallery.css?v=20260623-ui2">
+<link rel="stylesheet" href="assets/css/gallery.css?v=20260625c">
+<script type="module" src="https://cdn.jsdelivr.net/npm/@hyperframes/player@0.7.3/dist/hyperframes-player.js"></script>
+<script src="assets/js/motion-sandbox.js?v=20260625a"></script>
+<script src="assets/js/motion-versions.js?v=20260624-mp4"></script>
+<script src="assets/js/motion-prompt.js?v=20260624-presets"></script>
 <script>
 if (location.protocol === 'file:') {
   document.documentElement.classList.add('file-protocol');
@@ -151,10 +155,30 @@ if (location.protocol === 'file:') {
 
     <!-- PAINEL ESQUERDO: arte composta -->
     <div class="modal-preview" style="position:relative">
+      <div class="modal-view-tabs" id="modal-view-tabs" hidden>
+        <button type="button" class="modal-view-tab active" data-view="static" onclick="setModalViewMode('static')">Estático</button>
+        <button type="button" class="modal-view-tab" data-view="motion" onclick="setModalViewMode('motion')">Motion</button>
+      </div>
+      <div class="motion-version-bar" id="modal-motion-versions" hidden>
+        <span class="motion-version-label">Versão</span>
+        <div class="motion-version-pills" id="modal-version-pills"></div>
+        <button type="button" class="motion-version-new" id="modal-version-new" title="Pedir nova versão ao AnimAgent (não apaga as anteriores)">+ Nova versão</button>
+        <button type="button" class="motion-version-mp4" id="modal-version-mp4" title="Baixar MP4 desta versão (ou marcar para export)">↓ MP4</button>
+      </div>
       <button class="btn-toggle-panel" id="btn-toggle-panel" onclick="toggleModalPanel()" title="Expandir / recolher painel">◀ Legenda</button>
       <div class="modal-art-box" id="modal-art-box">
         <div class="modal-art-scaler" id="modal-art-scaler">
           <img id="modal-img" src="" alt="Arte" style="width:100%;height:100%;object-fit:contain;display:block;">
+          <hyperframes-player
+            id="modal-hf-player"
+            class="modal-hf-player"
+            width="1080"
+            height="1350"
+            controls
+            loop
+            autoplay
+            hidden
+          ></hyperframes-player>
         </div>
       </div>
     </div>
@@ -168,6 +192,23 @@ if (location.protocol === 'file:') {
       </div>
       <div class="modal-body">
         <div class="modal-actions" id="modal-actions"></div>
+
+        <div class="modal-img-edit" id="modal-img-edit">
+          <label class="modal-img-edit-label" for="modal-img-instrucao">🖼 Mudar imagem</label>
+          <div class="modal-img-edit-row">
+            <input
+              type="text"
+              id="modal-img-instrucao"
+              class="modal-img-edit-input"
+              placeholder="Ex: homem de costas olhando a cidade à noite, tons roxos"
+              maxlength="300"
+              autocomplete="off"
+            >
+            <button type="button" class="modal-img-edit-btn" id="modal-img-edit-btn" onclick="mudarImagem()">Gerar</button>
+          </div>
+          <p class="modal-img-edit-status" id="modal-img-edit-status" hidden></p>
+        </div>
+
         <div class="modal-meta-wrap" id="modal-meta"></div>
         <div class="modal-caption-wrap" id="modal-caption-wrap">
           <div class="modal-caption-header">
@@ -231,6 +272,10 @@ let devServerApis = [];
 let showBackupArtes = false;
 let calendarioData = null;
 let modalSlug = null;
+let animacoesMap = {};
+let modalViewMode = 'static';
+let modalMotionVersions = null;
+let modalMotionPreviewId = 1;
 
 const FORMATO_LABELS = {
   feed_vertical: 'Vertical',
@@ -283,9 +328,17 @@ async function parseApiJson(res) {
   }
 }
 
+function getVisibleArtes() {
+  return allArtes.filter(a => showBackupArtes || a.publicacao !== 'backup');
+}
+
+function getGalleryTotalCount() {
+  return getVisibleArtes().length;
+}
+
 function buildCreationOrder(artes) {
   creationOrderMap = {};
-  [...artes]
+  getVisibleArtes()
     .sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
     .forEach((arte, i) => { creationOrderMap[arte.slug] = i + 1; });
 }
@@ -299,6 +352,324 @@ function layoutBadgeHtml(arte) {
   if (!L) return '';
   const name = LAYOUT_NAMES[L] || '';
   return `<div class="card-layout-badge" title="Layout ${L}${name ? ' — ' + name : ''}"><span class="clb-letter">${L}</span></div>`;
+}
+
+async function loadAnimacoes() {
+  try {
+    const res = await fetch('animacoes.json?v=' + Date.now());
+    if (!res.ok) return;
+    const list = await res.json();
+    animacoesMap = Object.fromEntries((list || []).map(a => [a.slug, a]));
+  } catch (_) {}
+}
+
+function hasMotion(slug) {
+  /* Motion disponível para todos os posts */
+  return !!slug;
+}
+
+function getMotionMp4Path(slug) {
+  const m = animacoesMap[slug];
+  return m?.motion_mp4 || null;
+}
+
+function hasMotionMp4(slug) {
+  const m = animacoesMap[slug];
+  return !!(m?.motion_mp4);
+}
+
+function goToMotion(slug) {
+  window.location.href = 'motion-studio.html?slug=' + encodeURIComponent(slug);
+}
+
+function openNovaVersaoMotion(slug) {
+  if (!window.MotionSandbox?.isSandbox(slug)) return;
+  const base = modalMotionPreviewId || modalMotionVersions?.preview || 1;
+  if (!window.MotionPrompt) return;
+  MotionPrompt.open({
+    slug,
+    baseVersion: base,
+    completeCallback: async ({ slug: s, ready, versions }) => {
+      if (ready && s === modalSlug) {
+        modalMotionVersions = versions || await MotionVersions.fetchVersions(s);
+        modalMotionPreviewId = modalMotionVersions.preview || modalMotionVersions.versions.at(-1)?.id;
+        const ver = getModalMotionVersion(modalMotionPreviewId);
+        if (ver) loadModalPlayerVersion(ver);
+        renderModalVersionBar();
+        updateModalMp4DownloadLink();
+      }
+    },
+  });
+}
+
+function getModalMotionVersion(id) {
+  if (!modalMotionVersions?.versions) return null;
+  return modalMotionVersions.versions.find(v => v.id === id) || null;
+}
+
+function loadModalPlayerVersion(ver) {
+  const player = document.getElementById('modal-hf-player');
+  if (!player || !modalSlug || !ver || !window.MotionVersions) return;
+  const url = MotionVersions.versionHtmlUrl(modalSlug, ver) + '?v=' + Date.now();
+  player.setAttribute('src', url);
+  player.removeAttribute('poster');
+  requestAnimationFrame(() => playModalMotionPreview());
+}
+
+function renderModalVersionBar() {
+  const bar = document.getElementById('modal-motion-versions');
+  const pills = document.getElementById('modal-version-pills');
+  const mp4Btn = document.getElementById('modal-version-mp4');
+  if (!bar || !modalMotionVersions || !window.MotionVersions) {
+    if (bar) bar.hidden = true;
+    return;
+  }
+  bar.hidden = modalViewMode !== 'motion';
+  MotionVersions.renderPills(
+    pills,
+    modalMotionVersions,
+    modalMotionPreviewId,
+    (vid) => selectModalMotionVersion(vid),
+    { canDelete: isDevHost(), onDelete: (vid) => deleteModalMotionVersion(vid) },
+  );
+  if (mp4Btn) {
+    mp4Btn.classList.toggle('approved', modalMotionVersions.mp4_from === modalMotionPreviewId);
+    mp4Btn.onclick = () => approveModalMotionMp4();
+  }
+  const newBtn = document.getElementById('modal-version-new');
+  if (newBtn && modalSlug) {
+    newBtn.onclick = () => openNovaVersaoMotion(modalSlug);
+  }
+}
+
+async function initModalMotionVersions(slug) {
+  modalMotionVersions = null;
+  modalMotionPreviewId = 1;
+  const bar = document.getElementById('modal-motion-versions');
+  if (!window.MotionVersions) { if (bar) bar.hidden = true; return; }
+  modalMotionVersions = await MotionVersions.fetchVersions(slug);
+  if (!modalMotionVersions) { if (bar) bar.hidden = true; return; }
+  modalMotionPreviewId = modalMotionVersions.preview || modalMotionVersions.versions[0]?.id || 1;
+  const ver = getModalMotionVersion(modalMotionPreviewId);
+  if (ver) loadModalPlayerVersion(ver);
+  renderModalVersionBar();
+}
+
+async function selectModalMotionVersion(versionId) {
+  if (!modalSlug || !modalMotionVersions) return;
+  modalMotionPreviewId = versionId;
+  const ver = getModalMotionVersion(versionId);
+  if (ver) loadModalPlayerVersion(ver);
+  renderModalVersionBar();
+  updateModalMp4DownloadLink();
+  if (isDevHost()) {
+    try { await MotionVersions.apiSelect(modalSlug, versionId); modalMotionVersions.preview = versionId; } catch (_) {}
+  }
+}
+
+async function deleteModalMotionVersion(versionId) {
+  if (!modalSlug || !modalMotionVersions || !window.MotionVersions) return;
+  const ver = getModalMotionVersion(versionId);
+  if (!ver || !MotionVersions.canDeleteVersion(modalMotionVersions, ver)) return;
+  const label = MotionVersions.presetLabel(ver.preset);
+  const msg = label
+    ? `Excluir versão ${versionId} (${label})? A pasta motion/v${versionId}/ será removida.`
+    : `Excluir versão ${versionId}? A pasta motion/v${versionId}/ será removida.`;
+  if (!confirm(msg)) return;
+  try {
+    const res = await MotionVersions.apiDelete(modalSlug, versionId);
+    modalMotionVersions = res.versions || modalMotionVersions;
+    modalMotionPreviewId = modalMotionVersions.preview || modalMotionVersions.versions[0]?.id || 1;
+    const next = getModalMotionVersion(modalMotionPreviewId);
+    if (next) loadModalPlayerVersion(next);
+    renderModalVersionBar();
+    updateModalMp4DownloadLink();
+  } catch (e) {
+    alert(e.message || 'Não foi possível excluir');
+  }
+}
+
+async function approveModalMotionMp4() {
+  if (!modalSlug || !modalMotionVersions) return;
+  const ver = getModalMotionVersion(modalMotionPreviewId);
+  if (!ver || !window.MotionVersions) return;
+  const mp4Btn = document.getElementById('modal-version-mp4');
+  const origLabel = mp4Btn?.textContent || '↓ MP4';
+
+  if (isDevHost()) {
+    try {
+      const res = await MotionVersions.apiApproveMp4(modalSlug, modalMotionPreviewId);
+      modalMotionVersions = res.versions || modalMotionVersions;
+      modalMotionVersions.mp4_from = modalMotionPreviewId;
+      if (res.mp4?.url) {
+        await MotionVersions.downloadVersionMp4(
+          res.mp4.url,
+          `cybersecfest_${modalSlug}_v${modalMotionPreviewId}_motion.mp4`,
+        );
+        if (mp4Btn) {
+          mp4Btn.textContent = '✓ Baixado';
+          setTimeout(() => { mp4Btn.textContent = origLabel; }, 2000);
+        }
+        renderModalVersionBar();
+        updateModalMp4DownloadLink();
+        return;
+      }
+    } catch (_) {}
+  } else {
+    modalMotionVersions.mp4_from = modalMotionPreviewId;
+  }
+
+  renderModalVersionBar();
+
+  let mp4Info = null;
+  try {
+    mp4Info = await MotionVersions.fetchVersionMp4(modalSlug, modalMotionPreviewId);
+  } catch (_) {}
+
+  if (mp4Info?.mp4?.url) {
+    try {
+      await MotionVersions.downloadVersionMp4(
+        mp4Info.mp4.url,
+        `cybersecfest_${modalSlug}_v${modalMotionPreviewId}_motion.mp4`,
+      );
+      if (mp4Btn) {
+        mp4Btn.textContent = '✓ Baixado';
+        setTimeout(() => { mp4Btn.textContent = origLabel; }, 2000);
+      }
+      updateModalMp4DownloadLink();
+      return;
+    } catch (_) {}
+  }
+
+  const prompt = MotionVersions.mp4RenderPrompt(modalSlug, ver);
+  if (navigator.clipboard?.writeText) {
+    await navigator.clipboard.writeText(prompt).catch(() => {});
+  }
+  if (mp4Btn) {
+    mp4Btn.textContent = 'Render?';
+    setTimeout(() => { mp4Btn.textContent = origLabel; }, 2500);
+  }
+  alert(
+    'MP4 ainda não renderizado para esta versão.\n\n' +
+    'Comando copiado:\n' + prompt + '\n\n' +
+    'Depois de renderizar, clique ↓ MP4 novamente.',
+  );
+  updateModalMp4DownloadLink();
+}
+
+async function updateModalMp4DownloadLink() {
+  if (!modalSlug || !window.MotionVersions) return;
+  const versionId = modalMotionVersions?.mp4_from || modalMotionPreviewId;
+  const ver = getModalMotionVersion(versionId);
+  if (!ver) return;
+
+  const actions = document.getElementById('modal-actions');
+  if (!actions) return;
+
+  let link = actions.querySelector('[data-motion-mp4-dl]');
+  let mp4Info = null;
+  try {
+    mp4Info = await MotionVersions.fetchVersionMp4(modalSlug, versionId);
+  } catch (_) {
+    try {
+      const url = MotionVersions.versionMp4Url(modalSlug, ver);
+      const head = await fetch(url, { method: 'HEAD' });
+      if (head.ok) mp4Info = { mp4: { url, draft: false } };
+    } catch (_) {}
+  }
+
+  if (!mp4Info?.mp4?.url) {
+    if (link) link.remove();
+    return;
+  }
+
+  if (!link) {
+    const pngBtn = actions.querySelector('.btn-arte-secondary');
+    link = document.createElement('a');
+    link.className = 'btn-arte btn-arte-secondary';
+    link.setAttribute('data-motion-mp4-dl', '1');
+    if (pngBtn) pngBtn.before(link);
+  }
+  link.textContent = mp4Info.mp4.draft ? '↓ MP4 (draft)' : '↓ MP4';
+  link.title = `Baixar MP4 da versão ${versionId}` + (mp4Info.mp4.draft ? ' (preview draft)' : '');
+  link.href = mp4Info.mp4.url;
+  link.download = `cybersecfest_${modalSlug}_v${versionId}_motion.mp4`;
+  link.onclick = async (e) => {
+    e.preventDefault();
+    try {
+      await MotionVersions.downloadVersionMp4(link.href, link.download);
+    } catch (err) {
+      alert(err.message || 'Falha ao baixar MP4');
+    }
+  };
+}
+
+function playModalMotionPreview() {
+  const player = document.getElementById('modal-hf-player');
+  if (!player || player.hidden) return;
+  const start = () => {
+    try {
+      if (typeof player.play === 'function') player.play();
+    } catch (_) {}
+  };
+  if (player.ready) start();
+  else player.addEventListener('ready', start, { once: true });
+}
+
+function setModalViewMode(mode) {
+  modalViewMode = mode;
+  const img = document.getElementById('modal-img');
+  const player = document.getElementById('modal-hf-player');
+  const scaler = document.getElementById('modal-art-scaler');
+  const tabs = document.querySelectorAll('.modal-view-tab');
+  tabs.forEach(t => {
+    const on = t.dataset.view === mode;
+    t.classList.toggle('active', on);
+    t.setAttribute('aria-selected', on ? 'true' : 'false');
+  });
+
+  if (mode === 'static') {
+    /* Para estático: remove animação, esconde player */
+    if (scaler) scaler.classList.remove('motion-playing');
+    let badge = document.getElementById('modal-motion-badge');
+    if (badge) badge.remove();
+    img.hidden = false;
+    if (player) {
+      player.hidden = true;
+      if (typeof player.pause === 'function') player.pause();
+    }
+    const bar = document.getElementById('modal-motion-versions');
+    if (bar) bar.hidden = true;
+  } else {
+    /* Para motion */
+    const hasPlayerSrc = player && player.getAttribute('src');
+    if (hasPlayerSrc) {
+      /* HyperFrames animation exists — use the player */
+      img.hidden = true;
+      player.hidden = false;
+      player.setAttribute('autoplay', '');
+      requestAnimationFrame(() => playModalMotionPreview());
+      renderModalVersionBar();
+    } else {
+      /* Sem HyperFrames: anima a imagem in-place com CSS */
+      img.hidden = false;
+      if (scaler) scaler.classList.add('motion-playing');
+
+      /* Badge de animação */
+      let badge = document.getElementById('modal-motion-badge');
+      if (!badge) {
+        badge = document.createElement('div');
+        badge.id = 'modal-motion-badge';
+        badge.className = 'modal-motion-badge';
+        badge.innerHTML = '<span class="mmb-dot"></span> MOTION';
+        const box = document.getElementById('modal-art-box');
+        if (box) box.appendChild(badge);
+      }
+      badge.style.display = 'flex';
+      renderModalVersionBar();
+    }
+  }
+  scaleModalArt();
 }
 
 async function loadLayoutNames() {
@@ -316,6 +687,7 @@ async function loadArtes() {
   }
   try {
     await loadLayoutNames();
+    await loadAnimacoes();
     const res = await fetch('artes.json?v=' + Date.now());
     if (!res.ok) {
       showLoadError('http', res.status);
@@ -355,7 +727,7 @@ function showLoadError(kind, detail) {
 }
 
 function renderStats() {
-  const visiveis = allArtes.filter(a => showBackupArtes || a.publicacao !== 'backup');
+  const visiveis = getVisibleArtes();
   const total = visiveis.length;
   const backupCount = allArtes.filter(a => a.publicacao === 'backup').length;
   const headerCount = document.getElementById('header-count');
@@ -373,7 +745,7 @@ function renderStats() {
 }
 
 function renderGallery() {
-  const filtered = allArtes.filter(a => showBackupArtes || a.publicacao !== 'backup');
+  const filtered = getVisibleArtes();
   const sorted = [...filtered].sort((a, b) => (getCreationNum(a.slug) || 0) - (getCreationNum(b.slug) || 0));
   renderGrid(sorted);
 }
@@ -394,12 +766,14 @@ function renderGrid(artes) {
         ${layoutBadgeHtml(arte)}
         ${num ? `<div class="card-num-badge">#${num}</div>` : ''}
         ${arte.publicacao === 'backup' ? `<div class="card-backup-badge">backup</div>` : ''}
+        ${hasMotion(arte.slug) ? `<div class="card-motion-badge" title="Versão animada disponível">▶ Motion</div>` : ''}
         <span class="card-date-badge">${date}</span>
         <div class="card-overlay">
           <div class="overlay-headline">${arte.headline}</div>
           <div class="overlay-actions">
             <button class="btn-action btn-view" onclick="event.stopPropagation(); openModalBySlug('${arte.slug}')">📋 Legenda</button>
             <button class="btn-action btn-view" onclick="event.stopPropagation(); goToEditor('${arte.slug}')">✏️ Editar</button>
+            ${hasMotion(arte.slug) ? `<button class="btn-action btn-view" onclick="event.stopPropagation(); goToMotion('${arte.slug}')">🎬 Motion</button>` : ''}
             <a class="btn-action btn-dl" href="artes/${arte.slug}/thumb.png" download onclick="event.stopPropagation()">↓ PNG</a>
             ${canDeleteArte() ? `<button type="button" class="btn-action btn-del" title="Excluir post" onclick="event.stopPropagation(); deletarArte('${arte.slug}')">🗑</button>` : ''}
           </div>
@@ -512,21 +886,44 @@ function goToEditor(slug) {
 function openModal(slug, arte) {
   const modal = document.getElementById('modal');
   const img = document.getElementById('modal-img');
+  const player = document.getElementById('modal-hf-player');
+  const viewTabs = document.getElementById('modal-view-tabs');
   modalSlug = slug;
+  modalViewMode = 'static';
 
   history.replaceState(null, '', '#arte=' + slug);
 
-  // Usar thumb.png (render composto: fundo + overlay + texto)
   img.src = '';
+  if (player) {
+    player.removeAttribute('src');
+    player.hidden = true;
+  }
   setTimeout(() => { img.src = 'artes/' + slug + '/thumb.png'; scaleModalArt(); }, 10);
+
+  /* Tabs ESTÁTICO/MOTION visíveis para todos os posts */
+  if (viewTabs) {
+    viewTabs.hidden = false;
+    viewTabs.querySelectorAll('.modal-view-tab').forEach(t => t.classList.toggle('active', t.dataset.view === 'static'));
+  }
+  const verBar = document.getElementById('modal-motion-versions');
+  if (verBar) verBar.hidden = true;
+  img.hidden = false;
+
+  /* Remove badge e animação de post anterior */
+  const scaler = document.getElementById('modal-art-scaler');
+  if (scaler) scaler.classList.remove('motion-playing');
+  const prevBadge = document.getElementById('modal-motion-badge');
+  if (prevBadge) prevBadge.remove();
+
   document.getElementById('modal-badge').textContent = (() => {
     const n = getCreationNum(slug);
-    return n ? `#${n} de ${allArtes.length}` : 'Arte';
+    const total = getGalleryTotalCount();
+    return n ? `#${n} de ${total}` : 'Arte';
   })();
   document.getElementById('modal-headline').textContent = arte.headline;
   const canDelete = canDeleteArte();
   document.getElementById('modal-actions').innerHTML = `
-    <button class="btn-arte btn-arte-primary" onclick="goToEditor('${slug}')">✏️ Abrir Editor</button>
+    <button class="btn-arte btn-arte-primary" onclick="goToEditor('${slug}')">Editor</button>
     <button class="btn-arte btn-arte-secondary" onclick="downloadArtePNG('${slug}', this)">↓ PNG</button>
     <a class="btn-arte btn-arte-secondary" href="artes/${slug}/arte.html" download="cybersecfest_${slug}.html">↓ HTML</a>
     ${canDelete ? `<button type="button" class="btn-arte btn-arte-danger" id="btn-delete-arte" onclick="deletarArte('${slug}')">🗑 Excluir</button>` : ''}
@@ -534,7 +931,7 @@ function openModal(slug, arte) {
   const metaEl = document.getElementById('modal-meta');
   const rows = [];
   const postNum = getCreationNum(slug);
-  if (postNum) rows.push(`<div class="modal-meta-row"><span class="modal-meta-key">Post</span><span class="modal-meta-val"><span class="modal-meta-badge">#${postNum} de ${allArtes.length}</span></span></div>`);
+  if (postNum) rows.push(`<div class="modal-meta-row"><span class="modal-meta-key">Post</span><span class="modal-meta-val"><span class="modal-meta-badge">#${postNum} de ${getGalleryTotalCount()}</span></span></div>`);
   if (arte.subtitulo) rows.push(`<div class="modal-meta-row"><span class="modal-meta-key">Subtítulo</span><span class="modal-meta-val">${arte.subtitulo}</span></div>`);
   if (arte.palavras_azuis) {
     const hl = arte.palavras_azuis.split(',').map(p => `<span class="palavra-azul">${p.trim()}</span>`).join(', ');
@@ -553,6 +950,59 @@ function openModal(slug, arte) {
   captionEl.textContent = arte.legenda || '';
   if (!arte.legenda) captionEl.innerHTML = '<span class="modal-caption-empty">Legenda não disponível para esta arte.</span>';
   modal.classList.add('open');
+  /* Sempre carrega versões motion — para qualquer post */
+  initModalMotionVersions(slug).then(() => updateModalMp4DownloadLink());
+}
+
+async function mudarImagem() {
+  const instrucao = document.getElementById('modal-img-instrucao').value.trim();
+  if (!instrucao) {
+    document.getElementById('modal-img-instrucao').focus();
+    return;
+  }
+  if (!modalSlug) return;
+
+  const btn    = document.getElementById('modal-img-edit-btn');
+  const status = document.getElementById('modal-img-edit-status');
+
+  btn.disabled  = true;
+  btn.textContent = '⏳ Gerando…';
+  status.hidden = false;
+  status.textContent = 'Enviando para a IA… isso leva ~30s.';
+  status.className = 'modal-img-edit-status';
+
+  try {
+    const res = await fetch('/api/arte/imagem/mudar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ slug: modalSlug, instrucao }),
+    });
+    const data = await res.json();
+
+    if (!res.ok || !data.ok) {
+      throw new Error(data.erro || `Erro ${res.status}`);
+    }
+
+    /* Atualiza imagem no modal sem fechar */
+    const img = document.getElementById('modal-img');
+    img.src = data.thumb;
+
+    /* Atualiza thumb na galeria */
+    const galeria = document.querySelector(`.art-thumb[data-slug="${modalSlug}"]`);
+    if (galeria) galeria.src = data.thumb;
+
+    status.textContent = '✅ Imagem atualizada!';
+    status.className = 'modal-img-edit-status ok';
+    document.getElementById('modal-img-instrucao').value = '';
+
+    setTimeout(() => { status.hidden = true; }, 4000);
+  } catch (e) {
+    status.textContent = `❌ ${e.message}`;
+    status.className = 'modal-img-edit-status erro';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Gerar';
+  }
 }
 
 function copyCaption() {
@@ -636,8 +1086,12 @@ async function downloadArtePNG(slug, btn) {
 function closeModal(e) {
   if (!e || e.target === document.getElementById('modal')) {
     document.getElementById('modal').classList.remove('open');
-    var mi=document.getElementById('modal-img'); if(mi) mi.src='';
+    var mi = document.getElementById('modal-img');
+    if (mi) mi.src = '';
+    var hp = document.getElementById('modal-hf-player');
+    if (hp) { hp.removeAttribute('src'); hp.hidden = true; }
     modalSlug = null;
+    modalViewMode = 'static';
     if (location.hash.startsWith('#arte=')) {
       history.replaceState(null, '', location.pathname + location.search);
     }
@@ -1243,6 +1697,7 @@ function initGalleryFilters() {
   cb.checked = showBackupArtes;
   cb.addEventListener('change', () => {
     showBackupArtes = cb.checked;
+    buildCreationOrder(allArtes);
     renderStats();
     renderGallery();
   });

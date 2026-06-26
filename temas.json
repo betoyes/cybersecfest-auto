@@ -264,6 +264,11 @@
     ],
     "evento": [
       "L"
+    ],
+    "patrocinador": [
+      "F",
+      "Q",
+      "B"
     ]
   },
   "rotacao_layouts": {
@@ -364,6 +369,12 @@
       "layout": "C",
       "slug": "blog-1782236441882",
       "data": "2026-06-23"
+    },
+    {
+      "tipo_post": "patrocinador",
+      "layout": "I",
+      "slug": "patrocinador-1782316675205",
+      "data": "2026-06-24"
     }
   ],
   "historico_aprovacoes": []
