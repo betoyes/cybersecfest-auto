@@ -1,0 +1,58 @@
+{
+  "_meta": {
+    "versao": "1.0.0",
+    "descricao": "Banco de temas do CYBERSEC.CAST — Podcast executivo de cibersegurança",
+    "atualizado_em": "2026-06-26",
+    "marca": "CYBERSEC.CAST"
+  },
+  "podcast": {
+    "nome": "CYBERSEC.CAST",
+    "posicionamento": "O Podcast de Referência em Cibersegurança para Executivos C-Level do Brasil",
+    "formato": "Episódios de 30–60 minutos, entrevistas com líderes e especialistas",
+    "frequencia": "Semanal",
+    "plataformas": ["Spotify", "YouTube", "Apple Podcasts", "Amazon Music"],
+    "publico_alvo": [
+      "CISOs",
+      "CIOs",
+      "CTOs",
+      "CEOs",
+      "VPs de Tecnologia",
+      "Diretores de Segurança",
+      "Gestores de TI"
+    ]
+  },
+  "editorial": {
+    "tom": "Intelectual, íntimo, provocador. O ouvinte sente que está numa conversa exclusiva entre líderes.",
+    "angulos_recorrentes": [
+      "Decisões difíceis que só CISOs enfrentam",
+      "O que os dados não mostram sobre ameaças",
+      "Lições aprendidas com crises reais",
+      "Estratégia de segurança como vantagem competitiva",
+      "O lado humano da cibersegurança executiva",
+      "Tendências que o mercado ainda não viu",
+      "Governança e regulação: LGPD, NIS2, DORA",
+      "IA generativa: risco ou aliado da segurança?"
+    ],
+    "evitar": [
+      "Tom acadêmico ou técnico demais",
+      "Termos de hacker/hacking sensacionalistas",
+      "Clichês de cadeados e vulnerabilidades",
+      "Repetir ângulos dos últimos 5 episódios"
+    ]
+  },
+  "temas_grade": [
+    "Zero Trust Architecture",
+    "LGPD e Compliance",
+    "Governança de Identidade (IAM/PAM)",
+    "Cloud Security",
+    "IA e Machine Learning na Segurança",
+    "Gestão de Riscos Cibernéticos",
+    "Resposta a Incidentes",
+    "Security Awareness & Cultura",
+    "Supply Chain Security",
+    "OT/ICS Security"
+  ],
+  "convidados_recorrentes": [],
+  "historico_recente": [],
+  "historico_aprovacoes": []
+}

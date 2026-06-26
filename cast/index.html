@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CYBERSEC.CAST — Galeria de Artes</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Mono&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#07060f;
+  --bg-2:#0e0c1e;
+  --bg-3:#161327;
+  --accent:#6366f1;
+  --accent-2:#8b5cf6;
+  --text:#f0eeff;
+  --text-2:#9b97c4;
+  --border:rgba(99,102,241,0.22);
+  --glow:rgba(99,102,241,0.35);
+  --red:#ef4444;
+}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;}
+a{color:inherit;text-decoration:none;}
+button{cursor:pointer;font-family:'Inter',sans-serif;}
+
+/* ── HEADER ── */
+.site-header{
+  position:sticky;top:0;z-index:80;
+  background:rgba(7,6,15,0.85);backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 24px;gap:16px;
+}
+.header-brand{display:flex;align-items:center;gap:12px;}
+.header-logo{height:32px;width:auto;display:block;filter:brightness(1.1);}
+.header-badge{
+  font-family:'Space Mono',monospace;font-size:9px;letter-spacing:0.2em;
+  color:var(--accent);border:1px solid var(--border);border-radius:4px;
+  padding:2px 8px;text-transform:uppercase;
+}
+.header-count{font-size:12px;color:var(--text-2);}
+.header-nav{display:flex;align-items:center;gap:8px;}
+.header-nav a{
+  font-size:12px;font-weight:500;color:var(--text-2);
+  padding:6px 12px;border-radius:6px;transition:all 0.2s;
+}
+.header-nav a:hover{color:var(--text);background:rgba(255,255,255,0.05);}
+.btn-criar{
+  background:var(--accent);color:#fff;border:none;
+  padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;
+  display:flex;align-items:center;gap:6px;transition:all 0.2s;
+  box-shadow:0 4px 24px var(--glow);
+}
+.btn-criar:hover{background:var(--accent-2);transform:translateY(-1px);box-shadow:0 8px 32px var(--glow);}
+
+/* ── CRIAR ARTE DRAWER ── */
+.criar-drawer{
+  background:var(--bg-2);border-bottom:1px solid var(--border);
+  padding:16px 24px;display:none;gap:12px;flex-wrap:wrap;align-items:flex-end;
+}
+.criar-drawer.open{display:flex;}
+.criar-field{display:flex;flex-direction:column;gap:4px;flex:1;min-width:160px;}
+.criar-label{font-size:11px;color:var(--text-2);font-weight:500;letter-spacing:0.04em;text-transform:uppercase;}
+.criar-input,.criar-select,.criar-textarea{
+  background:var(--bg-3);border:1px solid var(--border);border-radius:6px;
+  color:var(--text);font-family:'Inter',sans-serif;font-size:13px;
+  padding:8px 12px;outline:none;transition:border-color 0.2s;
+}
+.criar-input:focus,.criar-select:focus,.criar-textarea:focus{border-color:var(--accent);}
+.criar-textarea{resize:vertical;min-height:60px;}
+.criar-select option{background:var(--bg-2);}
+.btn-gerar{
+  background:var(--accent);color:#fff;border:none;
+  padding:10px 20px;border-radius:8px;font-size:13px;font-weight:700;
+  white-space:nowrap;transition:all 0.2s;
+}
+.btn-gerar:hover{background:var(--accent-2);}
+.btn-gerar:disabled{opacity:0.5;pointer-events:none;}
+.criar-status{font-size:12px;color:var(--text-2);margin-top:4px;width:100%;}
+
+/* ── GALLERY ── */
+.gallery{
+  padding:24px;
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(270px,1fr));
+  gap:20px;
+  max-width:1400px;
+  margin:0 auto;
+}
+.empty-state{
+  grid-column:1/-1;text-align:center;padding:80px 24px;color:var(--text-2);
+}
+.empty-state h2{font-size:20px;margin-bottom:8px;color:var(--text);}
+.empty-state p{font-size:14px;}
+.card{
+  background:var(--bg-2);border:1px solid var(--border);border-radius:12px;
+  overflow:hidden;transition:border-color 0.2s,box-shadow 0.2s;cursor:pointer;
+}
+.card:hover{border-color:var(--accent);box-shadow:0 0 24px var(--glow);}
+.card-thumb{
+  position:relative;width:100%;aspect-ratio:4/5;overflow:hidden;
+  background:var(--bg-3);
+}
+.card-thumb iframe{
+  position:absolute;inset:0;width:540px;height:675px;border:none;
+  transform-origin:top left;pointer-events:none;
+}
+.card-thumb .card-thumb-img{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  display:block;
+}
+.card-body{padding:12px 14px 14px;}
+.card-headline{
+  font-size:13px;font-weight:700;line-height:1.3;color:var(--text);
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+}
+.card-meta{margin-top:6px;font-size:11px;color:var(--text-2);display:flex;gap:8px;align-items:center;}
+.card-badge{
+  font-family:'Space Mono',monospace;font-size:9px;letter-spacing:0.1em;
+  background:rgba(99,102,241,0.15);color:var(--accent);
+  border:1px solid var(--border);border-radius:3px;padding:1px 6px;
+  text-transform:uppercase;
+}
+
+/* ── MODAL ── */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(7,6,15,0.92);z-index:200;
+  display:none;align-items:center;justify-content:center;padding:16px;
+}
+.modal-overlay.open{display:flex;}
+.modal{
+  background:var(--bg-2);border:1px solid var(--border);border-radius:16px;
+  width:100%;max-width:900px;max-height:95vh;overflow-y:auto;
+  display:flex;flex-direction:column;gap:0;box-shadow:0 0 60px var(--glow);
+}
+.modal-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 20px;border-bottom:1px solid var(--border);flex-shrink:0;
+}
+.modal-title{font-size:15px;font-weight:700;}
+.modal-close{
+  background:none;border:none;color:var(--text-2);font-size:20px;
+  line-height:1;padding:4px;border-radius:4px;transition:color 0.2s;
+}
+.modal-close:hover{color:var(--text);}
+.modal-body{
+  display:flex;gap:20px;padding:20px;
+  flex-direction:row;flex-wrap:wrap;
+}
+.modal-art{flex:1;min-width:240px;max-width:360px;}
+.modal-art-wrap{
+  position:relative;width:100%;aspect-ratio:4/5;overflow:hidden;
+  background:var(--bg-3);border-radius:8px;border:1px solid var(--border);
+}
+.modal-art-wrap iframe{
+  position:absolute;inset:0;width:540px;height:675px;border:none;
+  transform-origin:top left;pointer-events:none;
+}
+.modal-side{flex:1;min-width:240px;display:flex;flex-direction:column;gap:16px;}
+.modal-field{display:flex;flex-direction:column;gap:6px;}
+.modal-field label{font-size:11px;color:var(--text-2);font-weight:600;letter-spacing:0.04em;text-transform:uppercase;}
+.modal-field input,.modal-field select,.modal-field textarea{
+  background:var(--bg-3);border:1px solid var(--border);border-radius:6px;
+  color:var(--text);font-family:'Inter',sans-serif;font-size:13px;
+  padding:8px 12px;outline:none;transition:border-color 0.2s;
+}
+.modal-field input:focus,.modal-field select:focus,.modal-field textarea:focus{border-color:var(--accent);}
+.modal-field select option{background:var(--bg-2);}
+.modal-field textarea{resize:vertical;min-height:70px;}
+.modal-actions{display:flex;gap:8px;flex-wrap:wrap;}
+.btn-action{
+  flex:1;min-width:100px;border:none;border-radius:8px;
+  font-size:13px;font-weight:600;padding:10px 16px;transition:all 0.2s;
+}
+.btn-action.primary{background:var(--accent);color:#fff;}
+.btn-action.primary:hover{background:var(--accent-2);}
+.btn-action.secondary{background:rgba(255,255,255,0.07);color:var(--text);}
+.btn-action.secondary:hover{background:rgba(255,255,255,0.12);}
+.btn-action.danger{background:rgba(239,68,68,0.15);color:var(--red);border:1px solid rgba(239,68,68,0.25);}
+.btn-action.danger:hover{background:rgba(239,68,68,0.25);}
+.btn-action:disabled{opacity:0.4;pointer-events:none;}
+
+/* Mudar Imagem */
+.mudar-imagem-row{display:flex;gap:8px;align-items:flex-start;}
+.mudar-imagem-row textarea{flex:1;min-height:60px;}
+.mudar-imagem-row button{
+  background:var(--accent);color:#fff;border:none;border-radius:8px;
+  font-size:12px;font-weight:700;padding:8px 14px;white-space:nowrap;
+  transition:all 0.2s;align-self:flex-end;
+}
+.mudar-imagem-row button:hover{background:var(--accent-2);}
+.mudar-imagem-row button:disabled{opacity:0.4;pointer-events:none;}
+
+/* Pills de versão */
+.versoes-wrap{display:none;flex-direction:column;gap:6px;}
+.versoes-wrap.visible{display:flex;}
+.versoes-label{font-size:11px;color:var(--text-2);font-weight:600;letter-spacing:0.04em;text-transform:uppercase;}
+.versoes-pills{display:flex;flex-wrap:wrap;gap:6px;}
+.ver-pill-wrap{position:relative;display:inline-flex;}
+.ver-pill{
+  background:rgba(99,102,241,0.12);color:var(--text-2);
+  border:1px solid var(--border);border-radius:6px;
+  font-size:11px;padding:4px 10px;cursor:pointer;
+  transition:all 0.2s;font-family:'Space Mono',monospace;
+}
+.ver-pill:hover{background:rgba(99,102,241,0.22);color:var(--text);}
+.ver-pill.ativa{background:rgba(99,102,241,0.25);color:var(--accent);border-color:var(--accent);}
+.ver-del{
+  position:absolute;top:-6px;right:-6px;width:16px;height:16px;
+  background:var(--bg-3);border:1px solid var(--border);border-radius:50%;
+  font-size:9px;line-height:16px;text-align:center;color:var(--text-2);
+  cursor:pointer;display:none;transition:all 0.2s;
+}
+.ver-pill-wrap:hover .ver-del{display:block;}
+.ver-del:hover{background:var(--red);border-color:var(--red);color:#fff;}
+
+/* Modal status */
+.modal-status{font-size:12px;color:var(--text-2);min-height:16px;}
+.modal-status.ok{color:#22c55e;}
+.modal-status.erro{color:var(--red);}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-brand">
+    <img class="header-logo" src="/assets/logo-cast.png" alt="CYBERSEC.CAST" onerror="this.style.display='none'">
+    <span class="header-badge">Galeria</span>
+    <span class="header-count" id="header-count"></span>
+  </div>
+  <nav class="header-nav">
+    <a href="/">← CybersecFEST</a>
+  </nav>
+  <button class="btn-criar" type="button" onclick="toggleCriar()">+ Criar Arte</button>
+</header>
+
+<div class="criar-drawer" id="criar-drawer">
+  <div class="criar-field" style="max-width:100px">
+    <label class="criar-label">Layout</label>
+    <select class="criar-select" id="criar-layout">
+      <option>C</option><option>G</option><option>M</option><option>N</option>
+      <option>D</option><option>F</option><option>B</option><option>E</option>
+      <option>A</option><option>H</option><option>I</option><option>J</option>
+      <option>K</option><option>L</option><option>O</option><option>P</option><option>Q</option>
+    </select>
+  </div>
+  <div class="criar-field" style="max-width:100px">
+    <label class="criar-label">Tipo</label>
+    <select class="criar-select" id="criar-tipo">
+      <option value="episodio">Episódio</option>
+      <option value="convidado">Convidado</option>
+      <option value="insight">Insight</option>
+    </select>
+  </div>
+  <div class="criar-field" style="min-width:200px">
+    <label class="criar-label">Headline</label>
+    <input class="criar-input" id="criar-headline" type="text" placeholder="ex.: QUANDO O CISO VIRA ESTRATEGISTA">
+  </div>
+  <div class="criar-field" style="min-width:180px">
+    <label class="criar-label">Subtítulo</label>
+    <input class="criar-input" id="criar-subtitulo" type="text" placeholder="Episódio 42 com convidado especial">
+  </div>
+  <div class="criar-field">
+    <label class="criar-label">Cena (opcional)</label>
+    <textarea class="criar-textarea" id="criar-cena" rows="2" placeholder="Descreva a imagem — ex.: host em estúdio escuro com microfone, iluminação indigo"></textarea>
+  </div>
+  <div>
+    <button class="btn-gerar" id="criar-btn" type="button" onclick="criarArte()">Gerar</button>
+    <div class="criar-status" id="criar-status"></div>
+  </div>
+</div>
+
+<div class="gallery" id="gallery">
+  <div class="empty-state" id="empty-state" hidden>
+    <h2>Nenhuma arte CAST ainda</h2>
+    <p>Clique em "+ Criar Arte" para gerar a primeira arte com identidade CYBERSEC.CAST.</p>
+  </div>
+</div>
+
+<!-- ── MODAL ── -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-title">—</span>
+      <button class="modal-close" type="button" onclick="fecharModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-art">
+        <div class="modal-art-wrap" id="modal-art-wrap">
+          <iframe id="modal-iframe" src="" title="Arte CAST"></iframe>
+        </div>
+      </div>
+      <div class="modal-side">
+        <div class="modal-field">
+          <label>Instrução — Mudar Imagem</label>
+          <div class="mudar-imagem-row">
+            <textarea id="modal-instrucao" placeholder="ex.: host feminina sorrindo em estúdio com microfone, iluminação indigo"></textarea>
+            <button id="modal-gerar-btn" type="button" onclick="mudarImagem()">Gerar</button>
+          </div>
+        </div>
+
+        <div class="versoes-wrap" id="versoes-wrap">
+          <span class="versoes-label">Versões</span>
+          <div class="versoes-pills" id="versoes-pills"></div>
+        </div>
+
+        <div class="modal-status" id="modal-status"></div>
+
+        <div class="modal-actions">
+          <button class="btn-action secondary" type="button" onclick="abrirEditor()">Abrir Editor</button>
+          <button class="btn-action danger" type="button" onclick="deletarArte()">Deletar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = '/api/cast';
+let artes = [];
+let modalSlug = null;
+
+// ── Galeria ──────────────────────────────────────────────────────
+async function loadGallery() {
+  try {
+    const r = await fetch(API + '/artes?v=' + Date.now());
+    const d = await r.json();
+    artes = d.artes || [];
+    renderGallery();
+  } catch (e) {
+    document.getElementById('gallery').innerHTML = '<div class="empty-state"><h2>Erro ao carregar galeria</h2><p>' + e.message + '</p></div>';
+  }
+}
+
+function renderGallery() {
+  const gallery = document.getElementById('gallery');
+  const empty = document.getElementById('empty-state');
+  document.getElementById('header-count').textContent = artes.length ? artes.length + ' arte' + (artes.length > 1 ? 's' : '') : '';
+
+  if (!artes.length) {
+    gallery.innerHTML = '';
+    gallery.appendChild(empty);
+    empty.hidden = false;
+    return;
+  }
+  empty.hidden = true;
+
+  gallery.innerHTML = '';
+  for (const arte of artes) {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.dataset.slug = arte.slug;
+
+    const thumbSrc = 'artes/' + arte.slug + '/thumb.png?t=' + Date.now();
+    const artUrl   = 'artes/' + arte.slug + '/arte.html?embed=1';
+    const lbl = (arte.layout || '?');
+
+    card.innerHTML = `
+      <div class="card-thumb" data-slug="${arte.slug}">
+        <iframe data-src="${artUrl}" title="${arte.slug}"></iframe>
+      </div>
+      <div class="card-body">
+        <div class="card-headline">${arte.headline || arte.slug}</div>
+        <div class="card-meta">
+          <span class="card-badge">${lbl}</span>
+          <span>${arte.tipo || 'episodio'}</span>
+        </div>
+      </div>`;
+
+    card.addEventListener('click', () => abrirModal(arte.slug));
+    gallery.appendChild(card);
+  }
+
+  // scale iframes
+  requestAnimationFrame(scaleCards);
+}
+
+function scaleCards() {
+  document.querySelectorAll('.card-thumb').forEach(thumb => {
+    const w = thumb.clientWidth;
+    if (!w) return;
+    const scale = w / 540;
+    const iframe = thumb.querySelector('iframe');
+    if (iframe) {
+      iframe.style.transform = `scale(${scale})`;
+      // lazy load
+      if (!iframe.src && iframe.dataset.src) {
+        iframe.src = iframe.dataset.src;
+      }
+    }
+  });
+}
+
+// ── Modal ────────────────────────────────────────────────────────
+function abrirModal(slug) {
+  modalSlug = slug;
+  const arte = artes.find(a => a.slug === slug);
+  document.getElementById('modal-title').textContent = (arte?.headline || slug).replace(/<br>/gi, ' ').replace(/<[^>]+>/g, '');
+  document.getElementById('modal-instrucao').value = '';
+  document.getElementById('modal-status').textContent = '';
+  document.getElementById('versoes-wrap').classList.remove('visible');
+  document.getElementById('versoes-pills').innerHTML = '';
+
+  const artUrl = '/artes/' + slug + '/arte.html?embed=1';
+  const iframe = document.getElementById('modal-iframe');
+  iframe.src = artUrl;
+  iframe.onload = scaleModalArt;
+
+  document.getElementById('modal-overlay').classList.add('open');
+  loadImgVersoes(slug);
+}
+
+function scaleModalArt() {
+  const wrap = document.getElementById('modal-art-wrap');
+  const w = wrap.clientWidth;
+  if (!w) return;
+  const iframe = document.getElementById('modal-iframe');
+  const scale = w / 540;
+  iframe.style.transform = `scale(${scale})`;
+  wrap.style.height = (675 * scale) + 'px';
+}
+
+function fecharModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  document.getElementById('modal-iframe').src = '';
+  modalSlug = null;
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('modal-overlay')) fecharModal();
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') fecharModal(); });
+
+function abrirEditor() {
+  if (!modalSlug) return;
+  window.open('/artes/' + modalSlug + '/arte.html', '_blank');
+}
+
+// ── Mudar Imagem ─────────────────────────────────────────────────
+async function mudarImagem() {
+  if (!modalSlug) return;
+  const instrucao = document.getElementById('modal-instrucao').value.trim();
+  if (!instrucao) { setStatus('Descreva a imagem desejada.', 'erro'); return; }
+
+  const btn = document.getElementById('modal-gerar-btn');
+  btn.disabled = true;
+  setStatus('⏳ Gerando imagem com identidade CAST...');
+
+  try {
+    const r = await fetch(API + '/arte/imagem/mudar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ slug: modalSlug, instrucao }),
+    });
+    const d = await r.json();
+    if (!d.ok) throw new Error(d.erro);
+
+    // Recarrega iframe
+    const iframe = document.getElementById('modal-iframe');
+    iframe.src = '/artes/' + modalSlug + '/arte.html?embed=1&t=' + Date.now();
+    iframe.onload = scaleModalArt;
+
+    setStatus('✓ Imagem atualizada', 'ok');
+    if (d.versoes) renderVersoes(d.versoes);
+    loadGallery();
+  } catch (e) {
+    setStatus('❌ ' + e.message, 'erro');
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+// ── Image Versoes ─────────────────────────────────────────────────
+async function loadImgVersoes(slug) {
+  try {
+    const r = await fetch(API + '/arte/imagem/versoes?slug=' + encodeURIComponent(slug));
+    const d = await r.json();
+    if (d.versoes?.length) renderVersoes(d);
+  } catch { /* silencioso */ }
+}
+
+function renderVersoes(data) {
+  const versoes = data.versoes || data;
+  const ativa = data.ativa || null;
+  const wrap = document.getElementById('versoes-wrap');
+  const pills = document.getElementById('versoes-pills');
+  if (!versoes?.length) { wrap.classList.remove('visible'); return; }
+  wrap.classList.add('visible');
+  pills.innerHTML = '';
+  for (const v of versoes) {
+    const pw = document.createElement('div');
+    pw.className = 'ver-pill-wrap';
+    const lbl = v.label ? `v${v.id}: ${v.label.slice(0, 30)}` : `v${v.id}`;
+    const isAtiva = v.id === ativa;
+    pw.innerHTML = `
+      <button class="ver-pill${isAtiva ? ' ativa' : ''}" title="${v.label || ''}" onclick="ativarVersao(${v.id})">${lbl}</button>
+      ${!isAtiva ? `<span class="ver-del" title="Deletar" onclick="deletarVersao(${v.id})">×</span>` : ''}`;
+    pills.appendChild(pw);
+  }
+}
+
+async function ativarVersao(id) {
+  if (!modalSlug) return;
+  setStatus('⏳ Ativando versão...');
+  try {
+    const r = await fetch(API + '/arte/imagem/versao/ativar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ slug: modalSlug, id }),
+    });
+    const d = await r.json();
+    if (!d.ok) throw new Error(d.erro);
+    const iframe = document.getElementById('modal-iframe');
+    iframe.src = '/artes/' + modalSlug + '/arte.html?embed=1&t=' + Date.now();
+    iframe.onload = scaleModalArt;
+    if (d.versoes) renderVersoes(d.versoes);
+    setStatus('✓ Versão ativada', 'ok');
+    loadGallery();
+  } catch (e) { setStatus('❌ ' + e.message, 'erro'); }
+}
+
+async function deletarVersao(id) {
+  if (!modalSlug || !confirm(`Deletar versão v${id}?`)) return;
+  try {
+    const r = await fetch(API + '/arte/imagem/versao/deletar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ slug: modalSlug, id }),
+    });
+    const d = await r.json();
+    if (!d.ok) throw new Error(d.erro);
+    if (d.versoes) renderVersoes(d.versoes);
+    setStatus('Versão deletada.', 'ok');
+  } catch (e) { setStatus('❌ ' + e.message, 'erro'); }
+}
+
+// ── Deletar Arte ──────────────────────────────────────────────────
+async function deletarArte() {
+  if (!modalSlug) return;
+  const arte = artes.find(a => a.slug === modalSlug);
+  const titulo = arte?.headline?.replace(/<[^>]+>/g, '') || modalSlug;
+  if (!confirm(`Deletar arte?\n\n"${titulo}"\n\nEsta ação não pode ser desfeita.`)) return;
+
+  try {
+    const r = await fetch(API + '/arte/deletar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ slug: modalSlug }),
+    });
+    const d = await r.json();
+    if (!d.ok) throw new Error(d.erro);
+    fecharModal();
+    loadGallery();
+  } catch (e) { setStatus('❌ ' + e.message, 'erro'); }
+}
+
+// ── Criar Arte ────────────────────────────────────────────────────
+function toggleCriar() {
+  const drawer = document.getElementById('criar-drawer');
+  drawer.classList.toggle('open');
+}
+
+async function criarArte() {
+  const headline = document.getElementById('criar-headline').value.trim();
+  if (!headline) {
+    document.getElementById('criar-status').textContent = 'Headline obrigatória.';
+    return;
+  }
+
+  const btn = document.getElementById('criar-btn');
+  btn.disabled = true;
+  document.getElementById('criar-status').textContent = '⏳ Gerando arte CAST...';
+
+  try {
+    const r = await fetch(API + '/arte/criar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        layout: document.getElementById('criar-layout').value,
+        tipo: document.getElementById('criar-tipo').value,
+        headline,
+        subtitulo: document.getElementById('criar-subtitulo').value.trim(),
+        contexto_visual: document.getElementById('criar-cena').value.trim(),
+      }),
+    });
+    const d = await r.json();
+    if (!d.ok) throw new Error(d.erro);
+
+    document.getElementById('criar-status').textContent = '✓ Arte criada!';
+    document.getElementById('criar-headline').value = '';
+    document.getElementById('criar-subtitulo').value = '';
+    document.getElementById('criar-cena').value = '';
+    await loadGallery();
+    setTimeout(() => { document.getElementById('criar-status').textContent = ''; }, 3000);
+  } catch (e) {
+    document.getElementById('criar-status').textContent = '❌ ' + e.message;
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+// ── Utils ─────────────────────────────────────────────────────────
+function setStatus(msg, cls = '') {
+  const el = document.getElementById('modal-status');
+  el.textContent = msg;
+  el.className = 'modal-status' + (cls ? ' ' + cls : '');
+}
+
+window.addEventListener('resize', scaleCards);
+loadGallery();
+</script>
+</body>
+</html>

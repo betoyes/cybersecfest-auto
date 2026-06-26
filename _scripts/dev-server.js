@@ -784,6 +784,329 @@ async function handleMotionPedidoGet(req, res, searchParams) {
   }
 }
 
+// ════════════════════════════════════════════════════════════════
+// CYBERSEC.CAST — Brand-specific routes (puramente aditivo)
+// Dados: artes-cast.json | Slugs: cast-* | Brand: _brands/cyberseccast
+// ════════════════════════════════════════════════════════════════
+
+const CAST_BRAND = require('../_brands/cyberseccast/brand.js');
+const { buildCastImagePrompt } = require('../_brands/cyberseccast/imagem-prompt.js');
+const { getCastReferencePartsForGeneration, CAST_STYLE_REF_INSTRUCTION } = require('../_brands/cyberseccast/reference-images.js');
+const { renderLayoutForBrand } = require('./utils/brand-renderer.js');
+
+const CAST_ARTES_FILE = path.join(ROOT, 'artes-cast.json');
+let castArtesCache = null;
+let castArtesCacheAt = 0;
+
+function readArtesCast() {
+  const now = Date.now();
+  if (castArtesCache && now - castArtesCacheAt < ARTES_TTL) return castArtesCache;
+  if (!fs.existsSync(CAST_ARTES_FILE)) { castArtesCache = []; castArtesCacheAt = now; return []; }
+  castArtesCache = JSON.parse(fs.readFileSync(CAST_ARTES_FILE, 'utf8'));
+  castArtesCacheAt = now;
+  return castArtesCache;
+}
+
+function writeArtesCast(artes) {
+  fs.writeFileSync(CAST_ARTES_FILE, JSON.stringify(artes, null, 2) + '\n');
+  castArtesCache = artes;
+  castArtesCacheAt = Date.now();
+}
+
+function invalidateArtesCast() { castArtesCache = null; }
+
+function buildArteHtmlCast(slug, arte, imgBuffer, artePath, resetBgPos = false) {
+  const layout = (arte.layout || 'C').toUpperCase();
+  validateLayout(layout);
+  const imageBase64 = imgBuffer.toString('base64');
+  let editorState = fs.existsSync(artePath) ? extractEditorState(fs.readFileSync(artePath, 'utf8')) : null;
+  if (resetBgPos) {
+    const pos = LAYOUT_BG_POS[layout] || { x: 50, y: 50 };
+    editorState = { ...(editorState || {}), x: pos.x, y: pos.y, z: 100 };
+  }
+  const simpleHtml = renderLayoutForBrand(layout, {
+    imageBase64,
+    headline:        arte.headline,
+    subtitulo:       arte.subtitulo || '',
+    palavrasAzuis:   arte.palavras_azuis || '',
+    nomePalestrante: arte.nome_palestrante || '',
+    cargoEmpresa:    arte.cargo_empresa || '',
+  }, CAST_BRAND);
+  return { html: wrapWithEditor(simpleHtml, { layout, headline: arte.headline, slug, editorState }), layout };
+}
+
+// GET /api/cast/artes
+async function handleCastArtesList(_req, res) {
+  try {
+    json(res, 200, { ok: true, artes: readArtesCast() });
+  } catch (e) {
+    json(res, 500, { ok: false, erro: e.message });
+  }
+}
+
+// POST /api/cast/arte/criar — cria uma arte CAST manualmente (sem fluxo de propostas)
+async function handleCastCriarArte(req, res) {
+  if (!setBusy(res)) return;
+  try {
+    const payload = await readBody(req);
+    if (!payload) return json(res, 400, { ok: false, erro: 'JSON inválido' });
+
+    const slug = `cast-${Date.now()}`;
+    const layout = String(payload.layout || 'C').toUpperCase();
+    validateLayout(layout);
+
+    const arte = {
+      slug,
+      tipo: payload.tipo || 'episodio',
+      layout,
+      headline: String(payload.headline || 'NOVA ARTE CAST').trim(),
+      subtitulo: String(payload.subtitulo || '').trim(),
+      palavras_azuis: String(payload.palavras_azuis || '').trim(),
+      contexto_visual: String(payload.contexto_visual || '').trim(),
+      legenda: String(payload.legenda || '').trim(),
+      criado_em: new Date().toISOString(),
+      brand: 'cyberseccast',
+    };
+
+    const prompt = buildCastImagePrompt({
+      tipo: arte.tipo,
+      layout,
+      userScene: arte.contexto_visual || undefined,
+      slug,
+    });
+
+    log.info(`CAST — Criar arte: ${slug} [${layout}]`);
+
+    const imgBuffer = await generateImage(prompt, {
+      tipo: arte.tipo,
+      layout,
+      useReferences: false,
+    });
+
+    const slugDir   = path.join(ROOT, 'artes', slug);
+    const artePath  = path.join(slugDir, 'arte.html');
+    const thumbPath = path.join(slugDir, 'thumb.png');
+    const fundoPath = path.join(slugDir, 'fundo.png');
+
+    fs.mkdirSync(slugDir, { recursive: true });
+    fs.writeFileSync(fundoPath, imgBuffer);
+
+    const { html } = buildArteHtmlCast(slug, arte, imgBuffer, artePath, true);
+    fs.writeFileSync(artePath, html);
+
+    try { await gerarThumbComposto(artePath, thumbPath); } catch (e) { log.warn('thumb CAST:', e.message); }
+
+    const artes = readArtesCast();
+    artes.unshift(arte);
+    writeArtesCast(artes);
+
+    log.info(`CAST arte criada: ${slug}`);
+    json(res, 200, { ok: true, slug, arte, thumb: `artes/${slug}/thumb.png?t=${Date.now()}` });
+  } catch (e) {
+    if (e.statusCode === 413) return json(res, 413, { ok: false, erro: 'Payload muito grande' });
+    log.error('Criar arte CAST:', e.message);
+    json(res, 500, { ok: false, erro: e.message });
+  } finally {
+    clearBusy();
+  }
+}
+
+// POST /api/cast/arte/salvar
+async function handleCastSalvarArte(req, res) {
+  if (!setBusy(res)) return;
+  try {
+    const payload = await readBody(req);
+    if (!payload) return json(res, 400, { ok: false, erro: 'JSON inválido' });
+
+    const slug = String(payload.slug || '').trim();
+    const state = payload.state;
+    if (!slug || !state || typeof state !== 'object') {
+      return json(res, 400, { ok: false, erro: 'slug e state são obrigatórios' });
+    }
+    if (!/^[\w-]+$/.test(slug)) return json(res, 400, { ok: false, erro: 'slug inválido' });
+
+    const artePath = path.join(ROOT, 'artes', slug, 'arte.html');
+    const thumbPath = path.join(ROOT, 'artes', slug, 'thumb.png');
+    if (!fs.existsSync(artePath)) return json(res, 404, { ok: false, erro: `Arte não encontrada: ${slug}` });
+
+    const html = fs.readFileSync(artePath, 'utf8');
+    const updated = upsertEditorState(html, state);
+    fs.writeFileSync(artePath, updated);
+
+    let thumbOk = false;
+    try { await gerarThumbComposto(artePath, thumbPath); thumbOk = true; } catch { /* não crítico */ }
+
+    log.info(`CAST editor salvo: ${slug}${thumbOk ? ' + thumb' : ''}`);
+    json(res, 200, { ok: true, slug, thumb: thumbOk });
+  } catch (e) {
+    if (e.statusCode === 413) return json(res, 413, { ok: false, erro: 'Payload muito grande' });
+    log.error('Salvar arte CAST:', e.message);
+    json(res, 500, { ok: false, erro: e.message });
+  } finally {
+    clearBusy();
+  }
+}
+
+// POST /api/cast/arte/imagem/mudar
+async function handleCastMudarImagem(req, res) {
+  if (!setBusy(res)) return;
+  try {
+    const payload = await readBody(req);
+    const slug     = String(payload?.slug || '').trim();
+    const instrucao = String(payload?.instrucao || '').trim();
+
+    if (!slug || !/^[\w-]+$/.test(slug)) return json(res, 400, { ok: false, erro: 'slug inválido' });
+    if (!instrucao) return json(res, 400, { ok: false, erro: 'instrucao é obrigatória' });
+
+    const artes = readArtesCast();
+    const arte  = artes.find(a => a.slug === slug);
+    if (!arte) return json(res, 404, { ok: false, erro: `Arte CAST não encontrada: ${slug}` });
+
+    const layout    = (arte.layout || 'C').toUpperCase();
+    const slugDir   = path.join(ROOT, 'artes', slug);
+    const artePath  = path.join(slugDir, 'arte.html');
+    const thumbPath = path.join(slugDir, 'thumb.png');
+    const fundoPath = path.join(slugDir, 'fundo.png');
+
+    if (!fs.existsSync(artePath)) return json(res, 404, { ok: false, erro: 'arte.html não encontrada' });
+
+    const versoesBefore = readImgVersoes(slug);
+    if (versoesBefore.versoes.length === 0) {
+      if (fs.existsSync(fundoPath)) {
+        saveImgVersion(slug, fundoPath, thumbPath, 'Original');
+      } else {
+        try {
+          const html = fs.readFileSync(artePath, 'utf8');
+          const m = html.match(/id="art-bg"[^>]*background-image:\s*url\(['"]?data:image\/[^;]+;base64,([^'")\s]+)/);
+          if (m?.[1]) {
+            fs.mkdirSync(slugDir, { recursive: true });
+            fs.writeFileSync(fundoPath, Buffer.from(m[1], 'base64'));
+            saveImgVersion(slug, fundoPath, thumbPath, 'Original');
+            log.info(`CAST imagem original extraída: ${slug}`);
+          }
+        } catch (ex) {
+          log.warn(`CAST não foi possível extrair imagem original de ${slug}:`, ex.message);
+        }
+      }
+    }
+
+    const prompt = buildCastImagePrompt({
+      tipo:      arte.tipo || 'episodio',
+      layout,
+      userScene: instrucao,
+      slug,
+    });
+
+    log.info(`CAST mudar imagem: ${slug} — ${instrucao}`);
+
+    const imgBuffer = await generateImage(prompt, {
+      tipo: arte.tipo || 'episodio',
+      layout,
+      useReferences: false,
+    });
+
+    fs.mkdirSync(slugDir, { recursive: true });
+    fs.writeFileSync(fundoPath, imgBuffer);
+    log.info(`CAST fundo.png atualizado (${Math.round(imgBuffer.length / 1024)} KB)`);
+
+    const { html } = buildArteHtmlCast(slug, arte, imgBuffer, artePath, true);
+    fs.writeFileSync(artePath, html);
+    await gerarThumbComposto(artePath, thumbPath);
+
+    const { data: versoesAfter } = saveImgVersion(slug, fundoPath, thumbPath, instrucao.slice(0, 80));
+
+    json(res, 200, {
+      ok: true,
+      slug,
+      thumb: `artes/${slug}/thumb.png?t=${Date.now()}`,
+      versoes: versoesAfter,
+    });
+  } catch (e) {
+    if (e.statusCode === 413) return json(res, 413, { ok: false, erro: 'Payload muito grande' });
+    log.error('CAST mudar imagem falhou:', e.message);
+    json(res, 500, { ok: false, erro: e.message });
+  } finally {
+    clearBusy();
+  }
+}
+
+// GET /api/cast/arte/imagem/versoes
+async function handleCastImgVersoesGet(_req, res, searchParams) {
+  const slug = String(searchParams.get('slug') || '').trim();
+  if (!slug) return json(res, 400, { ok: false, erro: 'slug obrigatório' });
+  json(res, 200, { ok: true, ...readImgVersoes(slug) });
+}
+
+// POST /api/cast/arte/imagem/versao/ativar
+async function handleCastAtivarImgVersao(req, res) {
+  if (!setBusy(res)) return;
+  try {
+    const payload = await readBody(req);
+    const slug = String(payload?.slug || '').trim();
+    const id   = Number(payload?.id);
+    if (!slug || !/^[\w-]+$/.test(slug)) return json(res, 400, { ok: false, erro: 'slug inválido' });
+    if (!id) return json(res, 400, { ok: false, erro: 'id obrigatório' });
+
+    const data  = readImgVersoes(slug);
+    const ver   = data.versoes.find(v => v.id === id);
+    if (!ver) return json(res, 404, { ok: false, erro: `Versão ${id} não encontrada` });
+
+    const vFundo = path.join(imgVersDir(slug), `v${id}`, 'fundo.png');
+    if (!fs.existsSync(vFundo)) return json(res, 404, { ok: false, erro: `fundo.png da versão ${id} não disponível` });
+
+    const artes = readArtesCast();
+    const arte  = artes.find(a => a.slug === slug);
+    if (!arte) return json(res, 404, { ok: false, erro: 'Arte CAST não encontrada' });
+
+    const artePath  = path.join(ROOT, 'artes', slug, 'arte.html');
+    const thumbPath = path.join(ROOT, 'artes', slug, 'thumb.png');
+    const fundoPath = path.join(ROOT, 'artes', slug, 'fundo.png');
+
+    const imgBuffer = fs.readFileSync(vFundo);
+    fs.writeFileSync(fundoPath, imgBuffer);
+
+    const { html } = buildArteHtmlCast(slug, arte, imgBuffer, artePath, true);
+    fs.writeFileSync(artePath, html);
+    await gerarThumbComposto(artePath, thumbPath);
+
+    data.ativa = id;
+    writeImgVersoes(slug, data);
+    log.info(`CAST imagem ativada: ${slug} → v${id}`);
+
+    json(res, 200, { ok: true, slug, thumb: `artes/${slug}/thumb.png?t=${Date.now()}`, versoes: data });
+  } catch (e) {
+    log.error('CAST ativar versão:', e.message);
+    json(res, 500, { ok: false, erro: e.message });
+  } finally {
+    clearBusy();
+  }
+}
+
+// POST /api/cast/arte/imagem/versao/deletar  (reutiliza handleDeletarImgVersao — slugs são únicos por prefixo)
+// POST /api/cast/arte/deletar
+async function handleCastDeletarArte(req, res) {
+  const payload = await readBody(req);
+  if (!payload) return json(res, 400, { ok: false, erro: 'JSON inválido' });
+  const slug = String(payload.slug || '').trim();
+  if (!slug) return json(res, 400, { ok: false, erro: 'slug obrigatório' });
+
+  try {
+    const slugDir = path.join(ROOT, 'artes', slug);
+    if (fs.existsSync(slugDir)) fs.rmSync(slugDir, { recursive: true, force: true });
+
+    const artes = readArtesCast().filter(a => a.slug !== slug);
+    writeArtesCast(artes);
+    invalidateArtesCast();
+    log.info(`CAST arte deletada: ${slug}`);
+    json(res, 200, { ok: true, slug });
+  } catch (e) {
+    log.error('CAST deletar arte:', e.message);
+    json(res, 500, { ok: false, erro: e.message });
+  }
+}
+
+// ── fim dos handlers CAST ──────────────────────────────────────────
+
 const server = http.createServer((req, res) => {
   const url = new URL(req.url || '/', `http://${HOST}:${PORT}`);
   const urlPath = decodeURIComponent(url.pathname);
@@ -826,6 +1149,19 @@ const server = http.createServer((req, res) => {
     } catch (e) {
       return json(res, 500, { ok: false, erro: e.message });
     }
+  }
+
+  // ── CYBERSEC.CAST routes (/api/cast/*) ──────────────────────────
+  if (req.method === 'GET'  && urlPath === '/api/cast/artes') return handleCastArtesList(req, res);
+  if (req.method === 'POST' && urlPath === '/api/cast/arte/criar') return handleCastCriarArte(req, res);
+  if (req.method === 'POST' && urlPath === '/api/cast/arte/salvar') return handleCastSalvarArte(req, res);
+  if (req.method === 'POST' && urlPath === '/api/cast/arte/deletar') return handleCastDeletarArte(req, res);
+  if (req.method === 'POST' && urlPath === '/api/cast/arte/imagem/mudar') return handleCastMudarImagem(req, res);
+  if (req.method === 'GET'  && urlPath === '/api/cast/arte/imagem/versoes') return handleCastImgVersoesGet(req, res, url.searchParams);
+  if (req.method === 'POST' && urlPath === '/api/cast/arte/imagem/versao/ativar') return handleCastAtivarImgVersao(req, res);
+  if (req.method === 'POST' && urlPath === '/api/cast/arte/imagem/versao/deletar') return handleDeletarImgVersao(req, res);
+  if (req.method === 'GET'  && urlPath === '/api/cast/status') {
+    return json(res, 200, { ok: true, brand: 'cyberseccast', gerando: busy, rotas: ['cast/artes', 'cast/arte/criar', 'cast/arte/salvar', 'cast/arte/deletar', 'cast/arte/imagem/mudar', 'cast/arte/imagem/versoes', 'cast/arte/imagem/versao/ativar', 'cast/arte/imagem/versao/deletar'] });
   }
 
   if (req.method !== 'GET' && req.method !== 'HEAD') {
