@@ -2,18 +2,16 @@
 'use strict';
 
 const { OpenAI } = require('openai');
-const { GoogleGenerativeAI } = require('@google/generative-ai');
 const { GoogleGenAI } = require('@google/genai');
 const path = require('path');
 const { getReferencePartsForGeneration, STYLE_REF_INSTRUCTION } = require('./reference-images.js');
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY_CREAO });
-const genai  = new GoogleGenerativeAI(process.env.GEMINI_API_KEY_CREAO);
 const gemini = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY_CREAO });
 
 const NANO_BANANA_MODELS = [
-  'gemini-2.5-flash-image',      // Nano Banana — rápido, custo baixo
-  'gemini-3.1-flash-image',      // Nano Banana 2 — qualidade superior
+  'gemini-2.5-flash-image',           // Nano Banana — rápido, custo baixo
+  'gemini-3.1-flash-image-preview',   // Nano Banana 2 — qualidade superior
 ];
 
 const TRANSPARENT_PNG = Buffer.from(
@@ -33,10 +31,9 @@ async function generateText(prompt, systemPrompt = '', temperature = 0.85, maxTo
     return res.choices[0].message.content.trim();
   } catch (e) {
     console.warn('⚠️  OpenAI text falhou → Gemini Flash:', e.message);
-    const model = genai.getGenerativeModel({ model: 'gemini-2.0-flash' });
-    const full  = systemPrompt ? systemPrompt + '\n\n' + prompt : prompt;
-    const res   = await model.generateContent(full);
-    return res.response.text().trim();
+    const full = systemPrompt ? systemPrompt + '\n\n' + prompt : prompt;
+    const res  = await gemini.models.generateContent({ model: 'gemini-2.0-flash', contents: full });
+    return (res.candidates?.[0]?.content?.parts?.[0]?.text || '').trim();
   }
 }
 
@@ -69,9 +66,7 @@ async function generateImageNanoBanana(prompt, { referenceParts = [] } = {}) {
         contents,
         config: {
           responseModalities: ['TEXT', 'IMAGE'],
-          responseFormat: {
-            image: { aspectRatio: '3:4' },
-          },
+          imageConfig: { aspectRatio: '3:4' },
         },
       });
 
@@ -124,17 +119,20 @@ async function generateImage(prompt, { tipo, layout, useReferences = true, conte
     }
   }
 
+  let geminiError;
   try {
     return await generateImageNanoBanana(prompt, { referenceParts });
   } catch (e) {
+    geminiError = e;
     console.warn('⚠️  Nano Banana falhou → DALL-E 3:', e.message);
   }
 
   try {
     return await generateImageDalle(prompt);
   } catch (e) {
-    console.error('❌ Todos os geradores de imagem falharam:', e.message);
-    return TRANSPARENT_PNG;
+    const msg = `Gemini: ${geminiError?.message || '?'} | DALL-E: ${e.message}`;
+    console.error('❌ Todos os geradores de imagem falharam:', msg);
+    throw new Error(msg);
   }
 }
 

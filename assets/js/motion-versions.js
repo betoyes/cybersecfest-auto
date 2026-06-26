@@ -30,13 +30,16 @@
     if (!res.ok) throw new Error('MP4 não encontrado');
     const blob = await res.blob();
     const obj = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = obj;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    setTimeout(() => URL.revokeObjectURL(obj), 5000);
+    try {
+      const a = document.createElement('a');
+      a.href = obj;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    } finally {
+      setTimeout(() => URL.revokeObjectURL(obj), 1000);
+    }
   }
 
   async function fetchVersions(slug) {
@@ -157,6 +160,35 @@
     return `Renderize MP4 da versão ${ver.id} do slug ${slug}: cd artes/${slug}/${dir} && npm run render`;
   }
 
+  function setCardGenerating(slug, state) {
+    const card = document.querySelector(`.card[data-slug="${CSS.escape(slug)}"]`);
+    if (!card) return;
+    let badge = card.querySelector('.card-motion-badge');
+    if (!badge) {
+      badge = document.createElement('div');
+      badge.className = 'card-motion-badge';
+      card.querySelector('[data-card-thumb]')?.appendChild(badge);
+    }
+    if (state === 'generating') {
+      badge.textContent = '⟳ Gerando…';
+      badge.classList.add('generating');
+      badge.classList.remove('motion-error');
+    } else if (state === 'error') {
+      badge.textContent = '✕ Erro';
+      badge.classList.add('motion-error');
+      badge.classList.remove('generating');
+      setTimeout(() => {
+        const isNew = badge.classList.contains('card-motion-badge--new');
+        badge.textContent = isNew ? '+ Animar' : '▶ Motion';
+        badge.classList.remove('motion-error');
+      }, 4000);
+    } else {
+      // 'done' — promove o badge de "+ Animar" para "▶ Motion"
+      badge.textContent = '▶ Motion';
+      badge.classList.remove('generating', 'motion-error', 'card-motion-badge--new');
+    }
+  }
+
   global.MotionVersions = {
     fetchVersions,
     apiSelect,
@@ -171,5 +203,6 @@
     canDeleteVersion,
     fetchVersionMp4,
     downloadVersionMp4,
+    setCardGenerating,
   };
 })(typeof window !== 'undefined' ? window : global);

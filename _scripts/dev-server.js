@@ -7,6 +7,7 @@ require('./load-env.js');
 const http = require('http');
 const fs   = require('fs');
 const path = require('path');
+const log  = require('./utils/log.js');
 const { executarPedido, getEstadoPropostas } = require('./pedido-run.js');
 const { aprovarLote, rejeitarLote, consumirBanco } = require('./aprovar-propostas.js');
 const { upsertEditorState, extractEditorState } = require('./utils/editor-state.js');
@@ -34,16 +35,60 @@ const MIME = {
   '.zip':  'application/zip',
 };
 
-let gerando = false;
+// --- serialização de operações longas ---
+// busy é verificado sincronicamente antes de qualquer await,
+// eliminando a race condition do booleano simples anterior.
+let busy = false;
+
+function setBusy(res) {
+  if (busy) {
+    json(res, 409, { ok: false, erro: 'Operação em andamento. Aguarde.' });
+    return false;
+  }
+  busy = true;
+  return true;
+}
+
+function clearBusy() { busy = false; }
+
+// Slugs de motion com pedido recém-criado aguardando o worker iniciar
+const motionPending = new Set();
+
+// --- cache de artes.json ---
+let artesCache = null;
+let artesCacheAt = 0;
+const ARTES_TTL = 10_000;
+
+function readArtes() {
+  const now = Date.now();
+  if (artesCache && now - artesCacheAt < ARTES_TTL) return artesCache;
+  artesCache = JSON.parse(fs.readFileSync(path.join(ROOT, 'artes.json'), 'utf8'));
+  artesCacheAt = now;
+  return artesCache;
+}
+
+function invalidateArtes() { artesCache = null; }
+
+// ----------------------------------------
 
 function json(res, code, data) {
   res.writeHead(code, { 'Content-Type': 'application/json; charset=utf-8' });
   res.end(JSON.stringify(data));
 }
 
-async function readBody(req) {
+async function readBody(req, maxBytes = 2 * 1024 * 1024) {
   let body = '';
-  for await (const chunk of req) body += chunk;
+  let total = 0;
+  for await (const chunk of req) {
+    total += Buffer.byteLength(chunk);
+    if (total > maxBytes) {
+      req.destroy();
+      const err = new Error('Payload too large');
+      err.statusCode = 413;
+      throw err;
+    }
+    body += chunk;
+  }
   try {
     return JSON.parse(body || '{}');
   } catch {
@@ -93,31 +138,28 @@ function serveStatic(req, res, urlPath) {
 }
 
 async function handlePedido(req, res) {
-  if (gerando) {
-    return json(res, 409, { ok: false, erro: 'Já existe uma operação em andamento. Aguarde.' });
-  }
-
-  const payload = await readBody(req);
-  if (!payload) return json(res, 400, { ok: false, erro: 'JSON inválido' });
-
-  gerando = true;
-  console.log('\n📨 Pedido:', payload.forcarPropostas ? 'forçar propostas' : 'fluxo normal', payload.tema?.slice(0, 40) || '');
-
+  if (!setBusy(res)) return;
   try {
+    const payload = await readBody(req);
+    if (!payload) return json(res, 400, { ok: false, erro: 'JSON inválido' });
+
+    log.info('Pedido:', payload.forcarPropostas ? 'forçar propostas' : 'fluxo normal', payload.tema?.slice(0, 40) || '');
+
     const resultado = await executarPedido({
-      tipoPost:       payload.tipoPost,
-      tema:           payload.tema,
+      tipoPost:        payload.tipoPost,
+      tema:            payload.tema,
       forcarPropostas: !!payload.forcarPropostas,
-      pularBanco:     !!payload.forcarPropostas,
+      pularBanco:      !!payload.forcarPropostas,
     });
 
-    console.log(`✅ Pedido: modo=${resultado.modo}`);
+    log.info(`Pedido OK: modo=${resultado.modo}`);
     json(res, 200, { ok: true, ...resultado });
   } catch (e) {
-    console.error('❌ Pedido falhou:', e.message);
+    if (e.statusCode === 413) return json(res, 413, { ok: false, erro: 'Payload muito grande' });
+    log.error('Pedido falhou:', e.message);
     json(res, 500, { ok: false, erro: e.message });
   } finally {
-    gerando = false;
+    clearBusy();
   }
 }
 
@@ -131,26 +173,25 @@ async function handlePropostasGet(_req, res) {
 }
 
 async function handleAprovar(req, res) {
-  if (gerando) return json(res, 409, { ok: false, erro: 'Operação em andamento' });
-  const payload = await readBody(req);
-  if (!payload?.loteId || !payload?.principalId) {
-    return json(res, 400, { ok: false, erro: 'loteId e principalId são obrigatórios' });
-  }
-
-  gerando = true;
+  if (!setBusy(res)) return;
   try {
+    const payload = await readBody(req);
+    if (!payload?.loteId || !payload?.principalId) {
+      return json(res, 400, { ok: false, erro: 'loteId e principalId são obrigatórios' });
+    }
     const resultado = await aprovarLote({
-      loteId: payload.loteId,
-      principalId: payload.principalId,
-      bancoIds: payload.bancoIds || [],
-      edicoes: payload.edicoes || {},
+      loteId:            payload.loteId,
+      principalId:       payload.principalId,
+      bancoIds:          payload.bancoIds || [],
+      edicoes:           payload.edicoes || {},
       gerarBackupVisual: !!payload.gerarBackupVisual,
     });
     json(res, 200, { ok: true, modo: 'visual_aprovado', ...resultado });
   } catch (e) {
+    if (e.statusCode === 413) return json(res, 413, { ok: false, erro: 'Payload muito grande' });
     json(res, 500, { ok: false, erro: e.message });
   } finally {
-    gerando = false;
+    clearBusy();
   }
 }
 
@@ -166,8 +207,7 @@ async function handleRejeitar(req, res) {
 }
 
 async function handleConsumirBanco(_req, res) {
-  if (gerando) return json(res, 409, { ok: false, erro: 'Operação em andamento' });
-  gerando = true;
+  if (!setBusy(res)) return;
   try {
     const resultado = await consumirBanco({ gerarBackupVisual: false });
     if (!resultado) return json(res, 404, { ok: false, erro: 'Banco vazio' });
@@ -175,29 +215,30 @@ async function handleConsumirBanco(_req, res) {
   } catch (e) {
     json(res, 500, { ok: false, erro: e.message });
   } finally {
-    gerando = false;
+    clearBusy();
   }
 }
 
 async function handleSalvarArte(req, res) {
-  const payload = await readBody(req);
-  if (!payload) return json(res, 400, { ok: false, erro: 'JSON inválido' });
-
-  const slug = String(payload.slug || '').trim();
-  const state = payload.state;
-  if (!slug || !state || typeof state !== 'object') {
-    return json(res, 400, { ok: false, erro: 'slug e state são obrigatórios' });
-  }
-  if (!/^[\w-]+$/.test(slug)) {
-    return json(res, 400, { ok: false, erro: 'slug inválido' });
-  }
-
-  const { artePath, thumbPath, isTemplate, layout } = resolveArtePaths(slug);
-  if (!fs.existsSync(artePath)) {
-    return json(res, 404, { ok: false, erro: `Arte não encontrada: ${slug}` });
-  }
-
+  if (!setBusy(res)) return;
   try {
+    const payload = await readBody(req);
+    if (!payload) return json(res, 400, { ok: false, erro: 'JSON inválido' });
+
+    const slug = String(payload.slug || '').trim();
+    const state = payload.state;
+    if (!slug || !state || typeof state !== 'object') {
+      return json(res, 400, { ok: false, erro: 'slug e state são obrigatórios' });
+    }
+    if (!/^[\w-]+$/.test(slug)) {
+      return json(res, 400, { ok: false, erro: 'slug inválido' });
+    }
+
+    const { artePath, thumbPath, isTemplate, layout } = resolveArtePaths(slug);
+    if (!fs.existsSync(artePath)) {
+      return json(res, 404, { ok: false, erro: `Arte não encontrada: ${slug}` });
+    }
+
     const html = fs.readFileSync(artePath, 'utf8');
     const updated = upsertEditorState(html, state);
     fs.writeFileSync(artePath, updated);
@@ -216,7 +257,7 @@ async function handleSalvarArte(req, res) {
       padraoInfo = promoteTemplatePadrao(slug, state);
     }
 
-    console.log(`💾 Editor salvo: ${slug}${thumbOk ? ' + thumb' : ''}${isTemplate ? ' · padrão layout ' + layout : ''}`);
+    log.info(`Editor salvo: ${slug}${thumbOk ? ' + thumb' : ''}${isTemplate ? ' · padrão layout ' + layout : ''}`);
     json(res, 200, {
       ok: true,
       slug,
@@ -229,35 +270,38 @@ async function handleSalvarArte(req, res) {
         : undefined,
     });
   } catch (e) {
-    console.error('❌ Salvar arte:', e.message);
+    if (e.statusCode === 413) return json(res, 413, { ok: false, erro: 'Payload muito grande' });
+    log.error('Salvar arte:', e.message);
     json(res, 500, { ok: false, erro: e.message });
+  } finally {
+    clearBusy();
   }
 }
 
 async function handleCampanha(req, res) {
-  if (gerando) return json(res, 409, { ok: false, erro: 'Operação em andamento' });
-  const payload = await readBody(req);
-  if (!payload) return json(res, 400, { ok: false, erro: 'JSON inválido' });
-
-  gerando = true;
+  if (!setBusy(res)) return;
   try {
+    const payload = await readBody(req);
+    if (!payload) return json(res, 400, { ok: false, erro: 'JSON inválido' });
+
     const { getJSON } = require('./utils/storage.js');
     const { criarLoteCampanha } = require('./gerar-campanha.js');
     const temasFile = await getJSON('temas.json');
     if (!temasFile) throw new Error('temas.json não encontrado');
 
     const lote = await criarLoteCampanha({
-      objetivo: payload.objetivo || 'inscricoes',
+      objetivo:  payload.objetivo  || 'inscricoes',
       quantidade: payload.quantidade || 5,
-      tema: payload.tema?.trim() || '',
-      temas: temasFile.data,
+      tema:      payload.tema?.trim() || '',
+      temas:     temasFile.data,
     });
 
     json(res, 200, { ok: true, modo: 'campanha', lote });
   } catch (e) {
+    if (e.statusCode === 413) return json(res, 413, { ok: false, erro: 'Payload muito grande' });
     json(res, 500, { ok: false, erro: e.message });
   } finally {
-    gerando = false;
+    clearBusy();
   }
 }
 
@@ -292,84 +336,267 @@ async function handleCalendario(_req, res) {
   }
 }
 
+// ── Versões de imagem ────────────────────────────────────────────
+function imgVersDir(slug) {
+  return path.join(ROOT, 'artes', slug, 'img-versoes');
+}
+function imgVersIndexPath(slug) {
+  return path.join(imgVersDir(slug), 'index.json');
+}
+function readImgVersoes(slug) {
+  const p = imgVersIndexPath(slug);
+  if (!fs.existsSync(p)) return { ativa: null, versoes: [] };
+  try { return JSON.parse(fs.readFileSync(p, 'utf8')); } catch { return { ativa: null, versoes: [] }; }
+}
+function writeImgVersoes(slug, data) {
+  fs.mkdirSync(imgVersDir(slug), { recursive: true });
+  fs.writeFileSync(imgVersIndexPath(slug), JSON.stringify(data, null, 2) + '\n');
+}
+function nextImgVersId(data) {
+  if (!data.versoes.length) return 1;
+  return Math.max(...data.versoes.map(v => v.id)) + 1;
+}
+function saveImgVersion(slug, fundoPath, thumbPath, label) {
+  const data = readImgVersoes(slug);
+  const id   = nextImgVersId(data);
+  const vDir = path.join(imgVersDir(slug), `v${id}`);
+  fs.mkdirSync(vDir, { recursive: true });
+  if (fs.existsSync(fundoPath)) fs.copyFileSync(fundoPath, path.join(vDir, 'fundo.png'));
+  if (fs.existsSync(thumbPath)) fs.copyFileSync(thumbPath, path.join(vDir, 'thumb.png'));
+  data.versoes.push({ id, criada_em: new Date().toISOString(), label: label || '' });
+  data.ativa = id;
+  writeImgVersoes(slug, data);
+  return { data, id };
+}
+
+// background-position padrão por layout — alinhado ao focusId do LAYOUT_IMAGE_RULES
+const LAYOUT_BG_POS = {
+  A: { x: 75, y: 40 },  // direita, levemente acima
+  B: { x: 15, y: 50 },  // esquerda
+  C: { x: 85, y: 50 },  // direita
+  D: { x: 50, y: 50 },  // centro
+  E: { x: 80, y: 50 },  // direita
+  F: { x: 80, y: 50 },  // direita
+  G: { x: 50, y: 30 },  // centro, topo (magazine cover)
+  H: { x: 50, y: 35 },  // centro-superior
+  I: { x: 20, y: 50 },  // esquerda
+  J: { x: 50, y: 50 },  // centro entre horizontais
+  K: { x: 50, y: 50 },  // centro entre verticais
+  L: { x: 50, y: 50 },  // centro entre zonas
+  M: { x: 75, y: 40 },  // direita, acima
+  N: { x: 80, y: 30 },  // direita, topo
+  O: { x: 50, y: 65 },  // centro-inferior (spotlight)
+  P: { x: 50, y: 35 },  // centro-superior
+  Q: { x: 50, y: 50 },  // laterais — centralizado no total
+};
+
+function buildArteHtml(slug, arte, imgBuffer, artePath, resetBgPos = false) {
+  const layout = (arte.layout || (arte.tipo === 'evento' ? 'E' : arte.tipo === 'patrocinador' ? 'F' : 'C')).toUpperCase();
+  validateLayout(layout);
+  const imageBase64 = imgBuffer.toString('base64');
+  let editorState = fs.existsSync(artePath) ? extractEditorState(fs.readFileSync(artePath, 'utf8')) : null;
+  // Ao trocar a imagem, reseta posição/zoom para o padrão do layout mas preserva ajustes de texto/elementos
+  if (resetBgPos) {
+    const pos = LAYOUT_BG_POS[layout] || { x: 50, y: 50 };
+    editorState = { ...(editorState || {}), x: pos.x, y: pos.y, z: 100 };
+  }
+  const simpleHtml  = renderLayout(layout, {
+    imageBase64,
+    headline:        arte.headline,
+    subtitulo:       arte.subtitulo || '',
+    palavrasAzuis:   arte.palavras_azuis || '',
+    nomePalestrante: arte.nome_palestrante || '',
+    cargoEmpresa:    arte.cargo_empresa || '',
+  });
+  return { html: wrapWithEditor(simpleHtml, { layout, headline: arte.headline, slug, editorState }), layout };
+}
+
 async function handleMudarImagem(req, res) {
-  if (gerando) return json(res, 409, { ok: false, erro: 'Já existe uma operação em andamento. Aguarde.' });
-
-  const payload = await readBody(req);
-  const slug = String(payload?.slug || '').trim();
-  const instrucao = String(payload?.instrucao || '').trim();
-
-  if (!slug || !/^[\w-]+$/.test(slug)) return json(res, 400, { ok: false, erro: 'slug inválido' });
-  if (!instrucao) return json(res, 400, { ok: false, erro: 'instrucao é obrigatória' });
-
-  const artesJsonPath = path.join(ROOT, 'artes.json');
-  const artes = JSON.parse(fs.readFileSync(artesJsonPath, 'utf8'));
-  const arte = artes.find(a => a.slug === slug);
-  if (!arte) return json(res, 404, { ok: false, erro: `Arte não encontrada: ${slug}` });
-
-  const { artePath, thumbPath } = resolveArtePaths(slug);
-  if (!fs.existsSync(artePath)) return json(res, 404, { ok: false, erro: 'arte.html não encontrada' });
-
-  gerando = true;
+  if (!setBusy(res)) return;
   try {
+    const payload = await readBody(req);
+    const slug = String(payload?.slug || '').trim();
+    const instrucao = String(payload?.instrucao || '').trim();
+
+    if (!slug || !/^[\w-]+$/.test(slug)) return json(res, 400, { ok: false, erro: 'slug inválido' });
+    if (!instrucao) return json(res, 400, { ok: false, erro: 'instrucao é obrigatória' });
+
+    const artes = readArtes();
+    const arte = artes.find(a => a.slug === slug);
+    if (!arte) return json(res, 404, { ok: false, erro: `Arte não encontrada: ${slug}` });
+
+    const { artePath, thumbPath } = resolveArtePaths(slug);
+    if (!fs.existsSync(artePath)) return json(res, 404, { ok: false, erro: 'arte.html não encontrada' });
+
     const layout = (arte.layout || (arte.tipo === 'evento' ? 'E' : arte.tipo === 'patrocinador' ? 'F' : 'C')).toUpperCase();
     validateLayout(layout);
 
-    /* Prompt base + instrução do usuário como modificador */
-    const basePrompt = buildImagePrompt({
+    const slugDir   = path.join(ROOT, 'artes', slug);
+    const fundoPath = path.join(slugDir, 'fundo.png');
+
+    // Salvar versão atual — extrai imagem do arte.html se fundo.png não existe
+    const versoesBefore = readImgVersoes(slug);
+    if (versoesBefore.versoes.length === 0) {
+      let savedOriginal = false;
+      if (fs.existsSync(fundoPath)) {
+        saveImgVersion(slug, fundoPath, thumbPath, 'Original');
+        savedOriginal = true;
+      } else {
+        // Imagem embutida como base64 no arte.html — extrair antes de sobrescrever
+        try {
+          const html = fs.readFileSync(artePath, 'utf8');
+          const m = html.match(/id="art-bg"[^>]*background-image:\s*url\(['"]?data:image\/[^;]+;base64,([^'")\s]+)/);
+          if (m?.[1]) {
+            fs.mkdirSync(slugDir, { recursive: true });
+            fs.writeFileSync(fundoPath, Buffer.from(m[1], 'base64'));
+            saveImgVersion(slug, fundoPath, thumbPath, 'Original');
+            savedOriginal = true;
+            log.info(`Imagem original extraída do arte.html e salva como v1 para ${slug}`);
+          }
+        } catch (ex) {
+          log.warn(`Não foi possível extrair imagem original de ${slug}:`, ex.message);
+        }
+      }
+      if (!savedOriginal) {
+        // Salvar apenas o thumb como referência visual da versão original
+        const vDir = path.join(imgVersDir(slug), 'v1');
+        fs.mkdirSync(vDir, { recursive: true });
+        if (fs.existsSync(thumbPath)) fs.copyFileSync(thumbPath, path.join(vDir, 'thumb.png'));
+        const d = { ativa: 1, versoes: [{ id: 1, criada_em: new Date().toISOString(), label: 'Original' }] };
+        writeImgVersoes(slug, d);
+        log.info(`Thumb original salvo como v1 (sem fundo.png) para ${slug}`);
+      }
+    }
+
+    // userScene injeta a instrução do usuário como SCENE, mantendo layout/estilo/marca intactos
+    const prompt = buildImagePrompt({
       tipo:           arte.tipo,
       layout,
       contextoVisual: arte.contexto_visual || '',
       slug,
       cidade:         arte.cidade || 'BH',
+      userScene:      instrucao,
     });
-    const prompt = `${basePrompt}\n\nMODIFICAÇÃO SOLICITADA: ${instrucao}`;
-
-    console.log(`\n🖼️  Mudar imagem: ${slug}`);
-    console.log(`   Instrução: ${instrucao}`);
+    log.info(`Mudar imagem: ${slug} — ${instrucao}`);
 
     const imgBuffer = await generateImage(prompt, {
       tipo:           arte.tipo,
       layout,
       contextoVisual: arte.contexto_visual || '',
       cidade:         arte.cidade || 'BH',
+      useReferences:  false, // instrução do usuário é o sujeito — referências de estilo sobrescreveriam
     });
 
-    if (!imgBuffer?.length || imgBuffer.length < 5000) {
-      throw new Error(`Imagem gerada muito pequena (${imgBuffer?.length || 0} bytes)`);
-    }
-
-    const slugDir  = path.join(ROOT, 'artes', slug);
-    const fundoPath = path.join(slugDir, 'fundo.png');
     fs.mkdirSync(slugDir, { recursive: true });
     fs.writeFileSync(fundoPath, imgBuffer);
-    console.log(`💾 fundo.png atualizado (${Math.round(imgBuffer.length / 1024)} KB)`);
+    log.info(`fundo.png atualizado (${Math.round(imgBuffer.length / 1024)} KB)`);
 
-    /* Recompor arte.html preservando estado do editor */
-    const imageBase64 = imgBuffer.toString('base64');
-    const editorState = extractEditorState(fs.readFileSync(artePath, 'utf8'));
-    const simpleHtml  = renderLayout(layout, {
-      imageBase64,
-      headline:        arte.headline,
-      subtitulo:       arte.subtitulo || '',
-      palavrasAzuis:   arte.palavras_azuis || '',
-      nomePalestrante: arte.nome_palestrante || '',
-      cargoEmpresa:    arte.cargo_empresa || '',
-    });
-    const html = wrapWithEditor(simpleHtml, { layout, headline: arte.headline, slug, editorState });
+    const { html } = buildArteHtml(slug, arte, imgBuffer, artePath, true);
     fs.writeFileSync(artePath, html);
-    console.log(`📝 arte.html recomposto`);
-
-    /* Regenerar thumb */
     await gerarThumbComposto(artePath, thumbPath);
-    console.log(`📸 thumb regenerado`);
+    log.info(`thumb regenerado: ${slug}`);
 
-    json(res, 200, { ok: true, slug, thumb: `artes/${slug}/thumb.png?t=${Date.now()}` });
+    // Salvar nova versão
+    const { data: versoesAfter, id: novaId } = saveImgVersion(slug, fundoPath, thumbPath, instrucao.slice(0, 80));
+
+    json(res, 200, {
+      ok: true,
+      slug,
+      thumb: `artes/${slug}/thumb.png?t=${Date.now()}`,
+      versoes: versoesAfter,
+    });
   } catch (e) {
-    console.error('❌ Mudar imagem falhou:', e.message);
+    if (e.statusCode === 413) return json(res, 413, { ok: false, erro: 'Payload muito grande' });
+    log.error('Mudar imagem falhou:', e.message);
     json(res, 500, { ok: false, erro: e.message });
   } finally {
-    gerando = false;
+    clearBusy();
+  }
+}
+
+async function handleImgVersoesGet(req, res, searchParams) {
+  const slug = String(searchParams.get('slug') || '').trim();
+  if (!slug) return json(res, 400, { ok: false, erro: 'slug obrigatório' });
+  const data = readImgVersoes(slug);
+  json(res, 200, { ok: true, ...data });
+}
+
+async function handleAtivarImgVersao(req, res) {
+  if (!setBusy(res)) return;
+  try {
+    const payload = await readBody(req);
+    const slug = String(payload?.slug || '').trim();
+    const id   = Number(payload?.id);
+
+    if (!slug || !/^[\w-]+$/.test(slug)) return json(res, 400, { ok: false, erro: 'slug inválido' });
+    if (!id) return json(res, 400, { ok: false, erro: 'id obrigatório' });
+
+    const data = readImgVersoes(slug);
+    const ver  = data.versoes.find(v => v.id === id);
+    if (!ver) return json(res, 404, { ok: false, erro: `Versão ${id} não encontrada` });
+
+    const vDir      = path.join(imgVersDir(slug), `v${id}`);
+    const vFundo    = path.join(vDir, 'fundo.png');
+    if (!fs.existsSync(vFundo)) return json(res, 404, { ok: false, erro: `Imagem da versão ${id} não disponível para restaurar (versão salva apenas como thumbnail)` });
+
+    const artes  = readArtes();
+    const arte   = artes.find(a => a.slug === slug);
+    if (!arte) return json(res, 404, { ok: false, erro: 'Arte não encontrada' });
+
+    const { artePath, thumbPath } = resolveArtePaths(slug);
+    const slugDir   = path.join(ROOT, 'artes', slug);
+    const fundoPath = path.join(slugDir, 'fundo.png');
+
+    const imgBuffer = fs.readFileSync(vFundo);
+    fs.writeFileSync(fundoPath, imgBuffer);
+
+    const { html } = buildArteHtml(slug, arte, imgBuffer, artePath, true);
+    fs.writeFileSync(artePath, html);
+    await gerarThumbComposto(artePath, thumbPath);
+
+    data.ativa = id;
+    writeImgVersoes(slug, data);
+    log.info(`Imagem ativada: ${slug} → v${id}`);
+
+    json(res, 200, {
+      ok: true,
+      slug,
+      thumb: `artes/${slug}/thumb.png?t=${Date.now()}`,
+      versoes: data,
+    });
+  } catch (e) {
+    log.error('Ativar versão imagem falhou:', e.message);
+    json(res, 500, { ok: false, erro: e.message });
+  } finally {
+    clearBusy();
+  }
+}
+
+async function handleDeletarImgVersao(req, res) {
+  try {
+    const payload = await readBody(req);
+    const slug = String(payload?.slug || '').trim();
+    const id   = Number(payload?.id);
+
+    if (!slug || !/^[\w-]+$/.test(slug)) return json(res, 400, { ok: false, erro: 'slug inválido' });
+    if (!id) return json(res, 400, { ok: false, erro: 'id obrigatório' });
+
+    const data = readImgVersoes(slug);
+    if (data.versoes.length <= 1) return json(res, 400, { ok: false, erro: 'Não é possível deletar a única versão' });
+    if (!data.versoes.find(v => v.id === id)) return json(res, 404, { ok: false, erro: `Versão ${id} não encontrada` });
+    if (data.ativa === id) return json(res, 400, { ok: false, erro: 'Não é possível deletar a versão ativa. Ative outra primeiro.' });
+
+    const vDir = path.join(imgVersDir(slug), `v${id}`);
+    if (fs.existsSync(vDir)) fs.rmSync(vDir, { recursive: true, force: true });
+
+    data.versoes = data.versoes.filter(v => v.id !== id);
+    writeImgVersoes(slug, data);
+    log.info(`Versão de imagem deletada: ${slug} v${id}`);
+
+    json(res, 200, { ok: true, versoes: data });
+  } catch (e) {
+    log.error('Deletar versão imagem falhou:', e.message);
+    json(res, 500, { ok: false, erro: e.message });
   }
 }
 
@@ -383,10 +610,11 @@ async function handleDeletarArte(req, res) {
   try {
     const { removerArte } = require('./utils/remover-arte.js');
     const resultado = await removerArte(slug);
-    console.log(`🗑️  Arte removida: ${slug}`);
+    invalidateArtes();
+    log.info(`Arte removida: ${slug}`);
     json(res, 200, { ok: true, ...resultado });
   } catch (e) {
-    console.error('❌ Deletar arte:', e.message);
+    log.error('Deletar arte:', e.message);
     json(res, 500, { ok: false, erro: e.message });
   }
 }
@@ -402,7 +630,7 @@ async function handleMotionSelecionar(req, res) {
   try {
     const { setPreview } = require('./utils/motion-versoes.js');
     const data = setPreview(slug, ROOT, version);
-    console.log(`🎬 Motion preview: ${slug} → v${version}`);
+    log.info(`Motion preview: ${slug} → v${version}`);
     json(res, 200, { ok: true, versions: data });
   } catch (e) {
     json(res, 500, { ok: false, erro: e.message });
@@ -422,7 +650,7 @@ async function handleMotionAprovarMp4(req, res) {
     const { resolveMp4ForVersion } = require('./utils/motion-mp4.js');
     const data = setMp4From(slug, ROOT, version);
     const resolved = resolveMp4ForVersion(slug, ROOT, version);
-    console.log(`🎬 Motion MP4 aprovado: ${slug} → v${version}`);
+    log.info(`Motion MP4 aprovado: ${slug} → v${version}`);
     json(res, 200, {
       ok: true,
       versions: data,
@@ -460,7 +688,7 @@ async function handleMotionDeletar(req, res) {
   try {
     const { deleteVersion } = require('./utils/motion-versoes.js');
     const data = deleteVersion(slug, ROOT, version);
-    console.log(`🗑️  Motion versão removida: ${slug} → v${version}`);
+    log.info(`Motion versão removida: ${slug} → v${version}`);
     json(res, 200, { ok: true, versions: data });
   } catch (e) {
     json(res, 500, { ok: false, erro: e.message });
@@ -494,6 +722,11 @@ async function handleMotionPedidoPost(req, res) {
     return json(res, 400, { ok: false, erro: 'Descreva o que mudar' });
   }
 
+  // Evita dois pedidos simultâneos para o mesmo slug antes do worker iniciar
+  if (motionPending.has(slug)) {
+    return json(res, 409, { ok: false, erro: 'Geração em andamento para este post. Aguarde.' });
+  }
+
   try {
     const { createPedido } = require('./utils/motion-pedidos.js');
     const { PRESET_IDS } = require('./utils/motion-presets.js');
@@ -501,6 +734,10 @@ async function handleMotionPedidoPost(req, res) {
       return json(res, 400, { ok: false, erro: 'Preset inválido ou não automatizado: ' + presetId });
     }
     const pedido = createPedido(slug, ROOT, { mode, instrucoes, baseVersion, presetId });
+
+    motionPending.add(slug);
+    // Libera o lock após o worker ter tempo de atualizar o status para 'processing'
+    setTimeout(() => motionPending.delete(slug), 8000);
 
     const { spawn } = require('child_process');
     const worker = path.join(__dirname, 'motion-pedido-run.js');
@@ -510,10 +747,10 @@ async function handleMotionPedidoPost(req, res) {
       cwd: __dirname,
     }).unref();
 
-    const presetLabel = presetId || 'surpresa';
-    console.log(`🎬 Motion pedido: ${slug} → v${pedido.targetVersion} (${mode}${presetId ? ' · ' + presetId : ''})`);
+    log.info(`Motion pedido: ${slug} → v${pedido.targetVersion} (${mode}${presetId ? ' · ' + presetId : ''})`);
     json(res, 200, { ok: true, pedido });
   } catch (e) {
+    motionPending.delete(slug);
     json(res, 500, { ok: false, erro: e.message });
   }
 }
@@ -560,6 +797,9 @@ const server = http.createServer((req, res) => {
   if (req.method === 'POST' && urlPath === '/api/arte/salvar') return handleSalvarArte(req, res);
   if (req.method === 'POST' && urlPath === '/api/arte/deletar') return handleDeletarArte(req, res);
   if (req.method === 'POST' && urlPath === '/api/arte/imagem/mudar') return handleMudarImagem(req, res);
+  if (req.method === 'GET'  && urlPath === '/api/arte/imagem/versoes') return handleImgVersoesGet(req, res, url.searchParams);
+  if (req.method === 'POST' && urlPath === '/api/arte/imagem/versao/ativar') return handleAtivarImgVersao(req, res);
+  if (req.method === 'POST' && urlPath === '/api/arte/imagem/versao/deletar') return handleDeletarImgVersao(req, res);
   if (req.method === 'POST' && urlPath === '/api/motion/selecionar') return handleMotionSelecionar(req, res);
   if (req.method === 'POST' && urlPath === '/api/motion/aprovar-mp4') return handleMotionAprovarMp4(req, res);
   if (req.method === 'POST' && urlPath === '/api/motion/deletar') return handleMotionDeletar(req, res);
@@ -572,7 +812,7 @@ const server = http.createServer((req, res) => {
   if (req.method === 'GET'  && urlPath === '/api/status') {
     return json(res, 200, {
       ok: true,
-      gerando,
+      gerando: busy,
       fluxo: 'v2-propostas',
       build: '2026-06-23-arte-deletar',
       apis: ['pedido', 'campanha', 'campanha/export', 'propostas', 'aprovar', 'banco', 'arte/salvar', 'arte/deletar', 'motion/selecionar', 'motion/aprovar-mp4', 'motion/deletar', 'motion/mp4', 'motion/versoes', 'motion/pedido', 'motion/presets', 'template/padroes', 'temas/calendario'],
@@ -597,10 +837,5 @@ const server = http.createServer((req, res) => {
 
 server.listen(PORT, HOST, () => {
   const local = ['1', 'true', 'yes'].includes(String(process.env.LOCAL_MODE || '').toLowerCase());
-  console.log(`\n🚀 CybersecFEST — Dev Server`);
-  console.log(`   Galeria:  http://${HOST}:${PORT}/`);
-  console.log(`   Templates: http://${HOST}:${PORT}/galeria-templates/`);
-  console.log(`   API:      POST /api/pedido · POST /api/campanha · GET /api/campanha/export · GET /api/propostas`);
-  console.log(`   Modo:     ${local ? 'LOCAL (grava no disco)' : 'REMOTO (GitHub API)'}`);
-  console.log(`   Raiz:     ${ROOT}\n`);
+  log.info(`CybersecFEST Dev Server — http://${HOST}:${PORT}/ — modo: ${local ? 'LOCAL' : 'REMOTO'}`);
 });

@@ -1194,6 +1194,29 @@ header {
 }
 .card-layout-badge ~ .card-motion-badge { top: 44px; }
 
+/* Badge "ainda sem motion" — muted */
+.card-motion-badge--new {
+  color: rgba(246,248,255,0.35);
+  border-color: rgba(246,248,255,0.15);
+  box-shadow: none;
+}
+
+/* Badge pulsante durante geração de nova versão motion */
+@keyframes motion-pulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 16px rgba(20,168,244,0.15); }
+  50%       { opacity: 0.6; box-shadow: 0 0 24px rgba(20,168,244,0.55); }
+}
+.card-motion-badge.generating {
+  animation: motion-pulse 1.4s ease-in-out infinite;
+  border-color: #14A8F4;
+  color: #14A8F4;
+}
+.card-motion-badge.motion-error {
+  border-color: rgba(255,80,80,0.6);
+  color: #ff6060;
+  box-shadow: 0 0 12px rgba(255,80,80,0.2);
+}
+
 /* ── GALERIA ────────────────────────────────────── */
 .gallery-toolbar {
   display: flex;
@@ -1877,6 +1900,54 @@ header {
 }
 .modal-img-edit-status.ok   { color: #4cde8a; }
 .modal-img-edit-status.erro { color: #ff6b6b; }
+
+.modal-img-versoes {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+.modal-img-versoes-label {
+  font-size: 11px;
+  color: rgba(246,248,255,.45);
+  white-space: nowrap;
+}
+.modal-img-versoes-pills {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.img-ver-pill {
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  border: 1px solid rgba(246,248,255,.18);
+  background: rgba(246,248,255,.06);
+  color: rgba(246,248,255,.6);
+  cursor: pointer;
+  transition: background .15s, border-color .15s, color .15s;
+  white-space: nowrap;
+  max-width: 130px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.img-ver-pill:hover { background: rgba(20,168,244,.18); border-color: rgba(20,168,244,.5); color: #f6f8ff; }
+.img-ver-pill.ativa { background: #14A8F4; border-color: #14A8F4; color: #02050A; font-weight: 600; }
+.img-ver-pill:disabled { opacity: .5; cursor: default; }
+.img-ver-pill-wrap { display: inline-flex; align-items: center; }
+.img-ver-del {
+  background: none;
+  border: none;
+  color: rgba(246,248,255,.3);
+  font-size: 14px;
+  line-height: 1;
+  padding: 0 2px 0 1px;
+  cursor: pointer;
+  margin-left: -2px;
+  transition: color .15s;
+}
+.img-ver-del:hover { color: #ff6b6b; }
 
 .btn-arte {
   flex: 1;

@@ -23,11 +23,14 @@ function versionIndexHtml(slug, root, ver) {
 function readVersions(slug, root) {
   const file = versionsFile(slug, root);
   if (fs.existsSync(file)) {
-    const data = JSON.parse(fs.readFileSync(file, 'utf8'));
-    if (!Array.isArray(data.versions) || data.versions.length === 0) {
-      throw new Error('versions.json inválido');
+    try {
+      const data = JSON.parse(fs.readFileSync(file, 'utf8'));
+      // Array vazio = motion ainda não concluído; tratar como "sem versões"
+      if (!Array.isArray(data.versions) || data.versions.length === 0) return null;
+      return data;
+    } catch {
+      return null;
     }
-    return data;
   }
 
   const indexHtml = path.join(motionDir(slug, root), 'index.html');

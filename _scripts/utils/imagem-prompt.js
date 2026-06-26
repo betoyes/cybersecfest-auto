@@ -346,12 +346,16 @@ function buildSceneDescription(contextoVisual = '', cidade = '', layout = 'C', t
 
 /**
  * Monta prompt de imagem com regras rígidas do layout.
+ * @param userScene — se fornecido, substitui a cena padrão mantendo layout/estilo/proibições intactos
  * @throws se layout ∉ A–Q
  */
-function buildImagePrompt({ tipo = 'blog', layout = 'C', contextoVisual = '', cidade = '', slug = '' } = {}) {
+function buildImagePrompt({ tipo = 'blog', layout = 'C', contextoVisual = '', cidade = '', slug = '', userScene = '' } = {}) {
   const L = validateLayout(layout);
   const rules = LAYOUT_IMAGE_RULES[L];
-  const { scene, landmark } = buildSceneDescription(contextoVisual, cidade, L, tipo);
+  const { scene: defaultScene, landmark } = buildSceneDescription(contextoVisual, cidade, L, tipo);
+  const scene = userScene
+    ? `${userScene.trim()} — maintain all layout composition rules above (subject placement and clear zones are MANDATORY)`
+    : defaultScene;
   void slug;
 
   return [

@@ -57,7 +57,7 @@ function uBg(){
     BG.style.filter=flt;
   }else{
     BG.style.backgroundPosition=S.x+'% '+S.y+'%';
-    BG.style.backgroundSize=S.z+'%';
+    BG.style.backgroundSize=S.z<=100?'cover':S.z+'%';
     BG.style.opacity=S.bo/100;
     BG.style.transform=S.fl?'scaleX(-1)':'none';
     BG.style.filter=flt;
@@ -151,7 +151,7 @@ function setTog(id,on){
 function syncUi(){
   setSlider('sx','x','vx','%',S.x);
   setSlider('sy','y','vy','%',S.y);
-  setSlider('sz','z','vz','%',S.z);
+  setSlider('sz','z','vz','%',S.z);var vzEl=document.getElementById('vz');if(vzEl)vzEl.textContent=S.z<=100?'cover':S.z+'%';
   setSlider('sbo','bo','vbo','%',S.bo);
   setSlider('ssat','sat','vsat','%',S.sat);
   setSlider('soo','oo','voo','%',S.oo);
@@ -221,7 +221,7 @@ bindSeg('staseg','sta',function(){uTxt();uEl();});
 
 var rstAll=document.getElementById('rstAll');
 if(rstAll)rstAll.addEventListener('click',function(){
-  S.x=50;S.y=50;S.z=110;S.bo=100;S.fl=false;S.sat=100;S.oo=100;S.bgc='#02050A';S.ol='original';S.fw='700';
+  S.x=50;S.y=50;S.z=100;S.bo=100;S.fl=false;S.sat=100;S.oo=100;S.bgc='#02050A';S.ol='original';S.fw='700';
   syncUi();all();
 });
 

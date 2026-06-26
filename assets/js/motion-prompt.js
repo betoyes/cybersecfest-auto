@@ -7,6 +7,7 @@
   let panelEl = null;
   let onComplete = null;
   let presetsCache = [];
+  let pollTimer = null;
 
   function ensurePanel() {
     if (panelEl) return panelEl;
@@ -128,6 +129,7 @@
 
   function close() {
     if (panelEl) panelEl.hidden = true;
+    if (pollTimer) { clearTimeout(pollTimer); pollTimer = null; }
   }
 
   function selectedPresetId() {
@@ -198,27 +200,57 @@
   }
 
   function startPolling(slug, targetVersion, callback) {
+    if (pollTimer) clearTimeout(pollTimer);
     let tries = 0;
+    let consecutiveErrors = 0;
     const max = 40;
+
+    const MV = global.MotionVersions;
+    if (MV?.setCardGenerating) MV.setCardGenerating(slug, 'generating');
+
+    const finish = (result) => {
+      if (MV?.setCardGenerating) {
+        MV.setCardGenerating(slug, result.ready ? 'done' : 'error');
+      }
+      if (typeof callback === 'function') callback(result);
+    };
+
     const tick = async () => {
+      pollTimer = null;
       tries += 1;
       try {
-        const MV = global.MotionVersions;
         if (!MV) return;
         const data = await MV.fetchVersions(slug);
         const found = data?.versions?.some(v => v.id === targetVersion);
         const pedRes = await fetch('/api/motion/pedido?slug=' + encodeURIComponent(slug));
         const pedData = pedRes.ok ? await pedRes.json() : {};
-        if (pedData.pedido?.status === 'failed') return;
-        if (found || pedData.pedido?.status === 'done') {
-          const fresh = found ? data : await MV.fetchVersions(slug);
-          if (typeof callback === 'function') callback({ slug, ready: true, versions: fresh });
+        consecutiveErrors = 0;
+
+        if (pedData.pedido?.status === 'failed') {
+          finish({ slug, ready: false, error: 'Geração falhou no servidor' });
           return;
         }
-      } catch (_) {}
-      if (tries < max) setTimeout(tick, 3000);
+        if (found || pedData.pedido?.status === 'done') {
+          finish({ slug, ready: true, versions: found ? data : await MV.fetchVersions(slug) });
+          return;
+        }
+      } catch (e) {
+        consecutiveErrors += 1;
+        console.warn('[motion-prompt] polling erro:', e.message);
+        if (consecutiveErrors >= 3) {
+          finish({ slug, ready: false, error: 'Servidor sem resposta. Verifique se o dev server está rodando.' });
+          return;
+        }
+      }
+
+      if (tries < max) {
+        pollTimer = setTimeout(tick, 3000);
+      } else {
+        finish({ slug, ready: false, error: 'Tempo esgotado aguardando geração.' });
+      }
     };
-    setTimeout(tick, 2000);
+
+    pollTimer = setTimeout(tick, 2000);
   }
 
   function open({ slug, baseVersion = 1, subtitle = '', completeCallback = null }) {

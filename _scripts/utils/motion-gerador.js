@@ -103,8 +103,14 @@ function readBaseVersionHtml(slug, root, baseVersionId) {
   return { html: fs.readFileSync(file, 'utf8'), ver };
 }
 
-function registerVersionEntry(slug, root, entry, previewId) {
-  const data = readVersions(slug, root);
+function registerVersionEntry(slug, root, entry, previewId, existingVersions) {
+  // existingVersions pode ser passado diretamente para evitar re-ler arquivo parcial
+  let data;
+  if (existingVersions) {
+    data = existingVersions;
+  } else {
+    data = readVersions(slug, root);
+  }
   if (data.versions.some(v => v.id === entry.id)) {
     throw new Error('Versão já existe: ' + entry.id);
   }
@@ -169,11 +175,11 @@ async function gerarNovaVersao(slug, pedido, root) {
   const arte = loadArte(slug, root);
   const ctx = arteToContext(arte);
 
-  /* Inicializa versions.json se for o primeiro motion deste post */
+  /* Inicializa versions em memória; só escreve no disco após gerar com sucesso */
   let versions = readVersions(slug, root);
-  if (!versions) {
+  const isFirstVersion = !versions;
+  if (isFirstVersion) {
     versions = { slug, preview: null, mp4_from: null, versions: [] };
-    writeVersions(slug, root, versions);
   }
 
   const targetId = pedido.targetVersion;
@@ -224,7 +230,7 @@ async function gerarNovaVersao(slug, pedido, root) {
   });
 
   lintVersion(versionDir);
-  const updated = registerVersionEntry(slug, root, entry, targetId);
+  const updated = registerVersionEntry(slug, root, entry, targetId, isFirstVersion ? versions : null);
   ensureAnimacoesEntry(slug, root, {
     preset: built.preset,
     duracao_s: built.duracao_s,

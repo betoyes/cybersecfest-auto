@@ -58,7 +58,7 @@ input[type=range]{width:100%;accent-color:#14A8F4;cursor:pointer;height:3px}
 .ci{font-size:7.5px;letter-spacing:.1em;color:rgba(255,255,255,.15);text-align:center;margin-top:9px}
 .art-canvas{position:relative;overflow:hidden;box-shadow:0 0 0 1px rgba(20,168,244,.12),0 24px 64px rgba(0,0,0,.8);flex-shrink:0;background:#02050A}
 .art-canvas-inner{position:relative;overflow:hidden}
-#art-bg{position:absolute;inset:0;background-size:110%;background-position:50% 50%;background-repeat:no-repeat;transition:background-position .08s,background-size .08s,opacity .08s;z-index:0}
+#art-bg{position:absolute;inset:0;background-size:cover;background-position:50% 50%;background-repeat:no-repeat;transition:background-position .08s,background-size .08s,opacity .08s;z-index:0}
 #art-bg-img,.art-canvas img.bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
 #art-overlay,.art-overlay,.art-canvas .ov{position:absolute;inset:0;z-index:1;pointer-events:none}
 .art-content,.art-canvas .ct,.art-canvas .bc,.art-canvas .tb,.art-canvas .bb,.art-canvas .lc,.art-canvas .rc,.art-canvas .tc{z-index:2}
@@ -85,7 +85,7 @@ const PANEL_LEFT = `
       <div class="ep-st">Imagem de Fundo</div>
       <div class="ep-c"><div class="ep-l">Posição ←→ <em id="vx">50%</em></div><input type="range" id="sx" min="0" max="100" value="50"></div>
       <div class="ep-c"><div class="ep-l">Posição ↑↓ <em id="vy">50%</em></div><input type="range" id="sy" min="0" max="100" value="50"></div>
-      <div class="ep-c"><div class="ep-l">Zoom <em id="vz">110%</em></div><input type="range" id="sz" min="100" max="300" value="110"></div>
+      <div class="ep-c"><div class="ep-l">Zoom <em id="vz">cover</em></div><input type="range" id="sz" min="100" max="300" value="100"></div>
       <div class="ep-c"><div class="ep-l">Opacidade <em id="vbo">100%</em></div><input type="range" id="sbo" min="0" max="100" value="100"></div>
       <div class="ep-c"><div class="ep-l">Espelhar</div><div class="ep-seg"><button class="ep-sb" id="btnFlip" type="button">⇄ Flip</button></div></div>
       <div class="ep-c"><div class="ep-l">Saturação <em id="vsat">100%</em></div><input type="range" id="ssat" min="0" max="200" value="100"></div>
