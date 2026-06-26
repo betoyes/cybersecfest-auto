@@ -47,6 +47,12 @@ cybersecfest-auto-1/               ← raiz do projeto
 │       ├── thumb.png              ← imagem composta final (logo + texto + fundo)
 │       ├── fundo.png              ← foto de fundo pura (sem texto), ≈ igual thumb
 │       ├── fundo-raw.png          ← foto de fundo LIMPA extraída do art-bg
+│       ├── img-versoes/           ← histórico de versões de imagem (Mudar Imagem)
+│       │   ├── index.json         ← { ativa: 2, versoes: [{id,criada_em,label}] }
+│       │   ├── v1/
+│       │   │   ├── fundo.png      ← imagem da versão 1 (original)
+│       │   │   └── thumb.png      ← thumbnail da versão 1
+│       │   └── v2/, v3/…          ← versões geradas via chat "Mudar Imagem"
 │       └── motion/                ← pasta de animações (se tiver motion)
 │           ├── versions.json      ← lista de versões (v1, v2, v3…)
 │           ├── pedidos.json       ← fila de pedidos da UI
@@ -344,6 +350,10 @@ O `dev-server.js` roda na porta **8765** e expõe:
 | `POST` | `/api/arte/deletar` | Remove uma arte |
 | `POST` | `/api/campanha` | Gera lote de artes (campanha) |
 | `GET` | `/api/campanha/export` | Exporta ZIP da campanha |
+| `POST` | `/api/arte/imagem/mudar` | Gera nova imagem via IA (instrução livre) |
+| `GET` | `/api/arte/imagem/versoes?slug=` | Lista versões de imagem de um post |
+| `POST` | `/api/arte/imagem/versao/ativar` | Restaura versão anterior como ativa |
+| `POST` | `/api/arte/imagem/versao/deletar` | Deleta uma versão de imagem |
 
 ### Rotas Motion:
 | Método | Path | O que faz |
@@ -380,13 +390,15 @@ O `dev-server.js` roda na porta **8765** e expõe:
 A galeria principal em `index.html` é uma SPA (Single Page App) que:
 
 1. Carrega `artes.json` e exibe os cards em grade
-2. Cada card tem botão **ESTÁTICO** / **MOTION** (se disponível)
+2. Cards são clicáveis — todas as ações ficam **apenas no modal** (sem botões na grade)
 3. Clicando num card abre modal com:
-   - Aba **ESTÁTICO**: exibe `thumb.png`
-   - Aba **MOTION**: exibe `<hyperframes-player>` com a animação HTML
-     - Barra inferior com versões (pills): `1 · cinematic ★ | 2 · swipe`
-     - Botão **+ Nova Versão**: abre modal de geração
-     - Botão **+ MP4**: aprova/baixa MP4
+   - **Preview** da arte (`thumb.png`)
+   - **Mudar Imagem**: campo de instrução livre + botão Gerar → chama `/api/arte/imagem/mudar`
+     - Pills de versão aparecem abaixo (v1 Original, v2 — instrução, …)
+     - Clique num pill não-ativo → restaura aquela versão via `/api/arte/imagem/versao/ativar`
+     - Botão `×` em pills não-ativos → deleta via `/api/arte/imagem/versao/deletar`
+   - **Legenda**, **Editar**, **↓ PNG**, **🗑 Deletar**
+   - **Motion EM STANDBY**: UI de motion comentada em `index.html` (código preservado, não deletado)
 
 ### `<hyperframes-player>` Web Component:
 ```html
@@ -689,12 +701,19 @@ patrocinador: F → I → B → Q → (repete)
 - ✅ Geração automática de artes (blog, evento, patrocinador)
 - ✅ Editor inline no modal da galeria
 - ✅ Galeria local com preview, edição e aprovação
-- ✅ Motion System: presets automáticos + presets manuais
+- ✅ **Mudar Imagem** — troca de fundo via instrução livre no modal (Gemini, sem referências visuais)
+- ✅ **Versionamento de imagem** — histórico em `img-versoes/`, pills de versão no modal, ativar/deletar
+- ✅ `background-size: cover` no editor (era `110%` fixo — cortava o sujeito)
+- ✅ `LAYOUT_BG_POS` — posição automática do fundo por layout ao trocar imagem (C=direita, B=esquerda, O=baixo, etc.)
+- ✅ Motion System: presets automáticos + presets manuais (UI em standby, código preservado)
 - ✅ Versionamento de animações (v1, v2, v3…)
 - ✅ Download de MP4 pela galeria
 - ✅ Fix definitivo de ghost text (fundo-raw.png + overlay sólido)
 - ✅ `evento-1782045624931` — v1 cinematográfica (13s, HTML preview)
 - ✅ `evento-1782143777641` — v1/v2/v3 (v3 com MP4)
+
+### Motion UI — Estado Standby (jun/2026):
+A UI de motion (tabs estático/motion, barra de versões, HyperFrames player, scripts) está **comentada** em `index.html` com marcadores `<!-- MOTION EM STANDBY -->`. O código existe completo e pode ser reativado descomentando. O pipeline backend de geração continua funcional.
 
 ### O que ainda precisa ser feito:
 - ❌ Extrair `fundo-raw.png` para todos os posts (só `evento-1782045624931` tem)
@@ -703,6 +722,7 @@ patrocinador: F → I → B → Q → (repete)
 - ❌ Posts do tipo `palestrante` ainda não foram criados
 - ❌ Preset `confraria-signal` (manual premium) ainda não implementado como preset automático
 - ❌ Deploy automático para o Vercel (ainda manual)
+- ❌ Reativar UI de motion quando pipeline estiver estável
 
 ---
 
@@ -756,6 +776,11 @@ Isso é responsabilidade do **SuperAgent** (CREAO). O Cursor/AnimAgent não deve
 | `assets/js/motion-versions.js` | frontend player motion | Cursor |
 | `assets/js/motion-sandbox.js` | quais posts têm motion | Cursor |
 | `_agents/animador/SKILL.md` | procedimento AnimAgent | AnimAgent via PR |
+| `_scripts/utils/editor-state.js` | estado padrão do editor inline | Cursor |
+| `_scripts/utils/editor-v3-script.js` | JS do editor inline (uBg, uEl, uTxt…) | Cursor |
+| `_scripts/utils/editor-wrap.js` | wrap HTML + CSS do editor | Cursor |
+| `_scripts/utils/imagem-prompt.js` | prompts de imagem por layout (A–Q) | Cursor |
+| `_scripts/utils/llm.js` | clientes Gemini + OpenAI (texto e imagem) | Cursor |
 
 ---
 
@@ -820,7 +845,15 @@ cat animacoes.json
 
 8. **Versão legado `dir: "."`:** Posts antigos têm a composição na raiz de `motion/` (não em `v1/`). O sistema lida com isso, mas novas versões devem sempre usar subpastas `v{N}/`.
 
+9. **Mudar Imagem — `useReferences: false`:** A rota `/api/arte/imagem/mudar` desativa as imagens de referência de estilo (`useReferences: false`). Isso é intencional — as referências copiavam a composição (ex: homem de costas) e ignoravam a instrução do usuário. O estilo de marca é mantido via prompt textual (`buildImagePrompt` com `userScene`).
+
+10. **`background-position` por layout:** Ao trocar imagem, `LAYOUT_BG_POS` em `dev-server.js` define a posição de fundo correta por layout. Ex: layout C (sujeito à direita) usa `x: 85%`. Sem isso o sujeito gerado à direita ficava cortado com `background-position: 50%`. Ajustes manuais posteriores no editor ainda são possíveis.
+
+11. **Imagem original extraída do `arte.html`:** Posts sem `fundo.png` separado têm a imagem embutida como base64 no `#art-bg` dentro do HTML. O `handleMudarImagem` extrai esse base64 e salva como `v1 — Original` em `img-versoes/` antes de sobrescrever, permitindo restauração posterior.
+
+12. **Modelos Gemini para imagem (jun/2026):** Os modelos válidos são `gemini-2.5-flash-image` (primário) e `gemini-3.1-flash-image-preview` (fallback). O nome `gemini-3.1-flash-image` (sem `-preview`) não existe. A config correta usa `imageConfig: { aspectRatio: '3:4' }`, não `responseFormat`. Se todos os modelos falharem, `generateImage` lança erro com mensagem completa de ambos (Gemini + DALL-E) em vez de retornar silenciosamente.
+
 ---
 
-*Documento gerado em 25 jun 2026 — commit `a2b5ec0`*  
-*Para dúvidas sobre a conversa anterior: ver histórico de commits no git.*
+*Documento atualizado em 26 jun 2026 — commit `18a10a9`*  
+*Para dúvidas sobre sessões anteriores: ver histórico de commits no git.*

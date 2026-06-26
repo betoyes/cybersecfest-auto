@@ -1,5 +1,34 @@
 # CybersecFEST — Changelog dos Agentes
 
+## [mudar-imagem-v1] — 2026-06-26 — commit `18a10a9`
+
+### Adicionado
+- **Sistema de versões de imagem** (`img-versoes/`): salva a imagem original antes de sobrescrever, permite ativar versões anteriores e deletar versões não ativas
+- **Pills de versão no modal**: aparecem abaixo do campo "Mudar Imagem" após a primeira geração; clique ativa a versão, `×` deleta
+- **Rotas novas**: `GET /api/arte/imagem/versoes`, `POST /api/arte/imagem/versao/ativar`, `POST /api/arte/imagem/versao/deletar`
+- **`userScene` em `buildImagePrompt`**: permite injetar instrução do usuário como SCENE mantendo todas as regras de layout, composição e identidade visual intactas
+- **`LAYOUT_BG_POS`**: mapa de posição de fundo padrão por layout (C=direita, B=esquerda, O=baixo, etc.) aplicado automaticamente ao trocar imagem
+
+### Corrigido
+- `background-size: cover` como padrão no editor inline (era `110%` fixo, cortava o sujeito quando a imagem tinha proporção diferente do canvas)
+- Posição de fundo correta por layout ao gerar/restaurar imagem (`resetBgPos: true` em `buildArteHtml`)
+- Extração de imagem original do base64 em `arte.html` (`#art-bg`) quando `fundo.png` não existe — salvo como `v1 — Original`
+- Prompt de "Mudar Imagem" com `useReferences: false` — as referências de estilo copiavam composições (ex: homem de costas) sobrepondo a instrução do usuário
+- Nome do modelo Gemini: `gemini-3.1-flash-image` → `gemini-3.1-flash-image-preview`
+- Config do SDK `@google/genai`: `responseFormat.image` → `imageConfig` (campo correto para `aspectRatio`)
+- `generateImage` agora lança erro real com mensagens de Gemini + DALL-E quando todos os geradores falham (antes retornava `TRANSPARENT_PNG` silenciosamente)
+- Fix race condition em `motion-versoes.js`: `readVersions` retorna `null` para `versions.json` vazio (não lança exceção)
+- `gerarNovaVersao` mantém estrutura em memória antes de escrever no disco (evitava `versions.json` inválido)
+- Per-slug `motionPending` Set para evitar pedidos de motion duplicados
+
+### Alterado
+- Card overlay: botões removidos da grade (Legenda, Editar, PNG, Deletar agora só no modal)
+- Motion UI: scripts, tabs e barra de versões comentados em `index.html` com `<!-- MOTION EM STANDBY -->` (código preservado, pipeline backend funcional)
+- `DEFAULT_STATE.z`: `110` → `100` (cover) no editor inline
+- Slider "Zoom" no editor: ao mínimo (100) exibe "cover" e aplica `background-size: cover`
+
+---
+
 ## [gallery-fix] — 2026-06-21 — Galeria (index.html)
 ### Corrigido
 - thumb.png diagnosticado: contém só o fundo da IA (sem texto/overlay)
