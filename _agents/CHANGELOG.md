@@ -1,5 +1,36 @@
 # CybersecFEST — Changelog dos Agentes
 
+## [cyberseccast-brand-v1] — 2026-06-26 — commit `4475803`
+
+### Adicionado
+- **Brand Profile System** — infraestrutura multi-marca isolada em `_brands/`
+- **`_brands/cyberseccast/brand.js`** — design tokens do podcast: `#07060f` bg, `#6366f1` indigo accent, `Inter Bold` / `Space Mono`, logo-cast.png
+- **`_brands/cyberseccast/imagem-prompt.js`** — `buildCastImagePrompt()` com `CAST_INDIGO_STYLE` (indigo/violet em vez de cyan); cenas de estúdio de podcast, entrevistas executivas
+- **`_brands/cyberseccast/reference-images.js`** — loader de imagens de referência do site CYBERSEC.CAST (`assets/referencias-cast/`)
+- **`_brands/cyberseccast/temas.json`** — banco editorial do podcast: posicionamento, temas grade, ângulos recorrentes
+- **`_scripts/utils/brand-renderer.js`** — `renderLayoutForBrand(slug, arte, brand)`: pós-processa HTML do `renderLayout()` CybersecFEST trocando cores/fontes/logo por tokens da nova marca sem modificar `layouts.js`
+- **`artes-cast.json`** — banco de artes CAST isolado (prefixo `cast-` previne colisão com slugs CybersecFEST)
+- **`assets/logo-cast.png`** + **`assets/referencias-cast/`** — logo e 4 imagens de referência copiadas do site CYBERSEC.CAST
+- **`cast/index.html`** — galeria dedicada CAST (indigo UI, Inter/Space Mono): criar arte, editor, mudar imagem, versionamento de imagens, deletar
+- **8 novas rotas** em `dev-server.js` (puramente aditivo — zero modificações em handlers existentes):
+  - `GET /api/cast/artes`
+  - `POST /api/cast/arte/criar` — gera arte com `buildCastImagePrompt` + `renderLayoutForBrand`
+  - `POST /api/cast/arte/salvar`
+  - `POST /api/cast/arte/deletar`
+  - `POST /api/cast/arte/imagem/mudar`
+  - `GET /api/cast/arte/imagem/versoes`
+  - `POST /api/cast/arte/imagem/versao/ativar`
+  - `POST /api/cast/arte/imagem/versao/deletar`
+  - `GET /api/cast/status`
+
+### Arquitetura
+- Token replacement no nível HTML: `rgba(20,168,244,` → `rgba(99,102,241,`, `#14A8F4` → `#6366f1`, `#02050A` → `#07060f`, `Ubuntu` → `Inter`, `Montserrat` → `Space Mono`, logo swap via base64
+- `removeEcoLogos()`: remove bloco `id="el-eco"` (logos DevOps/IAM/Alcatraz são CybersecFEST only)
+- Layout rules A–Q são compartilhadas — apenas cenas e estilo de imagem mudam por marca
+- CybersecFEST fica 100% intocado: `artes.json`, `temas.json`, `index.html`, handlers `/api/*` inalterados
+
+---
+
 ## [mudar-imagem-v1] — 2026-06-26 — commit `18a10a9`
 
 ### Adicionado
