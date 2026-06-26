@@ -793,6 +793,8 @@ const CAST_BRAND = require('../_brands/cyberseccast/brand.js');
 const { buildCastImagePrompt } = require('../_brands/cyberseccast/imagem-prompt.js');
 const { getCastReferencePartsForGeneration, CAST_STYLE_REF_INSTRUCTION } = require('../_brands/cyberseccast/reference-images.js');
 const { renderLayoutForBrand } = require('./utils/brand-renderer.js');
+const { executarPedidoCast, getEstadoPropostasCast } = require('./pedido-run-cast.js');
+const { aprovarLoteCast, rejeitarLoteCast, consumirBancoCast } = require('./aprovar-propostas-cast.js');
 
 const CAST_ARTES_FILE = path.join(ROOT, 'artes-cast.json');
 let castArtesCache = null;
@@ -1105,6 +1107,95 @@ async function handleCastDeletarArte(req, res) {
   }
 }
 
+// POST /api/cast/pedido — dispara propostas ou consome banco
+async function handleCastPedido(req, res) {
+  if (!setBusy(res)) return;
+  try {
+    const payload = await readBody(req);
+    if (!payload) return json(res, 400, { ok: false, erro: 'JSON inválido' });
+
+    const resultado = await executarPedidoCast({
+      tema:              String(payload.tema || '').trim(),
+      tipoPost:          payload.tipoPost || null,
+      forcarPropostas:   !!payload.forcarPropostas,
+      pularBanco:        !!payload.pularBanco,
+      descartarPendente: !!payload.descartarPendente,
+    });
+
+    invalidateArtesCast();
+    json(res, 200, { ok: true, ...resultado });
+  } catch (e) {
+    if (e.statusCode === 413) return json(res, 413, { ok: false, erro: 'Payload muito grande' });
+    log.error('CAST pedido:', e.message);
+    json(res, 500, { ok: false, erro: e.message });
+  } finally {
+    clearBusy();
+  }
+}
+
+// GET /api/cast/propostas
+async function handleCastPropostasGet(_req, res) {
+  try {
+    const estado = await getEstadoPropostasCast();
+    json(res, 200, { ok: true, ...estado });
+  } catch (e) {
+    json(res, 500, { ok: false, erro: e.message });
+  }
+}
+
+// POST /api/cast/propostas/aprovar
+async function handleCastAprovar(req, res) {
+  if (!setBusy(res)) return;
+  try {
+    const payload = await readBody(req);
+    if (!payload) return json(res, 400, { ok: false, erro: 'JSON inválido' });
+    const { loteId, principalId, bancoIds, edicoes } = payload;
+    if (!loteId || !principalId) return json(res, 400, { ok: false, erro: 'loteId e principalId são obrigatórios' });
+
+    const resultado = await aprovarLoteCast({ loteId, principalId, bancoIds: bancoIds || [], edicoes: edicoes || {} });
+    invalidateArtesCast();
+    json(res, 200, { ok: true, ...resultado });
+  } catch (e) {
+    if (e.statusCode === 413) return json(res, 413, { ok: false, erro: 'Payload muito grande' });
+    log.error('CAST aprovar:', e.message);
+    json(res, 500, { ok: false, erro: e.message });
+  } finally {
+    clearBusy();
+  }
+}
+
+// POST /api/cast/propostas/rejeitar
+async function handleCastRejeitar(req, res) {
+  if (!setBusy(res)) return;
+  try {
+    const payload = await readBody(req);
+    if (!payload?.loteId) return json(res, 400, { ok: false, erro: 'loteId obrigatório' });
+    await rejeitarLoteCast(payload.loteId);
+    json(res, 200, { ok: true });
+  } catch (e) {
+    log.error('CAST rejeitar:', e.message);
+    json(res, 500, { ok: false, erro: e.message });
+  } finally {
+    clearBusy();
+  }
+}
+
+// POST /api/cast/banco/consumir
+async function handleCastConsumirBanco(_req, res) {
+  if (!setBusy(res)) return;
+  try {
+    const resultado = await consumirBancoCast();
+    invalidateArtesCast();
+    if (!resultado) return json(res, 200, { ok: true, modo: 'banco_vazio' });
+    json(res, 200, { ok: true, modo: 'visual_banco', ...resultado });
+  } catch (e) {
+    log.error('CAST banco consumir:', e.message);
+    json(res, 500, { ok: false, erro: e.message });
+  } finally {
+    clearBusy();
+  }
+}
+
 // ── fim dos handlers CAST ──────────────────────────────────────────
 
 const server = http.createServer((req, res) => {
@@ -1152,6 +1243,11 @@ const server = http.createServer((req, res) => {
   }
 
   // ── CYBERSEC.CAST routes (/api/cast/*) ──────────────────────────
+  if (req.method === 'POST' && urlPath === '/api/cast/pedido') return handleCastPedido(req, res);
+  if (req.method === 'GET'  && urlPath === '/api/cast/propostas') return handleCastPropostasGet(req, res);
+  if (req.method === 'POST' && urlPath === '/api/cast/propostas/aprovar') return handleCastAprovar(req, res);
+  if (req.method === 'POST' && urlPath === '/api/cast/propostas/rejeitar') return handleCastRejeitar(req, res);
+  if (req.method === 'POST' && urlPath === '/api/cast/banco/consumir') return handleCastConsumirBanco(req, res);
   if (req.method === 'GET'  && urlPath === '/api/cast/artes') return handleCastArtesList(req, res);
   if (req.method === 'POST' && urlPath === '/api/cast/arte/criar') return handleCastCriarArte(req, res);
   if (req.method === 'POST' && urlPath === '/api/cast/arte/salvar') return handleCastSalvarArte(req, res);
