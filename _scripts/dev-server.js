@@ -1216,7 +1216,7 @@ async function handleFestReaplicar(_req, res) {
         const simpleHtml = renderLayoutForBrand(slug, { ...arte, fundo: fundoB64 });
         const fullHtml   = wrapWithEditor(simpleHtml, { slug, save: '/api/arte/salvar', back: '../../' });
         fs.writeFileSync(path.join(arteDir, 'arte.html'), fullHtml);
-        await gerarThumbComposto(slug, arteDir);
+        await gerarThumbComposto(path.join(arteDir, 'arte.html'), path.join(arteDir, 'thumb.png'));
         ok++;
       } catch (e) { erros++; log.error(`FEST reaplicar ${arte.slug}: ${e.message}`); }
     }
