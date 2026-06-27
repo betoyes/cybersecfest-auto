@@ -142,16 +142,16 @@ RETORNE APENAS JSON válido (sem markdown):
   return propostas;
 }
 
-async function gerarRotasComValidacao(tipoPost, temas, temaLivre = '') {
+async function gerarRotasComValidacao(tipoPost, temas, temaLivre = '', objetivo = 'audiencia') {
   const minChars = getMinLegendaChars();
   console.log(`   Calibração copy: ${REGRAS_LEGENDA.linhasCorpoIdeal[0]}–${REGRAS_LEGENDA.linhasCorpoIdeal[1]} linhas corpo · exemplos artes.json + SKILL`);
 
-  let propostas = await gerarRotasLLM(tipoPost, temas, temaLivre, { minChars });
+  let propostas = await gerarRotasLLM(tipoPost, temas, temaLivre, { minChars, objetivo });
   let fora = propostas.filter(p => !legendaDentroDoPadrao(p.legenda));
 
   if (fora.length) {
     console.log(`⚠️  ${fora.length} legenda(s) fora do padrão — regenerando lote...`);
-    propostas = await gerarRotasLLM(tipoPost, temas, temaLivre, { forceLong: true, minChars });
+    propostas = await gerarRotasLLM(tipoPost, temas, temaLivre, { forceLong: true, minChars, objetivo });
     fora = propostas.filter(p => !legendaDentroDoPadrao(p.legenda));
   }
 
@@ -172,7 +172,7 @@ async function gerarRotasComValidacao(tipoPost, temas, temaLivre = '') {
 /**
  * Gera lote com 3 propostas de texto e salva em propostas.json
  */
-async function criarLotePropostas({ tipoPost, tema = '', temas }) {
+async function criarLotePropostas({ tipoPost, tema = '', temas, objetivo = 'audiencia' }) {
   const { data, sha } = await loadStore();
 
   if (getLoteAguardando(data)) {
@@ -183,12 +183,13 @@ async function criarLotePropostas({ tipoPost, tema = '', temas }) {
   }
 
   console.log('📝 Fase 1 — gerando 3 rotas editoriais (só texto)...');
-  const propostas = await gerarRotasComValidacao(tipoPost, temas, tema);
+  const propostas = await gerarRotasComValidacao(tipoPost, temas, tema, objetivo);
 
   const lote = {
     id: newId('lote'),
     status: 'aguardando_aprovacao',
     tipo_post: tipoPost,
+    objetivo,
     tema_briefing: tema || null,
     criado_em: new Date().toISOString(),
     propostas,

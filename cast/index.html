@@ -153,6 +153,17 @@ if (location.protocol === 'file:') {
     <textarea class="pedido-textarea" id="pedido-tema" rows="2" placeholder="Briefing — ex.: Episódio sobre Zero Trust com CISO da XP, tom intelectual provocador. Vazio = calendário automático (episódio/convidado/insight)."></textarea>
     <button class="pedido-btn" id="pedido-btn" type="button" title="Gerar post" aria-label="Gerar post">✦</button>
   </div>
+  <div class="pedido-objetivo-row" style="margin-top:6px;">
+    <select id="pedido-tipo" class="pedido-objetivo-select" title="Tipo de post">
+      <option value="">Tipo automático</option>
+      <option value="episodio">Episódio</option>
+      <option value="convidado">Convidado</option>
+      <option value="insight">Insight</option>
+    </select>
+    <label style="color:#a5b4fc;font-size:11px;white-space:nowrap;cursor:pointer;margin-left:8px;" title="Força novas propostas mesmo com banco cheio">
+      <input type="checkbox" id="pedido-forcar" style="margin-right:3px;">Forçar
+    </label>
+  </div>
   <div class="pedido-status" id="pedido-status"></div>
   <details class="pedido-campanha" id="pedido-campanha">
     <summary>Modo campanha (3–10 peças) — lote editorial com rotação de tipos</summary>
@@ -1041,8 +1052,15 @@ function initPedidoPanel() {
       }
     }
 
-    const objetivo = document.getElementById('pedido-objetivo')?.value || 'audiencia';
-    const payload = { tema: tema || undefined, objetivo };
+    const objetivo       = document.getElementById('pedido-objetivo')?.value || 'audiencia';
+    const tipoPostManual = document.getElementById('pedido-tipo')?.value || undefined;
+    const forcarPropostas = document.getElementById('pedido-forcar')?.checked || false;
+    const payload = {
+      tema: tema || undefined,
+      objetivo,
+      tipoPost: tipoPostManual || undefined,
+      forcarPropostas: forcarPropostas || undefined,
+    };
 
     btn.disabled = true;
     btn.textContent = '⏳';

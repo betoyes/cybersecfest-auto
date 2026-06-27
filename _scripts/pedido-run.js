@@ -7,7 +7,7 @@ const { generateText } = require('./utils/llm.js');
 const { criarLotePropostas } = require('./gerar-propostas.js');
 const { HEADLINE_PROMPT_BLOCK, enforceHeadlineText, normalizePalavrasAzuis } = require('./utils/headline-rules.js');
 const { consumirBanco, getEstadoPropostas } = require('./aprovar-propostas.js');
-const { getLoteAguardando, countBanco, loadStore } = require('./utils/propostas-store.js');
+const { getLoteAguardando, countBanco, loadStore, saveStore } = require('./utils/propostas-store.js');
 
 function tipoPostDoDia(dataBRT = new Date()) {
   const dia = dataBRT.getDay();
@@ -71,14 +71,16 @@ RETORNE EXATAMENTE neste formato JSON (sem markdown, apenas JSON puro):
 /**
  * Fluxo editorial v2:
  * 1. Se banco tem texto aprovado → fase 2 (visual) e retorna
- * 2. Se lote pendente → não gera duplicata
+ * 2. Se lote pendente do MESMO objetivo → não gera duplicata
  * 3. Senão → gera 3 propostas de texto (fase 1)
  *
  * @param {object} opts
+ * @param {string} [opts.objetivo] — 'audiencia' | 'patrocinadores' | 'convite' (default: 'audiencia')
  * @param {boolean} [opts.forcarPropostas] — ignora banco e gera propostas
  * @param {boolean} [opts.pularBanco] — não consome banco (só propostas)
  */
 async function executarPedido(opts = {}) {
+  const objetivo = opts.objetivo || 'audiencia';
   const override = process.env.TIPO_POST_OVERRIDE;
   const tipoPost = opts.tipoPost || override || (() => {
     const brt = new Date(Date.now() - 3 * 60 * 60 * 1000);
@@ -103,9 +105,10 @@ async function executarPedido(opts = {}) {
     }
   }
 
-  const { data } = await loadStore();
+  const { data, sha } = await loadStore();
   const pendente = getLoteAguardando(data);
-  if (pendente && !opts.descartarPendente) {
+  const pendenteCompativel = pendente && (pendente.objetivo || 'audiencia') === objetivo;
+  if (pendenteCompativel && !opts.descartarPendente) {
     return {
       modo: 'aguardando_aprovacao',
       loteId: pendente.id,
@@ -114,12 +117,21 @@ async function executarPedido(opts = {}) {
       bancoCount: countBanco(data),
     };
   }
+  if (pendente && !pendenteCompativel) {
+    const loteRef = (data.lotes || []).find(l => l.id === pendente.id);
+    if (loteRef) {
+      loteRef.status = 'rejeitado';
+      await saveStore(data, sha);
+    }
+    console.log(`ℹ️  FEST: lote ${pendente.id} (${pendente.objetivo || 'audiencia'}) descartado — novo objetivo: ${objetivo}`);
+  }
 
   // 2 — Fase 1: 3 rotas de texto
   const lote = await criarLotePropostas({
     tipoPost,
     tema: opts.tema?.trim() || '',
     temas,
+    objetivo,
   });
 
   return {
