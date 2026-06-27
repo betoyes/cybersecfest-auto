@@ -1195,7 +1195,7 @@ async function handleFestReaplicar(_req, res) {
         const fundoB64  = hasFundo
           ? 'data:image/png;base64,' + fs.readFileSync(fundoPath).toString('base64') : '';
         const simpleHtml = renderLayoutForBrand(slug, { ...arte, fundo: fundoB64 });
-        const fullHtml   = wrapWithEditor(simpleHtml, { slug, save: '/api/arte/salvar', back: '../../' });
+        const fullHtml   = wrapWithEditor(simpleHtml, { slug, save: '/api/arte/salvar', back: '/fest/' });
         fs.writeFileSync(path.join(arteDir, 'arte.html'), fullHtml);
         if (hasFundo) {
           await gerarThumbComposto(path.join(arteDir, 'arte.html'), path.join(arteDir, 'thumb.png'));
