@@ -1,18 +1,21 @@
 # CybersecFEST — Documento de Handoff para Nova IA
 
-> **Última atualização:** 25 jun 2026 — commit `a2b5ec0`  
+> **Última atualização:** 26 jun 2026 — sessão Claude Code (bugfixes CAST v2)  
 > **Propósito:** Onboarding completo para qualquer IA ou agente que vá dar continuidade a este projeto.
 
 ---
 
 ## 1. O QUE É ESTE PROJETO
 
-**CybersecFEST** é um evento premium de cibersegurança no Brasil (BH e SP 2026). Este repositório é a **fábrica automatizada de conteúdo** para as redes sociais do evento.
+Este repositório é a **fábrica automatizada de conteúdo** para dois produtos de cibersegurança:
+
+- **CybersecFEST** — evento premium (BH e SP 2026)
+- **CybersecCAST** — podcast executivo de cibersegurança
 
 ### O que ele faz:
 - Gera **artes gráficas** para Instagram (feed vertical 1080×1350) automaticamente via IA
-- Exibe as artes em uma **galeria local** (`index.html` acessível em `http://127.0.0.1:8765/`)
-- Permite **editar** artes via editor inline no navegador
+- Exibe as artes em **galerias locais** (`index.html` para FEST, `cast/index.html` para CAST)
+- Permite **editar** artes via editor visual inline no navegador
 - Gera **animações HTML/GSAP** (Motion System) para as artes estáticas
 - Renderiza as animações como **MP4** via HyperFrames CLI
 - Exporta **legendas** para cada post
@@ -34,11 +37,14 @@
 cybersecfest-auto-1/               ← raiz do projeto
 │
 ├── index.html                     ← GALERIA PÚBLICA (abre no browser local e Vercel)
-├── artes.json                     ← BANCO PRINCIPAL — lista de todas as artes
-├── temas.json                     ← contexto editorial, temas, rotação de layouts
-├── propostas.json                 ← banco de rascunhos aguardando aprovação
+├── artes.json                     ← BANCO FEST — lista de todas as artes FEST
+├── artes-cast.json                ← BANCO CAST — lista de todas as artes CAST
+├── temas.json                     ← contexto editorial FEST, temas, rotação de layouts
+├── propostas.json                 ← banco de rascunhos FEST aguardando aprovação
+├── propostas-cast.json            ← banco de rascunhos CAST aguardando aprovação
 ├── animacoes.json                 ← registro de todas as animações geradas
 ├── AGENTS.md                      ← protocolo multi-agente (ler OBRIGATORIAMENTE)
+├── CLAUDE.md                      ← guia compacto para Claude Code (lido automaticamente)
 ├── HANDOFF.md                     ← este documento
 │
 ├── artes/                         ← uma pasta por post publicado
@@ -94,26 +100,40 @@ cybersecfest-auto-1/               ← raiz do projeto
 │       └── BRIEF-PROMPT-ANIMACAO.md ← guia para criar briefs de animação
 │
 ├── _scripts/                      ← scripts Node.js do sistema
-│   ├── dev-server.js              ← servidor HTTP local (porta 8765)
-│   ├── gerador-artes.js           ← gera arte completa via IA
-│   ├── pipeline.js                ← orquestra geração completa
-│   ├── pedido-run.js              ← executa pedido de nova arte
-│   ├── aprovar-propostas.js       ← aprovação de lotes de propostas
+│   ├── dev-server.js              ← servidor HTTP local (porta 8765) — FEST + CAST
+│   ├── gerador-artes.js           ← gera arte FEST completa via IA
+│   ├── gerador-artes-cast.js      ← gera arte CAST completa via IA
+│   ├── pipeline.js                ← orquestra geração FEST completa
+│   ├── pedido-run.js              ← executa pedido de nova arte FEST
+│   ├── pedido-run-cast.js         ← executa pedido de nova arte CAST
+│   ├── aprovar-propostas.js       ← aprovação de lotes FEST
+│   ├── aprovar-propostas-cast.js  ← aprovação de lotes CAST
+│   ├── gerar-propostas-cast.js    ← gera 3 propostas CAST via LLM
 │   ├── animar-arte.js             ← CLI para criar animação em um post
 │   ├── motion-pedido-run.js       ← worker: gera versão motion em background
 │   └── utils/
+│       ├── layouts.js             ← renderiza HTML de cada layout (A–Q)
+│       ├── brand-renderer.js      ← aplica tokens de marca sobre HTML do layout
+│       ├── editor-wrap.js         ← wrapper editor visual (painéis CSS + HTML)
+│       ├── editor-v3-script.js    ← JS do editor (sliders, save, export PNG)
+│       ├── formatos.js            ← dimensões de display e export por formato
+│       ├── llm.js                 ← Gemini (imagens) + GPT-4o (texto) + cadeia de fallback
+│       ├── storage.js             ← abstração leitura/escrita (local e GitHub)
+│       ├── thumb-composto.js      ← captura screenshot da arte como thumb.png
+│       ├── editor-state.js        ← lê/escreve estado do editor inline
 │       ├── motion-gerador.js      ← lógica de geração de versões motion
 │       ├── motion-presets.js      ← HTML templates dos presets automáticos
 │       ├── motion-versoes.js      ← leitura/escrita de versions.json
 │       ├── motion-pedidos.js      ← fila de pedidos (pedidos.json)
 │       ├── motion-mp4.js          ← resolve arquivo MP4 de uma versão
 │       ├── motion-sandbox.js      ← controle de sandbox (Node.js)
-│       ├── layouts.js             ← renderiza HTML de cada layout (A–Q)
-│       ├── storage.js             ← abstração de leitura/escrita (local e GitHub)
-│       ├── llm.js                 ← chamadas OpenAI (imagem + texto)
-│       ├── thumb-composto.js      ← captura screenshot da arte como thumb.png
-│       ├── editor-state.js        ← lê/escreve estado do editor inline
 │       └── …outros utilitários
+│
+├── _brands/
+│   └── cyberseccast/
+│       ├── brand.js               ← tokens de cor/fonte/logo CAST
+│       ├── imagem-prompt.js       ← prompts CAST, detectPerson(), CAST_STYLE_REF_INSTRUCTION
+│       └── temas.json             ← contexto editorial CAST, histórico de layouts
 │
 ├── galeria-templates/
 │   └── index.html                 ← galeria de templates (layouts A–Q)
@@ -202,7 +222,82 @@ Cada layout é um template HTML com posicionamento diferente de elementos. Defin
 
 ---
 
-## 6. MOTION SYSTEM — COMO FUNCIONA
+## 6. CYBERSEC.CAST — PIPELINE COMPLETO
+
+### Identidade visual CAST:
+- **Fundo:** `#07060f` (quase preto violeta)
+- **Destaque:** `#6366f1` (índigo/violeta)
+- **Headline:** Space Mono
+- **Corpo:** Inter
+- **Logo:** `assets/logo-cast.png`
+- **Eco logos:** mesmos do FEST (DevOps Bootcamp, IAM Tech Day, Alcatraz Security)
+
+### Fluxo de geração CAST:
+
+```
+UI (cast/index.html)
+  → POST /api/cast/pedido → handleCastPedido
+  → pedido-run-cast.js → criarLotePropostasCast (gerar-propostas-cast.js)
+     → LLM: 3 propostas (headline, subtítulo, palavras_azuis, contexto_visual)
+     → salvas em propostas-cast.json
+
+[Usuário aprova proposta na UI]
+
+  → POST /api/cast/propostas/aprovar → handleCastAprovar
+  → aprovarLoteCast (aprovar-propostas-cast.js)
+  → gerarArteCast (gerador-artes-cast.js)
+     → buildCastImagePrompt (imagem-prompt.js)
+         detectPerson() → sem pessoas se convidado não for nomeado
+         cenas abstratas: microfone, estúdio, LED índigo, LUT cinematográfico
+     → generateImage com _styleInstruction=CAST_STYLE_REF_INSTRUCTION
+         cadeia: Gemini 3.1 → Gemini 2.5 → gpt-image-1 → DALL-E 3
+     → renderLayoutForBrand (brand-renderer.js) → tokens CAST + logo CAST
+     → wrapWithEditor → arte.html
+     → gerarThumbComposto → thumb.png
+     → salvo em artes-cast.json
+```
+
+### Modo híbrido (local vs produção):
+
+**Local (dev-server):** `arte.html` é renderizado dinamicamente a cada GET — mudanças de código refletem automaticamente sem regenerar artes.
+```
+GET /artes/cast-*/arte.html
+  → handleCastArteHtmlDynamic (intercepta antes de serveStatic)
+  → buildArteHtmlCast: fundo.png + artes-cast.json + state.json
+  → renderLayoutForBrand + wrapWithEditor → HTML fresco
+```
+
+**Produção (GitHub Pages):** `POST /api/cast/exportar` gera arte.html estático para todos os slugs.
+
+### Estado do editor CAST:
+- Salvo em `artes/{slug}/state.json` (separado do arte.html)
+- `POST /api/cast/arte/salvar` → salva state.json + subtitle em artes-cast.json + regenera thumb
+- Subtitle suporta `<br>` para quebras de linha (editável no painel direito do editor)
+
+### Pool de layouts por tipo CAST:
+```
+episodio:  C, M, N, G
+convidado: D, G, K, F
+insight:   A, H, L, J
+```
+
+### Rotas CAST:
+| Método | Path | O que faz |
+|--------|------|-----------|
+| `GET` | `/api/cast/artes` | Lista artes-cast.json |
+| `POST` | `/api/cast/pedido` | Gera propostas via IA |
+| `GET` | `/api/cast/propostas` | Lista propostas pendentes |
+| `POST` | `/api/cast/propostas/aprovar` | Aprova proposta → gera arte |
+| `POST` | `/api/cast/arte/criar` | Cria arte manual (sem proposta) |
+| `POST` | `/api/cast/arte/salvar` | Salva state + subtitle |
+| `POST` | `/api/cast/arte/imagem/mudar` | Nova imagem via IA |
+| `POST` | `/api/cast/exportar` | Gera arte.html estático (produção) |
+| `POST` | `/api/cast/arte/reaplicar` | Re-renderiza todas as artes |
+| `GET` | `/artes/cast-*/arte.html` | Renderização dinâmica (modo local) |
+
+---
+
+## 7. MOTION SYSTEM — COMO FUNCIONA
 
 Este é o sistema mais complexo. Permite criar versões animadas das artes estáticas.
 
@@ -697,32 +792,44 @@ patrocinador: F → I → B → Q → (repete)
 
 ## 12. ESTADO ATUAL DO PROJETO (jun/2026)
 
-### O que está funcionando:
+### CybersecFEST — O que está funcionando:
 - ✅ Geração automática de artes (blog, evento, patrocinador)
-- ✅ Editor inline no modal da galeria
+- ✅ Editor visual inline no modal da galeria
 - ✅ Galeria local com preview, edição e aprovação
-- ✅ **Mudar Imagem** — troca de fundo via instrução livre no modal (Gemini, sem referências visuais)
-- ✅ **Versionamento de imagem** — histórico em `img-versoes/`, pills de versão no modal, ativar/deletar
-- ✅ `background-size: cover` no editor (era `110%` fixo — cortava o sujeito)
-- ✅ `LAYOUT_BG_POS` — posição automática do fundo por layout ao trocar imagem (C=direita, B=esquerda, O=baixo, etc.)
+- ✅ **Mudar Imagem** — troca de fundo via instrução livre (Gemini, sem referências visuais)
+- ✅ **Versionamento de imagem** — histórico em `img-versoes/`, pills de versão no modal
+- ✅ `LAYOUT_BG_POS` — posição automática do fundo por layout ao trocar imagem
 - ✅ Motion System: presets automáticos + presets manuais (UI em standby, código preservado)
-- ✅ Versionamento de animações (v1, v2, v3…)
-- ✅ Download de MP4 pela galeria
+- ✅ Versionamento de animações (v1, v2, v3…) + download de MP4
 - ✅ Fix definitivo de ghost text (fundo-raw.png + overlay sólido)
-- ✅ `evento-1782045624931` — v1 cinematográfica (13s, HTML preview)
-- ✅ `evento-1782143777641` — v1/v2/v3 (v3 com MP4)
+
+### CybersecCAST — O que está funcionando:
+- ✅ Pipeline completo: pedido → propostas → aprovação → arte
+- ✅ Identidade visual CAST (índigo #6366f1, Space Mono, Inter, logo CAST)
+- ✅ Modo híbrido: renderização dinâmica local + export estático para produção
+- ✅ Editor visual com state.json separado (mudanças no código refletem automaticamente)
+- ✅ Subtitle editável no editor com suporte a quebra de linha
+- ✅ Sem pessoas por padrão — `detectPerson()` ativa cenas com pessoa apenas se nomeada
+- ✅ Cadeia de imagem: Gemini 3.1 → Gemini 2.5 → gpt-image-1 → DALL-E 3
+- ✅ Back URL do editor aponta para `../../cast/`
+- ✅ Export PNG sem espaço preto (scale 2x via `style.transform`)
+- ✅ Badge LAYOUT A removido do canvas (era artefato em `thumb.png` antigos; código não gera mais)
+- ✅ Label `.cl` correta: CAST artes exibem "CybersecCAST · Layout X" (não "CybersecFEST")
+- ✅ Versões de imagem (pills v1/v2/v3) na galeria CAST: path de thumb corrigido (prefixo `/` absoluto)
+- ✅ Modal CAST: headline renderiza HTML (`innerHTML`) — `<br>` no título aparece como quebra de linha
+- ✅ Modal CAST: subtitle no painel meta exibe sem `<br>` literal (tags stripped antes do display)
+- ✅ Slider ←→ (posição lateral) da imagem de fundo: reescrito em `uBg()` com `translate+scale` em vez de `objectPosition` — funciona com imagens retrato em containers paisagem
 
 ### Motion UI — Estado Standby (jun/2026):
-A UI de motion (tabs estático/motion, barra de versões, HyperFrames player, scripts) está **comentada** em `index.html` com marcadores `<!-- MOTION EM STANDBY -->`. O código existe completo e pode ser reativado descomentando. O pipeline backend de geração continua funcional.
+A UI de motion está **comentada** em `index.html` com marcadores `<!-- MOTION EM STANDBY -->`. O pipeline backend continua funcional.
 
 ### O que ainda precisa ser feito:
-- ❌ Extrair `fundo-raw.png` para todos os posts (só `evento-1782045624931` tem)
-- ❌ Criar motion para os outros 11 posts
-- ❌ Validar e render MP4 da v1 de `evento-1782045624931`
+- ❌ Extrair `fundo-raw.png` para todos os posts FEST (só `evento-1782045624931` tem)
+- ❌ Criar motion para os outros posts FEST
 - ❌ Posts do tipo `palestrante` ainda não foram criados
-- ❌ Preset `confraria-signal` (manual premium) ainda não implementado como preset automático
 - ❌ Deploy automático para o Vercel (ainda manual)
 - ❌ Reativar UI de motion quando pipeline estiver estável
+- ❌ nodemon no `package.json` de `_scripts` (auto-restart ao salvar .js)
 
 ---
 
@@ -851,9 +958,29 @@ cat animacoes.json
 
 11. **Imagem original extraída do `arte.html`:** Posts sem `fundo.png` separado têm a imagem embutida como base64 no `#art-bg` dentro do HTML. O `handleMudarImagem` extrai esse base64 e salva como `v1 — Original` em `img-versoes/` antes de sobrescrever, permitindo restauração posterior.
 
-12. **Modelos Gemini para imagem (jun/2026):** Os modelos válidos são `gemini-2.5-flash-image` (primário) e `gemini-3.1-flash-image-preview` (fallback). O nome `gemini-3.1-flash-image` (sem `-preview`) não existe. A config correta usa `imageConfig: { aspectRatio: '3:4' }`, não `responseFormat`. Se todos os modelos falharem, `generateImage` lança erro com mensagem completa de ambos (Gemini + DALL-E) em vez de retornar silenciosamente.
+12. **Modelos Gemini para imagem (jun/2026):** Os modelos válidos são `gemini-3.1-flash-image-preview` (primário) e `gemini-2.5-flash-image` (fallback). A config correta usa `imageConfig: { aspectRatio: '3:4' }`, não `responseFormat`. Cadeia completa: Gemini 3.1 → Gemini 2.5 → gpt-image-1 → DALL-E 3.
+
+13. **`renderLayoutForBrand(slug, arte, brand)`** — 1º arg é slug (ignorado internamente com `void slug`). O layout vem de `arte.layout`. Passar o slug como layout quebra o rendering silenciosamente.
+
+14. **Instrução de estilo CAST vs FEST:** `generateImageNanoBanana` usa `STYLE_REF_INSTRUCTION` (cyan FEST) por padrão. CAST passa `_styleInstruction: CAST_STYLE_REF_INSTRUCTION` para sobrescrever. Misturar as duas instrui o Gemini com paleta contraditória e degrada a imagem.
+
+15. **Módulos Node.js em cache:** O servidor cacheia todos os `require()` na inicialização. Editar qualquer `.js` e não reiniciar o servidor = código antigo rodando. Verificar `lsof -i :8765` para PID e `ps -p PID -o lstart` para hora de início.
+
+16. **Export PNG espaço preto:** `domtoimage.toPng(el, {width, height})` NÃO faz scale automático do elemento — captura no tamanho natural e coloca no canvas maior. Usar `style: { transform: 'scale(N)', transformOrigin: 'top left' }` onde `N = exportW / el.offsetWidth`.
+
+17. **Badge LAYOUT A no canvas:** NÃO é gerado pelo código atual. Era artefato baked em `thumb.png` antigos gerados por código legado. `normalizeCanvas` foi removido (jun/2026). Se reaparecer numa arte nova, verificar cache do servidor. A label `.cl` (rodapé do editor) exibe "CybersecCAST" ou "CybersecFEST" conforme `slug.startsWith('cast-')` em `editor-wrap.js:329`.
+
+18. **`isV3Complete` em `wrapWithEditor`:** Se o `simpleHtml` passado já contiver `id="topbar"`, `ep-tag`, `btnSave`, etc., a função retorna o HTML inalterado. No modo híbrido CAST isso não acontece (simpleHtml vem de `renderLayoutForBrand` que é sempre HTML simples). Mas ao testar com arquivo do disco pode enganar.
+
+19. **Subtitle CAST com `<br>`:** Subtítulo pode conter tags `<br>` para quebras de linha. O editor serializa innerHTML e restaura na textarea como `\n`. O `layouts.js` renderiza `${sub}` diretamente (sem escape). Salvo em `artes-cast.json.subtitulo`.
+
+20. **`writeArtesCast()` invalida cache:** Após escrever `artes-cast.json`, o cache em memória é atualizado imediatamente. Não precisa de `invalidateArtesCast()` após `writeArtesCast()`.
 
 ---
 
-*Documento atualizado em 26 jun 2026 — commit `18a10a9`*  
+21. **Slider ←→ (posição lateral) e `objectPosition` em imagens retrato:** `objectPositionX` não tem efeito quando a imagem retrato (ex: 896×1200) está num container paisagem (540×371) com `object-fit:cover` — a imagem preenche exatamente a largura, sem overflow horizontal. A função `uBg()` em `editor-v3-script.js` foi reescrita para usar `transform: translate(tx, ty) scale(z)`. O range de pan X cresce com o zoom: a 10% de zoom, ±27px; a 50%, ±135px. Também removido `object-position:center 25%` hardcoded do CSS `.img-band img` em `layouts.js` (Layout A).
+
+22. **Thumb URL absoluta:** O servidor retorna `thumb` com path absoluto (`/artes/{slug}/thumb.png?t=...`). Sem o `/` inicial, o path resolve relativo à página atual — artes CAST em `/cast/` resolveriam para `/cast/artes/...` (404). Todo campo `thumb` retornado pela API usa path com `/` inicial.
+
+*Documento atualizado em 26 jun 2026 — sessão Claude Code (bugfixes CAST v2)*  
 *Para dúvidas sobre sessões anteriores: ver histórico de commits no git.*

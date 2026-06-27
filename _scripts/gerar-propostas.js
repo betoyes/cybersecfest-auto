@@ -1,6 +1,12 @@
 'use strict';
 
 const { generateText } = require('./utils/llm.js');
+const {
+  FEST_AUDIENCIA_SYSTEM,
+  FEST_PATROCINADORES_SYSTEM,
+  FEST_CONVITE_SYSTEM,
+} = require('../_agents/fest-estrategista/system-prompt.js');
+const { FEST_KNOWLEDGE } = require('../_agents/fest-estrategista/knowledge.js');
 const { buildReferenciaCopyBlock, getMinLegendaChars, legendaDentroDoPadrao, contarLinhasCorpo, REGRAS_LEGENDA } = require('./utils/referencia-copy.js');
 const { suggestCtaExamples } = require('./utils/cta-pill.js');
 const {
@@ -45,17 +51,23 @@ async function gerarRotasLLM(tipoPost, temas, temaLivre = '', opts = {}) {
     .map(h => `- ${h.tipo_post} (${h.data})`)
     .join('\n') || 'Nenhum ainda.';
 
-  const temasGrade = temas.evento?.temas_grade?.join(', ') || 'IAM, PAM, DevSecOps, Cloud Security, LGPD, IA';
-  const marcas     = temas.evento?.marcas_participantes?.slice(0, 6).join(', ') || 'Itaú, XP, Natura, Localiza, Gerdau, Stellantis';
+  const temasGrade = temas.evento?.temas_grade?.join(', ') || FEST_KNOWLEDGE.temas_grade.join(', ');
+  const marcas     = temas.evento?.marcas_participantes?.slice(0, 6).join(', ')
+    || FEST_KNOWLEDGE.edicoes_2026.flatMap(e => e.empresas_anteriores).join(', ');
 
-  const system = `Você é copywriter sênior do CybersecFEST — A Principal Confraria de Cibersegurança do Brasil.
-Tom: aspiracional, exclusivo, FOMO. Público: CISOs, CIOs, CTOs, CEOs, VPs, Diretores.
-PROIBIDO: começar headline ou legenda com "O CybersecFEST", clichês (cadeados, hackers), tom técnico-acadêmico.
-IMPORTANTE: posts MEDIANOS — ${REGRAS_LEGENDA.linhasCorpoIdeal[0]}–${REGRAS_LEGENDA.linhasCorpoIdeal[1]} linhas de corpo, frases curtas, uma ideia por linha. Nunca telegráfico, nunca bloco denso.`;
+  // Persona correta por objetivo
+  const objetivo = opts.objetivo || 'audiencia';
+  const system = objetivo === 'patrocinadores'
+    ? FEST_PATROCINADORES_SYSTEM
+    : objetivo === 'convite'
+      ? FEST_CONVITE_SYSTEM
+      : FEST_AUDIENCIA_SYSTEM;
 
-  const temaExtra = temaLivre
-    ? `\nBRIEFING DO USUÁRIO (prioridade máxima):\n${temaLivre}\n`
+  // Briefing do usuário no TOPO — prioridade absoluta
+  const temaHeader = temaLivre
+    ? `🎯 BRIEFING DO USUÁRIO — PRIORIDADE ABSOLUTA:\n"${temaLivre}"\nTODAS as 3 propostas DEVEM tratar exclusivamente deste tema. Ignore sugestões genéricas abaixo que conflitem com este briefing.\n\n`
     : '';
+  const temaExtra = ''; // mantido vazio — temaHeader carrega o briefing no topo
 
   const extraLong = opts.forceLong
     ? `\nATENÇÃO: tentativa anterior fora do padrão. Cada legenda DEVE ter ${REGRAS_LEGENDA.linhasCorpoIdeal[0]}–${REGRAS_LEGENDA.linhasCorpoIdeal[1]} linhas de corpo — calibre pelos exemplos ouro abaixo.\n`
@@ -63,7 +75,7 @@ IMPORTANTE: posts MEDIANOS — ${REGRAS_LEGENDA.linhasCorpoIdeal[0]}–${REGRAS_
 
   const ctaExemplos = suggestCtaExamples(tipoPost).join(', ');
 
-  const prompt = `${refBlock}
+  const prompt = `${temaHeader}${refBlock}
 
 ${HEADLINE_PROMPT_BLOCK}
 

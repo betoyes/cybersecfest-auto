@@ -13,30 +13,45 @@ require('./load-env.js');
 
 const { generateText } = require('./utils/llm.js');
 const {
-  HEADLINE_PROMPT_BLOCK,
   enforceHeadlineText,
   normalizePalavrasAzuis,
 } = require('./utils/headline-rules.js');
 const {
+  CAST_AUDIENCIA_SYSTEM,
+  CAST_PATROCINADORES_SYSTEM,
+  CAST_TEMPORADA_SYSTEM,
+} = require('../_agents/cast-estrategista/system-prompt.js');
+
+// Versão CAST do bloco de regras de headline — cor roxo/indigo (#6366f1) em vez de azul FEST
+const CAST_HEADLINE_PROMPT_BLOCK = `REGRAS OBRIGATÓRIAS DE HEADLINE (CAST):
+- Máximo 10 palavras no total (contagem única, mesmo com quebras)
+- Quebra visual: até 5 linhas com <br> — padrão: "Decisões que<br>definem<br>o futuro"
+- Nunca começa com "O CyberSec.CAST" ou "O CYBERSEC.CAST"
+- palavras_azuis: 1–3 palavras QUE EXISTEM LITERALMENTE na headline, separadas por vírgula (destaque roxo #6366f1 na arte)
+
+REGRAS OBRIGATÓRIAS DE LEGENDA:
+- PROIBIDO inventar nomes de pessoas, empresas, episódios, estatísticas ou casos específicos
+- PROIBIDO referenciar episódios com número ("Ep. 12", "episódio dessa semana") — o número não existe ainda
+- PROIBIDO frases como "conversei com um CISO que...", "nossa convidada revelou que...", "em nosso último episódio..."
+- A legenda DEVE ser conceitual e provocativa — fala sobre uma TENSÃO ou DILEMA universal do executivo de segurança, sem ancorar em fato que o autor não conhece
+- Use "você" diretamente: provocar o leitor, não narrar um episódio fictício
+- O CYBERSEC.CAST pode ser citado no final como chamada, nunca como âncora de um fato inventado`;
+const {
   loadStore, saveStore, newId, getLoteAguardando, countBanco, BANCO_MAX,
 } = require('./utils/propostas-store-cast.js');
-
-// Legenda mediana: 7–12 linhas de corpo, frases curtas, tom íntimo/executivo
-const LEGENDA_LINHAS_IDEAL = [7, 12];
-const LEGENDA_MAX_CHARS    = 2200;
-
-function contarLinhasCorpo(legenda) {
-  return (legenda || '').split('\n').filter(l => l.trim() && !l.trim().startsWith('#')).length;
-}
-
-function legendaDentroDoPadrao(legenda) {
-  const linhas = contarLinhasCorpo(legenda);
-  return linhas >= LEGENDA_LINHAS_IDEAL[0] && linhas <= LEGENDA_LINHAS_IDEAL[1];
-}
+const {
+  legendaDentroDoPadrao,
+  contarLinhasCorpo,
+  contarChars,
+  getMinLegendaChars,
+  buildReferenciaCopyBlock,
+  REGRAS_LEGENDA,
+} = require('./utils/referencia-copy-cast.js');
 
 // Exemplos ouro de legenda do CYBERSEC.CAST
+// REGRA: sem nomes, sem episódios numerados, sem casos fictícios — sempre conceitual e provocativo
 const EXEMPLOS_LEGENDA_CAST = `
-EXEMPLO 1 (episódio):
+EXEMPLO 1 (episódio — ângulo: dilema universal):
 Tem uma pergunta que todo CISO evita.
 
 Não por insegurança.
@@ -45,8 +60,9 @@ Por responsabilidade.
 Quando o incidente acontece — e ele vai acontecer —
 o que você diria ao board?
 
-No episódio dessa semana, conversei com um CISO que passou por isso.
-Ele não só sobreviveu. Ele virou referência.
+Não existe resposta certa.
+Existe o executivo que já pensou nisso antes.
+E o que vai improvisar na hora errada.
 
 Esse é o tipo de conversa que só acontece no CYBERSEC.CAST.
 
@@ -55,36 +71,67 @@ Esse é o tipo de conversa que só acontece no CYBERSEC.CAST.
 #cibersegurança #CISO #liderança #podcast #cyberseccast #segurançadainformação #gestãoderiscos #tecnologia #executivos #brasil
 
 ---
-EXEMPLO 2 (convidado):
-Quando um profissional de segurança passa 20 anos no mercado,
-acumula mais cicatrizes do que cases de sucesso.
+EXEMPLO 2 (convidado — ângulo: tensão de carreira):
+Segurança é a única área onde você é avaliado pelo que NÃO aconteceu.
 
-E é exatamente por isso que vale ouvir.
+Sem incidente, sem aplauso.
+Com incidente, toda culpa é sua.
 
-Convidamos alguém que viveu de perto as transformações da área:
-de firewall a Zero Trust, de compliance a cultura.
+Esse é o paradoxo de liderar um time de cibersegurança no Brasil em 2025.
 
-A conversa foi honesta.
-Sem filtro de marketing.
-Sem discurso de keynote.
+Como você constrói autoridade num ambiente assim?
+Como você convence o board antes do breach, não depois?
 
-Só o que funciona — e o que não funciona — na prática.
+É sobre isso que o CYBERSEC.CAST existe para conversar.
 
 ✅ Ouça agora no CYBERSEC.CAST.
 
-#cibersegurança #zerotrust #podcast #CISO #segurança #technologia #liderança #brasil #cyberseccast
+#cibersegurança #zerotrust #podcast #CISO #segurança #liderança #brasil #cyberseccast
 `.trim();
 
-const CAST_SYSTEM_PROMPT = `Você é produtor editorial sênior do CYBERSEC.CAST — O Podcast de Referência em Cibersegurança para Executivos C-Level do Brasil.
+// Configurações por objetivo
+const OBJETIVO_CONFIG = {
+  audiencia: {
+    label:      'Engajamento de Audiência',
+    publicoAlvo:'CISOs, CIOs, CTOs, CEOs, VPs de Tecnologia — os OUVINTES do podcast.',
+    missao:     'Gerar conteúdo que faça o ouvinte parar o scroll e sentir que a conversa é para ele.',
+    angulos:    ['Provocação intelectual', 'Dilema universal do CISO', 'Tensão de carreira em segurança', 'Insight contra-intuitivo', 'Tendência não óbvia'],
+    ctasSuger:  'OUÇA AGORA, NOVO EPISÓDIO, OUÇA GRÁTIS, DESCUBRA',
+    legendaTom: 'Fala diretamente com o executivo de segurança — íntimo, como se fosse uma conversa exclusiva entre pares. SEM referenciar episódios, nomes ou casos fictícios.',
+  },
+  patrocinadores: {
+    label:      'Captação de Patrocinadores',
+    publicoAlvo:'Empresas de tecnologia e segurança que buscam posicionamento de marca junto ao C-Level.',
+    missao:     'Mostrar o CYBERSEC.CAST como canal premium de acesso ao tomador de decisão — ROI em visibilidade, credibilidade e relacionamento.',
+    angulos:    ['ROI em visibilidade', 'Acesso direto ao C-Level', 'Co-autoria de conteúdo', 'Autoridade no setor', 'Diferenciação de marca'],
+    ctasSuger:  'PATROCINE, SEJA PARCEIRO, FALE CONOSCO, RESERVE SUA VAGA',
+    legendaTom: 'Fala com o diretor de marketing ou vendas da empresa parceira — tom consultivo, orientado a resultado e diferenciação.',
+  },
+  temporada: {
+    label:      'Lançamento de Temporada',
+    publicoAlvo:'Audiência atual e novos ouvintes que ainda não conhecem o CYBERSEC.CAST.',
+    missao:     'Gerar antecipação, curiosidade e senso de que algo importante está chegando.',
+    angulos:    ['Novo começo', 'O que vem por aí', 'Convidados confirmados', 'Missão da temporada', 'Por que ouvir agora'],
+    ctasSuger:  'NOVA TEMPORADA, EM BREVE, CONHEÇA, ASSINE JÁ',
+    legendaTom: 'Tom de revelação — como um bastidor exclusivo que o leitor recebe antes de todo mundo.',
+  },
+};
 
-TOM: Intelectual, íntimo, provocador. O ouvinte sente que está numa conversa exclusiva entre líderes — não num evento ou palco.
-PÚBLICO: CISOs, CIOs, CTOs, CEOs, VPs de Tecnologia, Diretores de Segurança.
+function getCastObjetivoConfig(objetivo) {
+  return OBJETIVO_CONFIG[objetivo] || OBJETIVO_CONFIG.audiencia;
+}
 
-PROIBIDO: clichês de hacker/segurança (cadeados, crânios, Matrix), linguagem técnica-acadêmica, exagero sensacionalista, "vulnerabilidades", frases genéricas de evento corporativo, começar com "O CYBERSEC.CAST".
-
-CONTEÚDO: episódios de entrevista, insights de liderança, decisões difíceis que só CISOs enfrentam, cybersegurança como vantagem competitiva.`;
+function buildCastSystemPrompt(objetivo) {
+  if (objetivo === 'patrocinadores') return CAST_PATROCINADORES_SYSTEM;
+  if (objetivo === 'temporada')      return CAST_TEMPORADA_SYSTEM;
+  return CAST_AUDIENCIA_SYSTEM;
+}
 
 async function gerarRotasLLM(tipoPost, temas, temaLivre = '', opts = {}) {
+  const objetivo   = opts.objetivo || 'audiencia';
+  const cfg        = getCastObjetivoConfig(objetivo);
+  const systemPrompt = buildCastSystemPrompt(objetivo);
+
   const historico = (temas.historico_recente || [])
     .slice(-5)
     .map(h => `- ${h.tipo_post} (${h.data})`)
@@ -92,9 +139,11 @@ async function gerarRotasLLM(tipoPost, temas, temaLivre = '', opts = {}) {
 
   const temasGrade = (temas.temas_grade || []).slice(0, 8).join(', ') || 'Zero Trust, IAM, Resposta a Incidentes, IA na Segurança, LGPD, Governança de Riscos';
 
-  const temaExtra = temaLivre
-    ? `\nBRIEFING DO USUÁRIO (prioridade máxima — use como direção central do episódio):\n${temaLivre}\n`
+  // Quando há briefing, ele vai no TOPO do prompt — antes de qualquer instrução genérica
+  const temaHeader = temaLivre
+    ? `🎯 BRIEFING DO USUÁRIO — PRIORIDADE ABSOLUTA:\n"${temaLivre}"\nTODAS as 3 propostas DEVEM tratar exclusivamente deste tema. Ignore qualquer sugestão genérica abaixo que conflite com este briefing.\n\n`
     : '';
+  const temaExtra = ''; // mantido vazio — temaHeader já carrega o briefing no topo
 
   const extraLong = opts.forceLong
     ? `\nATENÇÃO: tentativa anterior fora do padrão. Cada legenda DEVE ter ${LEGENDA_LINHAS_IDEAL[0]}–${LEGENDA_LINHAS_IDEAL[1]} linhas de corpo.\n`
@@ -104,15 +153,55 @@ async function gerarRotasLLM(tipoPost, temas, temaLivre = '', opts = {}) {
     : tipoPost === 'convidado' ? 'apresentação de convidado'
     : 'post de insight';
 
-  const prompt = `${EXEMPLOS_LEGENDA_CAST}
+  const isComercial = objetivo === 'patrocinadores';
 
----
+  const legendaInstrucao = isComercial
+    ? `Estrutura obrigatória: 1) Gancho com tensão de mercado (2–3 linhas) → 2) Insight sobre como decisões B2B realmente acontecem (3–4 linhas) → 3) Valor de presença em contextos de confiança (2–3 linhas) → 4) Conexão com CyberSec.CAST / CyberSecFest / I AM TECH DAY (1–2 linhas) → 5) Diferencial da plataforma (1–2 linhas) → 6) CTA institucional discreto ✅ (1 linha) → hashtags (4–8).`
+    : `Estrutura: gancho 2–3 linhas → desenvolvimento 4–6 linhas → posicionamento CYBERSEC.CAST 1–2 linhas → CTA ✅ → hashtags (10–15)`;
 
-${HEADLINE_PROMPT_BLOCK}
+  const refBlock = buildReferenciaCopyBlock(objetivo, { maxArtes: 2, maxSkill: 2 });
+
+  const prompt = isComercial
+    ? `${temaHeader}${CAST_HEADLINE_PROMPT_BLOCK}
+
+${refBlock}
+
+Crie EXATAMENTE 3 posts de LinkedIn DISTINTOS para CAPTAÇÃO DE PATROCÍNIO do CyberSec.CAST.
+${extraLong}
+Cada post deve usar um tipo diferente de abordagem:
+- Rota A: Post de tese comercial (tensão de mercado → insight → valor de contexto → CTA discreto)
+- Rota B: Post sobre público decisor e relacionamento B2B (quem assiste → como percepção se forma → presença de marca → CTA)
+- Rota C: Post sobre ecossistema (CyberSecFest + I AM TECH DAY + CAST como plataforma integrada → CTA)
+
+Histórico recente (evite repetir ângulos): ${historico}
+
+Marque UMA rota como "recomendada": true.
+
+RETORNE APENAS JSON válido (sem markdown):
+{
+  "propostas": [
+    {
+      "angulo": "nome do ângulo (3-6 palavras)",
+      "recomendada": false,
+      "headline": "máx 10 palavras; impacto estratégico; use <br> para quebra natural",
+      "palavras_azuis": "1-3 palavras DA HEADLINE para destacar, vírgula",
+      "subtitulo": "1 frase, 12-20 palavras — a tese central para o patrocinador",
+      "cta_visual": "máx 4 palavras UPPERCASE. Ex: SEJA PARCEIRO, PATROCINE, FALE CONOSCO, RESERVE SUA VAGA",
+      "contexto_visual": "cena do estúdio CAST: ambiente executivo escuro, iluminação indigo/violet, mesa de entrevista ou reunião de lideranças — SEM texto visível, SEM produto de marca",
+      "legenda": "Post completo para LinkedIn. ${legendaInstrucao} Frases curtas. Uma ideia por linha. Tom institucional, consultivo. Sem anúncio. Sem escassez. Sem métricas de vaidade."
+    }
+  ]
+}`
+    : `${temaHeader}${CAST_HEADLINE_PROMPT_BLOCK}
+
+${refBlock}
 
 Crie EXATAMENTE 3 rotas editoriais DISTINTAS para um post de ${tipoPtBR} do CYBERSEC.CAST.
-Cada rota deve ter um ÂNGULO diferente (ex.: provocação intelectual, bastidores da decisão, lição de crise real, insight de carreira, tendência não óbvia).
-${temaExtra}${extraLong}
+OBJETIVO: ${cfg.label} — ${cfg.missao}
+Ângulos sugeridos: ${cfg.angulos.join(', ')}.
+CTAs visuais adequados: ${cfg.ctasSuger}.
+Tom da legenda: ${cfg.legendaTom}
+${extraLong}
 CONTEXTO DO PODCAST:
 - Temas da grade: ${temasGrade}
 - Histórico recente (evitar repetir ângulos): ${historico}
@@ -127,15 +216,15 @@ RETORNE APENAS JSON válido (sem markdown):
       "recomendada": false,
       "headline": "máx 10 palavras, impacto intelectual; use <br> para quebras se couber",
       "palavras_azuis": "1-3 palavras DA HEADLINE para destacar, vírgula",
-      "subtitulo": "1 frase completa, 12-20 palavras — o que o ouvinte vai descobrir",
-      "cta_visual": "opcional — máx 4 palavras UPPERCASE para pill na arte. Ex: NOVO EPISÓDIO, OUÇA AGORA, EP 42. Omita se não encaixar.",
-      "contexto_visual": "cena fotográfica do podcast: ambiente (estúdio escuro, vidro, mesa profissional), iluminação (indigo LED, violet rim), quem (host, convidado, mesa de entrevista) — SEM texto na cena, SEM palavras da headline",
-      "legenda": "LEGENDA pronta para LinkedIn/Instagram — padrão dos exemplos ouro: ${LEGENDA_LINHAS_IDEAL[0]}–${LEGENDA_LINHAS_IDEAL[1]} linhas de corpo, frases curtas, uma ideia por linha. Estrutura: gancho 2–3 linhas → desenvolvimento 4–6 linhas → posicionamento CYBERSEC.CAST 1–2 linhas → CTA ✅ → hashtags (10–15)"
+      "subtitulo": "1 frase completa, 12-20 palavras",
+      "cta_visual": "máx 4 palavras UPPERCASE. Opções: ${cfg.ctasSuger}",
+      "contexto_visual": "cena fotográfica do podcast: ambiente (estúdio escuro, vidro, mesa profissional), iluminação (indigo LED, violet rim), quem (host, convidado, mesa de entrevista) — SEM texto na cena",
+      "legenda": "LEGENDA pronta para LinkedIn/Instagram — ${LEGENDA_LINHAS_IDEAL[0]}–${LEGENDA_LINHAS_IDEAL[1]} linhas de corpo, frases curtas, uma ideia por linha. ${legendaInstrucao}"
     }
   ]
 }`;
 
-  const raw = await generateText(prompt, CAST_SYSTEM_PROMPT, 0.88, 4096);
+  const raw = await generateText(prompt, systemPrompt, 0.88, 4096);
   const match = raw.match(/\{[\s\S]*\}/);
   if (!match) throw new Error('LLM não retornou JSON de propostas CAST: ' + raw.slice(0, 200));
 
@@ -169,21 +258,53 @@ RETORNE APENAS JSON válido (sem markdown):
   return propostas;
 }
 
-async function gerarRotasComValidacao(tipoPost, temas, temaLivre = '') {
-  console.log(`   CAST calibração: ${LEGENDA_LINHAS_IDEAL[0]}–${LEGENDA_LINHAS_IDEAL[1]} linhas corpo`);
-  let propostas = await gerarRotasLLM(tipoPost, temas, temaLivre);
+async function expandirLegendaCast(proposta, objetivo) {
+  const sys = buildCastSystemPrompt(objetivo);
+  const minChars = getMinLegendaChars();
+  const linhasAtual = contarLinhasCorpo(proposta.legenda);
+  const charsAtual  = contarChars(proposta.legenda);
+  const prompt = `A legenda abaixo está CURTA (${linhasAtual} linhas corpo · ${charsAtual} chars). Precisa de mínimo ${REGRAS_LEGENDA.linhasCorpoIdeal[0]} linhas e ${minChars} chars.
+
+HEADLINE: ${proposta.headline}
+ÂNGULO: ${proposta.angulo}
+LEGENDA ATUAL:
+"""
+${proposta.legenda}
+"""
+
+Reescreva APENAS a legenda. Aprofunde o dilema, adicione linhas de tensão e concretize a chamada para ação. Retorne SOMENTE a legenda expandida, sem JSON.`;
+
+  const raw = await generateText(prompt, sys, 0.82, 1200);
+  if (raw && raw.trim().length > charsAtual) proposta.legenda = raw.trim();
+  return proposta;
+}
+
+async function gerarRotasComValidacao(tipoPost, temas, temaLivre = '', objetivo = 'audiencia') {
+  const { linhasCorpoIdeal } = REGRAS_LEGENDA;
+  console.log(`   CAST calibração: ${linhasCorpoIdeal[0]}–${linhasCorpoIdeal[1]} linhas · ${getMinLegendaChars()} chars mín · objetivo: ${objetivo}`);
+
+  // Passo 1: geração normal
+  let propostas = await gerarRotasLLM(tipoPost, temas, temaLivre, { objetivo });
   let fora = propostas.filter(p => !legendaDentroDoPadrao(p.legenda));
 
+  // Passo 2: se há legendas fora do padrão, regenera lote com forceLong
   if (fora.length) {
-    console.log(`⚠️  CAST: ${fora.length} legenda(s) fora do padrão — regenerando lote...`);
-    propostas = await gerarRotasLLM(tipoPost, temas, temaLivre, { forceLong: true });
+    console.log(`⚠️  CAST passo 2: ${fora.length} legenda(s) fora do padrão — regenerando lote com forceLong...`);
+    propostas = await gerarRotasLLM(tipoPost, temas, temaLivre, { objetivo, forceLong: true });
     fora = propostas.filter(p => !legendaDentroDoPadrao(p.legenda));
   }
 
+  // Passo 3: expande individualmente as que ainda estão curtas
+  if (fora.length) {
+    console.log(`⚠️  CAST passo 3: expandindo ${fora.length} legenda(s) individualmente...`);
+    for (const p of fora) {
+      await expandirLegendaCast(p, objetivo);
+    }
+  }
+
   propostas.forEach(p => {
-    const linhas = contarLinhasCorpo(p.legenda);
-    const chars  = (p.legenda || '').length;
-    console.log(`   · ${p.angulo}: ${linhas} linhas · ${chars} chars${p.recomendada ? ' ★' : ''}`);
+    const ok = legendaDentroDoPadrao(p.legenda);
+    console.log(`   · ${p.angulo}: ${contarLinhasCorpo(p.legenda)} linhas · ${contarChars(p.legenda)} chars${p.recomendada ? ' ★' : ''}${ok ? '' : ' ⚠️ fora'}`);
   });
 
   return propostas;
@@ -192,7 +313,7 @@ async function gerarRotasComValidacao(tipoPost, temas, temaLivre = '') {
 /**
  * Gera lote com 3 propostas editoriais CAST e salva em propostas-cast.json
  */
-async function criarLotePropostasCast({ tipoPost, tema = '', temas }) {
+async function criarLotePropostasCast({ tipoPost, objetivo = 'audiencia', tema = '', temas }) {
   const { data, sha } = await loadStore();
 
   if (getLoteAguardando(data)) {
@@ -202,13 +323,15 @@ async function criarLotePropostasCast({ tipoPost, tema = '', temas }) {
     throw new Error(`Banco CAST cheio (${BANCO_MAX}). Consuma reservas antes de novas propostas.`);
   }
 
-  console.log('📝 CAST — Fase 1: gerando 3 rotas editoriais (só texto)...');
-  const propostas = await gerarRotasComValidacao(tipoPost, temas, tema);
+  const cfg = getCastObjetivoConfig(objetivo);
+  console.log(`📝 CAST — Fase 1: gerando 3 rotas [${cfg.label}] (só texto)...`);
+  const propostas = await gerarRotasComValidacao(tipoPost, temas, tema, objetivo);
 
   const lote = {
     id: newId('cast-lote'),
     status: 'aguardando_aprovacao',
     tipo_post: tipoPost,
+    objetivo,
     tema_briefing: tema || null,
     criado_em: new Date().toISOString(),
     propostas,

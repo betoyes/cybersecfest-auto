@@ -16,7 +16,7 @@ const path = require('path');
 
 const { criarLotePropostasCast } = require('./gerar-propostas-cast.js');
 const { consumirBancoCast, getEstadoPropostasCast } = require('./aprovar-propostas-cast.js');
-const { getLoteAguardando, countBanco, loadStore } = require('./utils/propostas-store-cast.js');
+const { getLoteAguardando, countBanco, loadStore, saveStore } = require('./utils/propostas-store-cast.js');
 
 const TEMAS_PATH = path.join(__dirname, '../_brands/cyberseccast/temas.json');
 
@@ -40,6 +40,7 @@ function lerTemasCast() {
  */
 async function executarPedidoCast(opts = {}) {
   const tipoPost = opts.tipoPost || tipoPostDoDia(new Date(Date.now() - 3 * 60 * 60 * 1000));
+  const objetivo = opts.objetivo || 'audiencia';
   const temas    = lerTemasCast();
 
   // 1 — Consumir banco (se não forçando propostas)
@@ -56,9 +57,11 @@ async function executarPedidoCast(opts = {}) {
     }
   }
 
-  const { data } = await loadStore();
+  const { data, sha } = await loadStore();
   const pendente = getLoteAguardando(data);
-  if (pendente && !opts.descartarPendente) {
+  // Lote pendente só bloqueia se for do mesmo objetivo; objetivos diferentes geram novo lote
+  const pendenteCompativel = pendente && (pendente.objetivo || 'audiencia') === objetivo;
+  if (pendenteCompativel && !opts.descartarPendente) {
     return {
       modo:       'aguardando_aprovacao',
       loteId:     pendente.id,
@@ -67,10 +70,20 @@ async function executarPedidoCast(opts = {}) {
       bancoCount: countBanco(data),
     };
   }
+  // Descarta lote pendente incompatível antes de gerar novo
+  if (pendente && !pendenteCompativel) {
+    const loteRef = (data.lotes || []).find(l => l.id === pendente.id);
+    if (loteRef) {
+      loteRef.status = 'rejeitado';
+      await saveStore(data, sha);
+    }
+    console.log(`ℹ️  CAST: lote pendente ${pendente.id} (objetivo: ${pendente.objetivo || 'audiencia'}) descartado — novo pedido com objetivo: ${objetivo}`);
+  }
 
   // 2 — Fase 1: 3 propostas editoriais CAST
   const lote = await criarLotePropostasCast({
     tipoPost,
+    objetivo,
     tema: opts.tema?.trim() || '',
     temas,
   });

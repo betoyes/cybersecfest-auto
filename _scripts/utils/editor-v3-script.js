@@ -15,6 +15,7 @@ var OLS={original:null,dark:'rgba(2,5,10,.92)',
   light:'radial-gradient(ellipse at center,rgba(255,255,255,.10) 0%,rgba(2,5,10,.78) 100%)',
   accent:'linear-gradient(135deg,rgba(20,168,244,.40) 0%,rgba(2,5,10,.85) 100%)',
   none:'rgba(0,0,0,0)'};
+var isCast='${slug}'.startsWith('cast-');
 var S={x:50,y:50,z:110,bo:100,fl:false,sat:100,oo:100,bgc:'#02050A',ol:'original',fw:'700',
   tta:'center',sta:'center',
   lx:0,ly:0,ls:100,lo:100,tx:0,ty:0,ts:100,sx:0,sy:0,ex:0,ey:0,eo:75,
@@ -51,8 +52,20 @@ function uBg(){
   if(!BG)return;
   var flt=S.sat===100?'none':'saturate('+(S.sat/100)+')';
   if(BG.tagName==='IMG'){
-    BG.style.objectPosition=S.x+'% '+S.y+'%';
-    BG.style.transform=(S.fl?'scaleX(-1) ':'')+'scale('+(S.z/100)+')';
+    var z=S.z/100;
+    var nw=BG.naturalWidth||1,nh=BG.naturalHeight||1;
+    var cw=BG.offsetWidth||1,ch=BG.offsetHeight||1;
+    var nr=nw/nh,cr=cw/ch;
+    // overflow from object-fit:cover
+    var xOvf=nr>cr?(nw*ch/nh-cw):0;
+    var yOvf=nr<=cr?(nh*cw/nw-ch):0;
+    // additional overflow from scale
+    var totalX=xOvf+cw*(z-1);
+    var totalY=yOvf+ch*(z-1);
+    var tx=-(S.x-50)/50*(totalX/2);
+    var ty=-(S.y-50)/50*(totalY/2);
+    BG.style.objectPosition='50% 50%';
+    BG.style.transform=(S.fl?'scaleX(-1) ':'')+'translate('+tx+'px,'+ty+'px) scale('+z+')';
     BG.style.opacity=S.bo/100;
     BG.style.filter=flt;
   }else{
@@ -249,22 +262,29 @@ if(btnExport)btnExport.addEventListener('click',function(){
   var canvas=document.getElementById('the-canvas');
   var ew=parseInt(canvas.dataset.exportW||'1080',10);
   var eh=parseInt(canvas.dataset.exportH||'1350',10);
-  domtoimage.toPng(canvas,{width:ew,height:eh,quality:1,bgcolor:'#02050A'}).then(function(dataUrl){
+  var sc=ew/(canvas.offsetWidth||540);
+  var badge=canvas.querySelector('.badge-layout');
+  if(badge)badge.style.display='none';
+  domtoimage.toPng(canvas,{width:ew,height:eh,quality:1,bgcolor:'#02050A',style:{transform:'scale('+sc+')',transformOrigin:'top left'}}).then(function(dataUrl){
+    if(badge)badge.style.display='';
     var a=document.createElement('a');a.download='cybersecfest-${slug}.png';a.href=dataUrl;
     document.body.appendChild(a);a.click();document.body.removeChild(a);
     self.textContent='✓ Baixado!';self.classList.remove('busy');
     setTimeout(function(){self.textContent='⬇ Exportar PNG';},2500);
-  }).catch(function(){self.textContent='⬇ Exportar PNG';self.classList.remove('busy');});
+  }).catch(function(){if(badge)badge.style.display='';self.textContent='⬇ Exportar PNG';self.classList.remove('busy');});
 });
 
 var btnSave=document.getElementById('btnSave');
 if(btnSave)btnSave.addEventListener('click',function(){
   var self=this;
   self.textContent='⏳ Salvando...';self.classList.add('busy');
-  fetch('/api/arte/salvar',{
+  var saveUrl=isCast?'/api/cast/arte/salvar':'/api/arte/salvar';
+  var saveBody={slug:'${slug}',state:S};
+  if(isCast&&SUB)saveBody.subtitle=SUB.innerHTML;
+  fetch(saveUrl,{
     method:'POST',
     headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({slug:'${slug}',state:S})
+    body:JSON.stringify(saveBody)
   }).then(function(r){return r.json();}).then(function(data){
     if(data.ok){
       self.textContent='✓ Salvo!';
@@ -294,6 +314,14 @@ if(tbt){var h=document.querySelector('#el-title,.headline,.hl');if(h)tbt.textCon
 
 var ctaSec=document.getElementById('ctaSection');
 if(ctaSec&&!CTA)ctaSec.style.display='none';
+
+var subEdit=document.getElementById('subEdit');
+if(subEdit&&SUB){
+  subEdit.value=(SUB.innerHTML||'').replace(/<br\\s*\\/?>/gi,'\\n').replace(/<[^>]+>/g,'').trim();
+  subEdit.addEventListener('input',function(){
+    if(SUB)SUB.innerHTML=this.value.replace(/\\n/g,'<br>');
+  });
+}
 
 var HL_MAX_W=10,HL_MAX_L=5;
 function plainHl(el){

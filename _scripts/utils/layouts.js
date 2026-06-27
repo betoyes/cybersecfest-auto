@@ -103,7 +103,7 @@ ${css}
 function A({ imageBase64: b, headline: hl, subtitulo: sub, palavrasAzuis: pa }) {
   return wrap(`
 .img-band{position:absolute;top:0;left:0;right:0;height:55%;overflow:hidden;z-index:0;}
-.img-band img{width:100%;height:100%;object-fit:cover;object-position:center 25%;}
+.img-band img{width:100%;height:100%;object-fit:cover;}
 .img-fade{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(2,5,10,0.15) 0%,rgba(2,5,10,0) 35%,rgba(2,5,10,1) 100%);}
 .logo-bar{position:absolute;top:24px;right:30px;z-index:3;}
 .text-band{position:absolute;left:0;right:0;bottom:0;height:48%;background:#02050A;display:flex;flex-direction:column;justify-content:space-between;padding:20px 30px 26px 34px;z-index:2;}
