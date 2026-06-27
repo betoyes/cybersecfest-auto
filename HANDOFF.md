@@ -802,6 +802,8 @@ patrocinador: F → I → B → Q → (repete)
 - ✅ Motion System: presets automáticos + presets manuais (UI em standby, código preservado)
 - ✅ Versionamento de animações (v1, v2, v3…) + download de MP4
 - ✅ Fix definitivo de ghost text (fundo-raw.png + overlay sólido)
+- ✅ **Agente editorial `fest-estrategista`**: knowledge.js (histórico real, edições BH+SP 2026, cotas com valores reais, empresas participantes) + 3 personas — `FEST_AUDIENCIA_SYSTEM`, `FEST_PATROCINADORES_SYSTEM`, `FEST_CONVITE_SYSTEM`
+- ✅ Briefing do usuário (`temaLivre`) vai ao topo do prompt com prioridade absoluta — não é mais ignorado pelo LLM
 
 ### CybersecCAST — O que está funcionando:
 - ✅ Pipeline completo: pedido → propostas → aprovação → arte
@@ -819,6 +821,11 @@ patrocinador: F → I → B → Q → (repete)
 - ✅ Modal CAST: headline renderiza HTML (`innerHTML`) — `<br>` no título aparece como quebra de linha
 - ✅ Modal CAST: subtitle no painel meta exibe sem `<br>` literal (tags stripped antes do display)
 - ✅ Slider ←→ (posição lateral) da imagem de fundo: reescrito em `uBg()` com `translate+scale` em vez de `objectPosition` — funciona com imagens retrato em containers paisagem
+- ✅ **Agente editorial `cast-estrategista`**: knowledge.js (episódios gravados com convidado/cargo/empresa reais, hosts Edgar + Amanda, patrocinadores T1, cotas Silver/Gold/Diamond/Strategic) + 3 personas — `CAST_AUDIENCIA_SYSTEM`, `CAST_PATROCINADORES_SYSTEM`, `CAST_TEMPORADA_SYSTEM`
+- ✅ **Validação de qualidade de legenda** (3 passos): gerar → `forceLong` → `expandirLegendaCast` individual — mesma pipeline do FEST
+- ✅ `referencia-copy-cast.js`: calibração por linhas (6–12) E chars (320–1400), exemplos ouro fixos + exemplos dinâmicos de `artes-cast.json` aprovadas
+- ✅ Briefing do usuário ao topo do prompt — LLM não ignora mais o tema informado
+- ✅ Lote pendente com objetivo diferente é descartado automaticamente — não bloqueia novo pedido de outro objetivo
 
 ### Motion UI — Estado Standby (jun/2026):
 A UI de motion está **comentada** em `index.html` com marcadores `<!-- MOTION EM STANDBY -->`. O pipeline backend continua funcional.
@@ -888,6 +895,14 @@ Isso é responsabilidade do **SuperAgent** (CREAO). O Cursor/AnimAgent não deve
 | `_scripts/utils/editor-wrap.js` | wrap HTML + CSS do editor | Cursor |
 | `_scripts/utils/imagem-prompt.js` | prompts de imagem por layout (A–Q) | Cursor |
 | `_scripts/utils/llm.js` | clientes Gemini + OpenAI (texto e imagem) | Cursor |
+| `_agents/fest-estrategista/knowledge.js` | Base de conhecimento real do FEST (edições, cotas, histórico) | Cursor |
+| `_agents/fest-estrategista/system-prompt.js` | 3 personas LLM do FEST: audiencia, patrocinadores, convite | Cursor |
+| `_agents/cast-estrategista/knowledge.js` | Base de conhecimento real do CAST (episódios, hosts, patrocinadores) | Cursor |
+| `_agents/cast-estrategista/system-prompt.js` | 3 personas LLM do CAST: audiencia, patrocinadores, temporada | Cursor |
+| `_scripts/utils/referencia-copy-cast.js` | Calibração editorial CAST: validação legenda + exemplos ouro | Cursor |
+| `_scripts/utils/referencia-copy.js` | Calibração editorial FEST: validação legenda + exemplos ouro | Cursor |
+| `artes-cast.json` | banco de artes CAST | append-only |
+| `propostas-cast.json` | fila de propostas CAST (lotes + banco) | dev-server via API |
 
 ---
 
@@ -982,5 +997,41 @@ cat animacoes.json
 
 22. **Thumb URL absoluta:** O servidor retorna `thumb` com path absoluto (`/artes/{slug}/thumb.png?t=...`). Sem o `/` inicial, o path resolve relativo à página atual — artes CAST em `/cast/` resolveriam para `/cast/artes/...` (404). Todo campo `thumb` retornado pela API usa path com `/` inicial.
 
-*Documento atualizado em 26 jun 2026 — sessão Claude Code (bugfixes CAST v2)*  
+23. **`temaLivre` deve ir ao TOPO do prompt:** O campo de briefing do usuário era inserido no meio do prompt (depois de "Crie 3 rotas para post de..."), fazendo o LLM ignorar o tema e gerar conteúdo genérico. Ambos os geradores (FEST e CAST) agora usam `temaHeader` com `🎯 PRIORIDADE ABSOLUTA` no início do prompt, antes de qualquer instrução.
+
+24. **Agentes editoriais — atualizar `knowledge.js` quando mudar dados reais:** Os arquivos `_agents/fest-estrategista/knowledge.js` e `_agents/cast-estrategista/knowledge.js` contêm dados reais (episódios, convidados, cotas, edições). São a única fonte de verdade que o LLM usa. Se um convidado for confirmado, uma cota mudar ou uma edição for adicionada, atualizar esses arquivos — não o prompt do dev-server.
+
+25. **Lote pendente de objetivo diferente:** O CAST valida se o lote pendente tem o mesmo `objetivo` do novo pedido. Se diferente (ex: lote de `audiencia` pendente + novo pedido de `patrocinadores`), o lote antigo é rejeitado automaticamente antes de gerar o novo. Isso evita o bug onde propostas irrelevantes eram retornadas ao usuário.
+
+26. **Pipeline de validação de legenda CAST (3 passos):** `gerarRotasComValidacao` em `gerar-propostas-cast.js` valida por linhas (6–12) E chars (≥320). Passo 1: geração normal. Passo 2: `forceLong: true` se houver falhas. Passo 3: `expandirLegendaCast` individual para cada legenda ainda curta. O log do servidor mostra `· ângulo: N linhas · X chars ★ ⚠️` — monitorar qualidade em tempo real.
+
+---
+
+## 13. Agentes Editoriais
+
+Dois agentes editoriais foram criados para substituir os system prompts hardcoded nos geradores de propostas.
+
+### `_agents/fest-estrategista/`
+
+| Arquivo | Conteúdo |
+|---------|----------|
+| `knowledge.js` | Histórico 2023–2026, edições BH+SP com temas e empresas reais, cotas com valores reais (BH e SP), diferenciais de patrocínio, perfil de audiência |
+| `system-prompt.js` | `FEST_AUDIENCIA_SYSTEM` · `FEST_PATROCINADORES_SYSTEM` · `FEST_CONVITE_SYSTEM` |
+
+Importado por: `_scripts/gerar-propostas.js`
+
+### `_agents/cast-estrategista/`
+
+| Arquivo | Conteúdo |
+|---------|----------|
+| `knowledge.js` | Hosts (Edgar + Amanda), 6 episódios gravados com convidado/cargo/empresa reais, 1 agendado, patrocinadores T1 (Skalena, LDC, Sunny), cotas Silver/Gold/Diamond/Strategic |
+| `system-prompt.js` | `CAST_AUDIENCIA_SYSTEM` · `CAST_PATROCINADORES_SYSTEM` · `CAST_TEMPORADA_SYSTEM` |
+
+Importado por: `_scripts/gerar-propostas-cast.js`
+
+**Quando o `CAST_TEMPORADA_SYSTEM` está ativo**, o LLM pode e deve citar convidados por nome — os dados são verificados em `knowledge.js`. Para os outros objetivos, as legendas são conceituais (sem inventar fatos).
+
+**Para adicionar novos convidados/episódios:** editar apenas `_agents/cast-estrategista/knowledge.js` → array `temporada.episodios_gravados`. O sistema pega automaticamente na próxima requisição (sem restart necessário, o arquivo é lido em runtime).
+
+*Documento atualizado em 26 jun 2026 — sessão Claude Code (agentes editoriais FEST + CAST)*  
 *Para dúvidas sobre sessões anteriores: ver histórico de commits no git.*
