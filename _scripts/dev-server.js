@@ -1180,49 +1180,35 @@ async function handleCastArteHtmlDynamic(req, res, slug) {
 }
 
 // POST /api/arte/exportar — gera arte.html estático para todos os slugs FEST
-async function handleFestExportar(_req, res) {
+// POST /api/arte/exportar + /api/arte/reaplicar
+// Re-renderiza arte.html para TODAS as artes. Regenera thumb nas que têm fundo.png local.
+async function handleFestReaplicar(_req, res) {
   try {
     const artes = readArtes();
-    let ok = 0, erros = 0;
+    let ok = 0, semThumb = 0, erros = 0;
     for (const arte of artes) {
       try {
         const slug      = arte.slug;
         const arteDir   = path.join(ROOT, 'artes', slug);
         const fundoPath = path.join(arteDir, 'fundo.png');
-        const fundoB64  = fs.existsSync(fundoPath)
+        const hasFundo  = fs.existsSync(fundoPath);
+        const fundoB64  = hasFundo
           ? 'data:image/png;base64,' + fs.readFileSync(fundoPath).toString('base64') : '';
         const simpleHtml = renderLayoutForBrand(slug, { ...arte, fundo: fundoB64 });
         const fullHtml   = wrapWithEditor(simpleHtml, { slug, save: '/api/arte/salvar', back: '../../' });
         fs.writeFileSync(path.join(arteDir, 'arte.html'), fullHtml);
-        ok++;
-      } catch (e) { erros++; log.error(`FEST exportar ${arte.slug}: ${e.message}`); }
-    }
-    json(res, 200, { ok: true, exportados: ok, erros });
-  } catch (e) { json(res, 500, { ok: false, error: e.message }); }
-}
-
-// POST /api/arte/reaplicar — re-renderiza todas as artes FEST + regenera thumbs
-async function handleFestReaplicar(_req, res) {
-  try {
-    const artes = readArtes();
-    let ok = 0, erros = 0;
-    for (const arte of artes) {
-      try {
-        const slug      = arte.slug;
-        const arteDir   = path.join(ROOT, 'artes', slug);
-        const fundoPath = path.join(arteDir, 'fundo.png');
-        if (!fs.existsSync(fundoPath)) continue;
-        const fundoB64   = 'data:image/png;base64,' + fs.readFileSync(fundoPath).toString('base64');
-        const simpleHtml = renderLayoutForBrand(slug, { ...arte, fundo: fundoB64 });
-        const fullHtml   = wrapWithEditor(simpleHtml, { slug, save: '/api/arte/salvar', back: '../../' });
-        fs.writeFileSync(path.join(arteDir, 'arte.html'), fullHtml);
-        await gerarThumbComposto(path.join(arteDir, 'arte.html'), path.join(arteDir, 'thumb.png'));
+        if (hasFundo) {
+          await gerarThumbComposto(path.join(arteDir, 'arte.html'), path.join(arteDir, 'thumb.png'));
+        } else {
+          semThumb++;
+        }
         ok++;
       } catch (e) { erros++; log.error(`FEST reaplicar ${arte.slug}: ${e.message}`); }
     }
-    json(res, 200, { ok: true, reaplicados: ok, erros });
+    json(res, 200, { ok: true, reaplicados: ok, sem_thumb: semThumb, erros });
   } catch (e) { json(res, 500, { ok: false, error: e.message }); }
 }
+const handleFestExportar = handleFestReaplicar;
 
 // POST /api/cast/exportar — gera arte.html estático para todas as artes (deploy GitHub Pages)
 async function handleCastExportar(_req, res) {
