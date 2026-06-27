@@ -383,7 +383,7 @@ function layoutBadgeHtml(arte) {
 
 async function loadAnimacoes() {
   try {
-    const res = await fetch('animacoes.json?v=' + Date.now());
+    const res = await fetch('/animacoes.json?v=' + Date.now());
     if (!res.ok) return;
     const list = await res.json();
     animacoesMap = Object.fromEntries((list || []).map(a => [a.slug, a]));
@@ -736,7 +736,7 @@ async function loadArtes() {
   try {
     await loadLayoutNames();
     await loadAnimacoes();
-    const res = await fetch('artes.json?v=' + Date.now());
+    const res = await fetch('/artes.json?v=' + Date.now());
     if (!res.ok) {
       showLoadError('http', res.status);
       return;
@@ -1787,7 +1787,7 @@ async function loadCalendarioEditorial() {
     }).join('');
   } catch (_) {
     try {
-      const res = await fetch('temas.json?v=' + Date.now());
+      const res = await fetch('/temas.json?v=' + Date.now());
       if (!res.ok) return;
       const temas = await res.json();
       calendarioData = { calendario: temas.calendario_editorial || {}, historico: (temas.historico_recente || []).slice(-8) };
