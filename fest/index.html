@@ -39,7 +39,7 @@ if (location.protocol === 'file:') {
 </div>
 <header class="site-header">
   <a href="/" class="back-home" title="Studio">← Studio</a>
-  <a href="index.html" class="logo" aria-label="CybersecFEST — Galeria">
+  <a href="/fest/" class="logo" aria-label="CybersecFEST — Galeria">
     <span class="logo-top">Cybersec</span>
     <div class="logo-divider"></div>
     <span class="logo-fest">fest</span>
@@ -50,10 +50,10 @@ if (location.protocol === 'file:') {
     <span class="live-count" id="header-count">—</span>
   </div>
   <nav class="main-nav" aria-label="Navegação principal">
-    <a href="guia.html" class="nav-link" title="Tutorial do portal">Guia</a>
-    <a href="galeria-templates/index.html" class="nav-link" title="Validação A–Q">Templates</a>
-    <a href="galeria-templates/comparar.html" class="nav-link" title="Comparar layouts">Comparar</a>
-    <a href="layouts-diagramacao.html" class="nav-link" title="Mapa de diagramação A–Q">Diagramação</a>
+    <a href="/guia.html" class="nav-link" title="Tutorial do portal">Guia</a>
+    <a href="/galeria-templates/index.html" class="nav-link" title="Validação A–Q">Templates</a>
+    <a href="/galeria-templates/comparar.html" class="nav-link" title="Comparar layouts">Comparar</a>
+    <a href="/layouts-diagramacao.html" class="nav-link" title="Mapa de diagramação A–Q">Diagramação</a>
     <span class="nav-divider" aria-hidden="true"></span>
     <span class="nav-year">2026</span>
   </nav>
@@ -409,7 +409,7 @@ function hasMotionMp4(slug) {
 }
 
 function goToMotion(slug) {
-  window.location.href = 'motion-studio.html?slug=' + encodeURIComponent(slug);
+  window.location.href = '/motion-studio.html?slug=' + encodeURIComponent(slug);
 }
 
 function openNovaVersaoMotion(slug) {
@@ -921,7 +921,7 @@ function scaleModalArt() {
 }
 
 function goToEditor(slug) {
-  window.location.href = `artes/${slug}/arte.html`;
+  window.location.href = `/artes/${slug}/arte.html`;
 }
 
 function openModal(slug, arte) {
@@ -939,7 +939,7 @@ function openModal(slug, arte) {
     player.removeAttribute('src');
     player.hidden = true;
   }
-  setTimeout(() => { img.src = 'artes/' + slug + '/thumb.png'; scaleModalArt(); }, 10);
+  setTimeout(() => { img.src = '/artes/' + slug + '/thumb.png'; scaleModalArt(); }, 10);
 
   /* MOTION EM STANDBY — tabs e barra de versões ocultos */
   if (viewTabs) viewTabs.hidden = true;
@@ -963,7 +963,7 @@ function openModal(slug, arte) {
   document.getElementById('modal-actions').innerHTML = `
     <button class="btn-arte btn-arte-primary" onclick="goToEditor('${slug}')">Editor</button>
     <button class="btn-arte btn-arte-secondary" onclick="downloadArtePNG('${slug}', this)">↓ PNG</button>
-    <a class="btn-arte btn-arte-secondary" href="artes/${slug}/arte.html" download="cybersecfest_${slug}.html">↓ HTML</a>
+    <a class="btn-arte btn-arte-secondary" href="/artes/${slug}/arte.html" download="cybersecfest_${slug}.html">↓ HTML</a>
     ${canDelete ? `<button type="button" class="btn-arte btn-arte-danger" id="btn-delete-arte" onclick="deletarArte('${slug}')">🗑 Excluir</button>` : ''}
   `;
   const metaEl = document.getElementById('modal-meta');
@@ -1173,7 +1173,7 @@ async function downloadArtePNG(slug, btn) {
     await new Promise((resolve, reject) => {
       tempIframe.onload = resolve;
       tempIframe.onerror = reject;
-      tempIframe.src = `artes/${slug}/arte.html`;
+      tempIframe.src = `/artes/${slug}/arte.html`;
       setTimeout(reject, 10000); // timeout 10s
     });
 
@@ -1200,7 +1200,7 @@ async function downloadArtePNG(slug, btn) {
   } catch(e) {
     console.warn('Erro na captura:', e);
     // Fallback elegante: abre arte em janela pequena
-    const w = window.open(`artes/${slug}/arte.html`, '_blank', 'width=620,height=820,left=200,top=80');
+    const w = window.open(`/artes/${slug}/arte.html`, '_blank', 'width=620,height=820,left=200,top=80');
     if (!w) alert('Permita popups para esta página e tente novamente.');
   } finally {
     document.body.removeChild(tempIframe);
