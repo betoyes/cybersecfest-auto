@@ -10,12 +10,12 @@
 <title>CybersecFEST — Galeria de Artes</title>
 <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&family=Montserrat:ital,wght@0,300;0,400;0,600;1,300&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/dom-to-image-more@3.3.1/dist/dom-to-image-more.min.js"></script>
-<link rel="stylesheet" href="assets/css/gallery.css?v=20260625c">
+<link rel="stylesheet" href="/assets/css/gallery.css?v=20260625c">
 <!-- MOTION EM STANDBY — reativar quando pipeline estiver estável
 <script type="module" src="https://cdn.jsdelivr.net/npm/@hyperframes/player@0.7.3/dist/hyperframes-player.js"></script>
-<script src="assets/js/motion-sandbox.js?v=20260625a"></script>
-<script src="assets/js/motion-versions.js?v=20260624-mp4"></script>
-<script src="assets/js/motion-prompt.js?v=20260624-presets"></script>
+<script src="/assets/js/motion-sandbox.js?v=20260625a"></script>
+<script src="/assets/js/motion-versions.js?v=20260624-mp4"></script>
+<script src="/assets/js/motion-prompt.js?v=20260624-presets"></script>
 -->
 <script>
 if (location.protocol === 'file:') {
@@ -722,7 +722,7 @@ function setModalViewMode(mode) {
 
 async function loadLayoutNames() {
   try {
-    const res = await fetch('assets/layout-names.json?v=' + Date.now());
+    const res = await fetch('/assets/layout-names.json?v=' + Date.now());
     if (res.ok) LAYOUT_NAMES = await res.json();
   } catch (_) {}
 }
@@ -810,7 +810,7 @@ function renderGrid(artes) {
     return `
     <div class="card" data-slug="${arte.slug}" onclick="openModalBySlug('${arte.slug}')" style="cursor:pointer">
       <div class="card-thumb" data-card-thumb>
-        <img class="card-thumb-img" src="artes/${arte.slug}/thumb.png" alt="${arte.headline}" loading="lazy" onerror="this.style.opacity=0">
+        <img class="card-thumb-img" src="/artes/${arte.slug}/thumb.png" alt="${arte.headline}" loading="lazy" onerror="this.style.opacity=0">
         ${layoutBadgeHtml(arte)}
         ${num ? `<div class="card-num-badge">#${num}</div>` : ''}
         ${arte.publicacao === 'backup' ? `<div class="card-backup-badge">backup</div>` : ''}
