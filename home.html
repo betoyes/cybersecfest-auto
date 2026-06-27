@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Studio — DevOps Bootcamp</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #08090d;
+    --surface:   #0f1117;
+    --border:    rgba(255,255,255,0.07);
+    --text:      #e2e4ea;
+    --muted:     #6b7280;
+    --cyan:      #14a8f4;
+    --indigo:    #6366f1;
+    --violet:    #8b5cf6;
+    --green:     #22c55e;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── Header ── */
+  header {
+    padding: 2rem 2.5rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .logo-mark {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, var(--cyan), var(--indigo));
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; font-weight: 900; color: #fff; letter-spacing: -1px;
+  }
+  .logo-text { font-size: 0.95rem; font-weight: 600; color: var(--text); }
+  .logo-sub  { font-size: 0.75rem; color: var(--muted); margin-top: 1px; }
+
+  /* ── Main ── */
+  main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    gap: 3rem;
+  }
+
+  .headline {
+    text-align: center;
+  }
+  .headline h1 {
+    font-size: clamp(1.6rem, 3vw, 2.4rem);
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    line-height: 1.2;
+  }
+  .headline p {
+    margin-top: 0.75rem;
+    color: var(--muted);
+    font-size: 0.95rem;
+    max-width: 420px;
+    margin-inline: auto;
+  }
+
+  /* ── Grid de cards ── */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 340px));
+    gap: 1.25rem;
+    width: 100%;
+    max-width: 1080px;
+    justify-content: center;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    text-decoration: none;
+    color: inherit;
+    position: relative;
+    overflow: hidden;
+    transition: border-color .2s, transform .2s, box-shadow .2s;
+    cursor: pointer;
+  }
+  .card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity .2s;
+    pointer-events: none;
+  }
+  .card:hover::before { opacity: 1; }
+
+  /* FEST */
+  .card--fest { border-color: rgba(20,168,244,0.2); }
+  .card--fest:hover { border-color: rgba(20,168,244,0.5); box-shadow: 0 12px 40px rgba(20,168,244,0.12); }
+  .card--fest::before { background: radial-gradient(ellipse at top left, rgba(20,168,244,0.06), transparent 70%); }
+
+  /* CAST */
+  .card--cast { border-color: rgba(99,102,241,0.2); }
+  .card--cast:hover { border-color: rgba(99,102,241,0.5); box-shadow: 0 12px 40px rgba(99,102,241,0.12); }
+  .card--cast::before { background: radial-gradient(ellipse at top left, rgba(99,102,241,0.06), transparent 70%); }
+
+  /* Placeholder */
+  .card--new { border-color: var(--border); border-style: dashed; opacity: 0.5; cursor: default; }
+  .card--new:hover { transform: none; box-shadow: none; }
+
+  .card-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 0.3rem 0.65rem;
+    border-radius: 999px;
+    width: fit-content;
+  }
+  .badge--fest   { background: rgba(20,168,244,0.12);  color: var(--cyan); }
+  .badge--cast   { background: rgba(99,102,241,0.12);  color: var(--indigo); }
+  .badge--new    { background: rgba(255,255,255,0.05); color: var(--muted); }
+  .badge-dot     { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+  .card-name {
+    font-size: 1.3rem;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.3px;
+  }
+  .card--fest .card-name  { color: #fff; }
+  .card--cast .card-name  { color: #fff; }
+  .card--new  .card-name  { color: var(--muted); }
+
+  .card-desc {
+    font-size: 0.85rem;
+    color: var(--muted);
+    line-height: 1.55;
+    flex: 1;
+  }
+
+  .card-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.78rem;
+    color: var(--muted);
+    border-top: 1px solid var(--border);
+    padding-top: 1rem;
+  }
+  .card-meta-stat { display: flex; flex-direction: column; gap: 2px; }
+  .card-meta-stat strong { font-size: 1rem; font-weight: 700; color: var(--text); }
+
+  .card-arrow {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.06);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem;
+    transition: background .2s, transform .2s;
+  }
+  .card:hover .card-arrow {
+    background: rgba(255,255,255,0.12);
+    transform: translateX(3px);
+  }
+  .card--new .card-arrow { display: none; }
+
+  /* ── Footer ── */
+  footer {
+    padding: 1.5rem 2.5rem;
+    border-top: 1px solid var(--border);
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-mark">D</div>
+  <div>
+    <div class="logo-text">DevOps Bootcamp Studio</div>
+    <div class="logo-sub">Plataforma de conteúdo editorial</div>
+  </div>
+</header>
+
+<main>
+  <div class="headline">
+    <h1>Escolha o produto</h1>
+    <p>Selecione um cliente para acessar a galeria e o pipeline editorial.</p>
+  </div>
+
+  <div class="grid">
+
+    <!-- CybersecFEST -->
+    <a class="card card--fest" href="/fest/">
+      <span class="card-badge badge--fest"><span class="badge-dot"></span>Evento presencial</span>
+      <div>
+        <div class="card-name">CyberSecFest</div>
+      </div>
+      <p class="card-desc">
+        Maior encontro executivo de cibersegurança do Brasil. Pipeline editorial para blog, evento e patrocinadores.
+      </p>
+      <div class="card-meta">
+        <div class="card-meta-stat">
+          <strong style="color:#14a8f4">BH + SP</strong>
+          <span>Edições 2026</span>
+        </div>
+        <div class="card-meta-stat" style="text-align:center">
+          <strong>+2.200</strong>
+          <span>participantes 2025</span>
+        </div>
+        <div class="card-arrow">→</div>
+      </div>
+    </a>
+
+    <!-- CybersecCAST -->
+    <a class="card card--cast" href="/cast/">
+      <span class="card-badge badge--cast"><span class="badge-dot"></span>Podcast executivo</span>
+      <div>
+        <div class="card-name">CyberSec.CAST</div>
+      </div>
+      <p class="card-desc">
+        Podcast de cibersegurança para o C-Level do Brasil. Pipeline editorial para episódios, temporada e patrocinadores.
+      </p>
+      <div class="card-meta">
+        <div class="card-meta-stat">
+          <strong style="color:#6366f1">T1 · 2026</strong>
+          <span>Em produção</span>
+        </div>
+        <div class="card-meta-stat" style="text-align:center">
+          <strong>6</strong>
+          <span>eps gravados</span>
+        </div>
+        <div class="card-arrow">→</div>
+      </div>
+    </a>
+
+    <!-- Placeholder novo cliente -->
+    <div class="card card--new">
+      <span class="card-badge badge--new"><span class="badge-dot"></span>Em breve</span>
+      <div>
+        <div class="card-name">Novo cliente</div>
+      </div>
+      <p class="card-desc">
+        Adicione um novo cliente com identidade visual e agente editorial próprios.
+      </p>
+      <div class="card-meta">
+        <span>Pipeline pronto para expansão</span>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<footer>
+  DevOps Bootcamp Studio · pipeline editorial &copy; 2026
+</footer>
+
+</body>
+</html>

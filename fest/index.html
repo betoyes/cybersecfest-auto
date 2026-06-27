@@ -5,112 +5,18 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
+<!-- v1782069172 -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CYBERSEC.CAST — Galeria de Artes</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<title>CybersecFEST — Galeria de Artes</title>
+<link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&family=Montserrat:ital,wght@0,300;0,400;0,600;1,300&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/dom-to-image-more@3.3.1/dist/dom-to-image-more.min.js"></script>
-<link rel="stylesheet" href="/assets/css/gallery.css?v=20260626a">
-<style>
-/* ── CYBERSEC.CAST — override das CSS vars do gallery.css ── */
-:root {
-  --bg:          #07060f;
-  --surface-1:   #0c0b1a;
-  --surface-2:   #0e0c1e;
-  --surface-3:   #161327;
-  --elevated:    #0a0915;
-  --blue:        #6366f1;
-  --blue-soft:   rgba(99,102,241,0.12);
-  --blue-line:   rgba(99,102,241,0.22);
-  --elec:        #818cf8;
-  --white:       #f0eeff;
-  --lavanda:     #9b97c4;
-  --muted:       #6b6891;
-  --border:      rgba(99,102,241,0.12);
-  --shadow-hover:  0 16px 48px rgba(99,102,241,0.14);
-  --glow:          0 0 0 1px rgba(99,102,241,0.08), 0 0 48px rgba(99,102,241,0.07);
-  --hover-glow:    0 6px 24px rgba(99,102,241,0.2);
-  --focus-ring:    0 0 0 3px rgba(99,102,241,0.24);
-}
-body {
-  font-family: 'Inter', sans-serif;
-  background-image:
-    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(99,102,241,0.09), transparent 55%),
-    radial-gradient(ellipse 40% 30% at 100% 0%, rgba(124,58,237,0.12), transparent 50%);
-}
-/* Headline / display → Space Grotesk */
-.logo, .logo-top, .propostas-title, .modal-headline,
-.side-drawer-title, h1, h2, h3,
-.prop-hl-preview, .overlay-headline, .card-layout-badge .clb-letter,
-.file-protocol-card h2, .empty h3 {
-  font-family: 'Space Grotesk', sans-serif;
-}
-/* Tags / mono → Space Mono */
-.live-label, .live-dot, .card-badge, .prop-rec,
-.header-badge, .nav-year, .modal-badge,
-.modal-meta-badge, .palavra-azul, .prop-tipo,
-.proposta-cta, .img-ver-pill {
-  font-family: 'Space Mono', monospace;
-}
-/* CAST Logo area override */
-.back-home {
-  display: flex;
-  align-items: center;
-  font-size: 0.78rem;
-  font-weight: 500;
-  color: #6b7280;
-  text-decoration: none;
-  padding: 4px 10px 4px 6px;
-  border-radius: 6px;
-  border: 1px solid rgba(255,255,255,0.08);
-  margin-right: 12px;
-  white-space: nowrap;
-  transition: color .2s, border-color .2s;
-}
-.back-home:hover { color: #fff; border-color: rgba(255,255,255,0.2); }
-.logo {
-  display: flex;
-  align-items: center;
-  gap: 0;
-  text-decoration: none;
-}
-.logo-cast-img {
-  height: 32px;
-  width: auto;
-  display: block;
-  filter: brightness(1.1);
-}
-/* Side drawer: CAST usa apenas Layout / A-B / Banco (sem Cidade) */
-.side-tab-cidade { display: none !important; }
-/* Seletor de objetivo do pedido simples */
-.pedido-objetivo-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 12px 2px;
-}
-.pedido-objetivo-label {
-  font-family: 'Space Mono', monospace;
-  font-size: 10px;
-  letter-spacing: .08em;
-  text-transform: uppercase;
-  color: var(--muted);
-  white-space: nowrap;
-}
-.pedido-objetivo-select {
-  flex: 1;
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  color: var(--white);
-  font-family: 'Inter', sans-serif;
-  font-size: 12px;
-  padding: 4px 8px;
-  cursor: pointer;
-  transition: border-color .15s;
-}
-.pedido-objetivo-select:hover { border-color: rgba(99,102,241,0.4); }
-.pedido-objetivo-select:focus { outline: none; box-shadow: var(--focus-ring); }
-</style>
+<link rel="stylesheet" href="assets/css/gallery.css?v=20260625c">
+<!-- MOTION EM STANDBY — reativar quando pipeline estiver estável
+<script type="module" src="https://cdn.jsdelivr.net/npm/@hyperframes/player@0.7.3/dist/hyperframes-player.js"></script>
+<script src="assets/js/motion-sandbox.js?v=20260625a"></script>
+<script src="assets/js/motion-versions.js?v=20260624-mp4"></script>
+<script src="assets/js/motion-prompt.js?v=20260624-presets"></script>
+-->
 <script>
 if (location.protocol === 'file:') {
   document.documentElement.classList.add('file-protocol');
@@ -123,19 +29,20 @@ if (location.protocol === 'file:') {
   <div class="file-protocol-card">
     <div class="file-protocol-icon">⚠</div>
     <h2>Abra pela URL do servidor, não pelo arquivo</h2>
-    <p>O <code>index.html</code> não carrega a galeria se você abrir direto do Finder. O navegador bloqueia o <code>artes-cast.json</code>.</p>
+    <p>O <code>index.html</code> não carrega a galeria se você abrir direto do Finder. O navegador bloqueia o <code>artes.json</code>.</p>
     <ol>
       <li>No Terminal: <code>cd _scripts && npm run dev</code></li>
-      <li>No navegador: <a href="http://127.0.0.1:8765/cast/">http://127.0.0.1:8765/cast/</a></li>
+      <li>No navegador: <a href="http://127.0.0.1:8765/">http://127.0.0.1:8765/</a></li>
     </ol>
     <p class="file-protocol-path">Pasta do projeto:<br><code id="file-protocol-path"></code></p>
   </div>
 </div>
-
 <header class="site-header">
   <a href="/" class="back-home" title="Studio">← Studio</a>
-  <a href="/cast/" class="logo" aria-label="CYBERSEC.CAST — Galeria">
-    <img class="logo-cast-img" src="/assets/logo-cast.png" alt="CYBERSEC.CAST">
+  <a href="index.html" class="logo" aria-label="CybersecFEST — Galeria">
+    <span class="logo-top">Cybersec</span>
+    <div class="logo-divider"></div>
+    <span class="logo-fest">fest</span>
   </a>
   <div class="header-center">
     <div class="live-dot"></div>
@@ -143,7 +50,10 @@ if (location.protocol === 'file:') {
     <span class="live-count" id="header-count">—</span>
   </div>
   <nav class="main-nav" aria-label="Navegação principal">
-    <a href="/" class="nav-link" title="CybersecFEST">FEST</a>
+    <a href="guia.html" class="nav-link" title="Tutorial do portal">Guia</a>
+    <a href="galeria-templates/index.html" class="nav-link" title="Validação A–Q">Templates</a>
+    <a href="galeria-templates/comparar.html" class="nav-link" title="Comparar layouts">Comparar</a>
+    <a href="layouts-diagramacao.html" class="nav-link" title="Mapa de diagramação A–Q">Diagramação</a>
     <span class="nav-divider" aria-hidden="true"></span>
     <span class="nav-year">2026</span>
   </nav>
@@ -151,32 +61,29 @@ if (location.protocol === 'file:') {
 
 <!-- ══ AVISO SERVIDOR ANTIGO ══ -->
 <div class="server-warn" id="server-warn" hidden>
-  <span id="server-warn-text">Servidor desatualizado — reinicie com <code>cd _scripts && npm run dev</code>.</span>
+  <span id="server-warn-text">Servidor desatualizado — reinicie com <code>cd _scripts && npm run dev</code> (fluxo v2 + modo campanha).</span>
   <button type="button" class="server-warn-close" onclick="document.getElementById('server-warn').hidden=true" aria-label="Fechar">✕</button>
 </div>
 
-<!-- ══ PAINEL DE PEDIDO ══ -->
+<!-- ══ PAINEL DE PEDIDO (dev local) ══ -->
 <div class="pedido-panel" id="pedido-panel">
-  <div class="pedido-objetivo-row">
-    <label class="pedido-objetivo-label" for="pedido-objetivo">Objetivo</label>
-    <select class="pedido-objetivo-select" id="pedido-objetivo">
-      <option value="audiencia">Engajamento de Audiência</option>
-      <option value="patrocinadores">Captação de Patrocinadores</option>
-      <option value="temporada">Lançamento de Temporada</option>
-    </select>
-  </div>
   <div class="pedido-field">
-    <textarea class="pedido-textarea" id="pedido-tema" rows="2" placeholder="Briefing — ex.: Episódio sobre Zero Trust com CISO da XP, tom intelectual provocador. Vazio = calendário automático (episódio/convidado/insight)."></textarea>
+    <textarea class="pedido-textarea" id="pedido-tema" rows="2" placeholder="Briefing — ex.: Post SP com MASP de fundo, tom FOMO. Pode incluir sugestão de imagem (ponto turístico, marco, skyline). Vazio = calendário automático."></textarea>
     <button class="pedido-btn" id="pedido-btn" type="button" title="Gerar post" aria-label="Gerar post">✦</button>
   </div>
-  <div class="pedido-objetivo-row" style="margin-top:6px;">
-    <select id="pedido-tipo" class="pedido-objetivo-select" title="Tipo de post">
-      <option value="">Tipo automático</option>
-      <option value="episodio">Episódio</option>
-      <option value="convidado">Convidado</option>
-      <option value="insight">Insight</option>
+  <div class="pedido-objetivo-row" style="display:flex;gap:8px;margin-top:6px;align-items:center;">
+    <select id="pedido-objetivo" class="pedido-objetivo-select" title="Objetivo do post" style="flex:1;background:#111;color:#e2e8f0;border:1px solid #334155;border-radius:6px;padding:5px 8px;font-size:12px;">
+      <option value="audiencia">🎯 Engajamento de Audiência</option>
+      <option value="patrocinadores">💼 Captação de Patrocinadores</option>
+      <option value="convite">🎟️ Convite Institucional</option>
     </select>
-    <label style="color:#a5b4fc;font-size:11px;white-space:nowrap;cursor:pointer;margin-left:8px;" title="Força novas propostas mesmo com banco cheio">
+    <select id="pedido-tipo" class="pedido-objetivo-select" title="Tipo de post" style="flex:1;background:#111;color:#e2e8f0;border:1px solid #334155;border-radius:6px;padding:5px 8px;font-size:12px;">
+      <option value="">Tipo automático</option>
+      <option value="blog">Blog / Insight</option>
+      <option value="evento">Evento</option>
+      <option value="patrocinador">Patrocinador</option>
+    </select>
+    <label style="color:#64748b;font-size:11px;white-space:nowrap;cursor:pointer;" title="Força novas propostas mesmo com banco cheio">
       <input type="checkbox" id="pedido-forcar" style="margin-right:3px;">Forçar
     </label>
   </div>
@@ -184,12 +91,13 @@ if (location.protocol === 'file:') {
   <details class="pedido-campanha" id="pedido-campanha">
     <summary>Modo campanha (3–10 peças) — lote editorial com rotação de tipos</summary>
     <div class="pedido-campanha-body">
-      <p class="pedido-camp-hint">Gera <strong>várias peças de uma vez</strong>: cada uma com tipo (episódio/convidado/insight), CTA e ângulo distintos — ideal para lançamento de temporada, push de patrocínio ou semana de engajamento.</p>
+      <p class="pedido-camp-hint">Gera <strong>várias peças de uma vez</strong> (não só 3): cada uma com tipo de post, CTA e ângulo distintos — ideal para semana de lançamento ou push de patrocínio.</p>
       <label class="pedido-camp-label">Objetivo
         <select id="campanha-objetivo" class="pedido-camp-select">
-          <option value="engajamento">Engajamento de Audiência</option>
-          <option value="patrocinadores">Captação de Patrocinadores</option>
-          <option value="temporada">Lançamento de Temporada</option>
+          <option value="inscricoes">Inscrições</option>
+          <option value="patrocinadores">Patrocinadores</option>
+          <option value="speakers">Palestrantes</option>
+          <option value="agenda">Agenda</option>
         </select>
       </label>
       <label class="pedido-camp-label">Peças
@@ -225,14 +133,15 @@ if (location.protocol === 'file:') {
     <div class="propostas-grid" id="propostas-grid"></div>
     <div class="propostas-foot">
       <label class="propostas-opt propostas-visual-sug">
-        <span class="propostas-visual-label">Sugestão de cena visual (opcional)</span>
-        <textarea class="propostas-visual-input" id="propostas-sugestao-visual" rows="2" placeholder="Ex.: CISO de costas olhando monitores no estúdio escuro, iluminação indigo, microfone desfocado à esquerda"></textarea>
+        <span class="propostas-visual-label">Sugestão de imagem (opcional)</span>
+        <textarea class="propostas-visual-input" id="propostas-sugestao-visual" rows="2" placeholder="Ex.: MASP à noite na Av. Paulista, Copan, Ibirapuera, Theatro Municipal — descreva o fundo que você quer"></textarea>
       </label>
       <label class="propostas-opt">
         <input type="checkbox" id="propostas-backup-visual">
         <span>Gerar visual imediato também para itens do banco (backup)</span>
       </label>
       <div class="propostas-actions">
+        <button type="button" class="propostas-btn ghost" id="propostas-export-pack" hidden>⬇ Pack ZIP</button>
         <button type="button" class="propostas-btn ghost" id="propostas-rejeitar">Rejeitar lote</button>
         <button type="button" class="propostas-btn primary" id="propostas-aprovar">Gerar imagem</button>
       </div>
@@ -265,10 +174,34 @@ if (location.protocol === 'file:') {
 
     <!-- PAINEL ESQUERDO: arte composta -->
     <div class="modal-preview" style="position:relative">
+      <!-- MOTION EM STANDBY
+      <div class="modal-view-tabs" id="modal-view-tabs" hidden>
+        <button type="button" class="modal-view-tab active" data-view="static" onclick="setModalViewMode('static')">Estático</button>
+        <button type="button" class="modal-view-tab" data-view="motion" onclick="setModalViewMode('motion')">Motion</button>
+      </div>
+      <div class="motion-version-bar" id="modal-motion-versions" hidden>
+        <span class="motion-version-label">Versão</span>
+        <div class="motion-version-pills" id="modal-version-pills"></div>
+        <button type="button" class="motion-version-new" id="modal-version-new" title="Pedir nova versão ao AnimAgent (não apaga as anteriores)">+ Nova versão</button>
+        <button type="button" class="motion-version-mp4" id="modal-version-mp4" title="Baixar MP4 desta versão (ou marcar para export)">↓ MP4</button>
+      </div>
+      -->
       <button class="btn-toggle-panel" id="btn-toggle-panel" onclick="toggleModalPanel()" title="Expandir / recolher painel">◀ Legenda</button>
       <div class="modal-art-box" id="modal-art-box">
         <div class="modal-art-scaler" id="modal-art-scaler">
           <img id="modal-img" src="" alt="Arte" style="width:100%;height:100%;object-fit:contain;display:block;">
+          <!-- MOTION EM STANDBY
+          <hyperframes-player
+            id="modal-hf-player"
+            class="modal-hf-player"
+            width="1080"
+            height="1350"
+            controls
+            loop
+            autoplay
+            hidden
+          ></hyperframes-player>
+          -->
         </div>
       </div>
     </div>
@@ -290,7 +223,7 @@ if (location.protocol === 'file:') {
               type="text"
               id="modal-img-instrucao"
               class="modal-img-edit-input"
-              placeholder="Ex: CISO de costas olhando monitores, iluminação indigo, estúdio premium"
+              placeholder="Ex: homem de costas olhando a cidade à noite, tons roxos"
               maxlength="300"
               autocomplete="off"
             >
@@ -331,13 +264,13 @@ if (location.protocol === 'file:') {
     </div>
     <div class="side-tabs" role="tablist">
       <button type="button" class="side-tabs-btn active" role="tab" aria-selected="true" data-tab="layout">Diagramação</button>
-      <button type="button" class="side-tabs-btn" role="tab" aria-selected="false" data-tab="tipo">Tipo</button>
+      <button type="button" class="side-tabs-btn" role="tab" aria-selected="false" data-tab="cidade">Cidade</button>
       <button type="button" class="side-tabs-btn" role="tab" aria-selected="false" data-tab="ab">Legenda A/B</button>
       <button type="button" class="side-tabs-btn" role="tab" aria-selected="false" data-tab="banco">Banco <span class="side-tab-count" id="banco-count"></span></button>
     </div>
     <div class="side-drawer-body">
       <div class="side-tab-panel active" id="tab-layout" role="tabpanel"><div id="dash-layout"></div></div>
-      <div class="side-tab-panel" id="tab-tipo" role="tabpanel"><div id="dash-tipo"></div></div>
+      <div class="side-tab-panel" id="tab-cidade" role="tabpanel"><div id="dash-cidade"></div></div>
       <div class="side-tab-panel" id="tab-ab" role="tabpanel"><div id="dash-ab"></div></div>
       <div class="side-tab-panel" id="tab-banco" role="tabpanel">
         <div id="dash-banco"></div>
@@ -348,12 +281,15 @@ if (location.protocol === 'file:') {
 </aside>
 
 <footer>
-  <span class="footer-text">© CYBERSEC.CAST 2026 — O Podcast de Referência em Cibersegurança para C-Level do Brasil</span>
+  <span class="footer-text">© CybersecFEST 2026 — a maior confraria estratégica de Cyber Security do Brasil</span>
+  <div class="footer-eco">
+    <span>DevOps Bootcamp</span>
+    <span>IAM Tech Day</span>
+    <span>Alcatraz Security</span>
+  </div>
 </footer>
 
 <script>
-const API = '/api/cast';  // prefixo de todos os endpoints CAST
-
 let allArtes = [];
 let arteMap = {};
 let creationOrderMap = {};
@@ -363,17 +299,15 @@ let devServerApis = [];
 let showBackupArtes = false;
 let calendarioData = null;
 let modalSlug = null;
+let animacoesMap = {};
+let modalViewMode = 'static';
+let modalMotionVersions = null;
+let modalMotionPreviewId = 1;
 
 const FORMATO_LABELS = {
   feed_vertical: 'Vertical',
   feed_quadrado: 'Quadrado',
   stories: 'Stories',
-};
-
-const TIPO_LABELS = {
-  episodio: '🎙 Episódio',
-  convidado: '👤 Convidado',
-  insight: '💡 Insight',
 };
 
 function isDevHost() {
@@ -382,10 +316,6 @@ function isDevHost() {
 
 function canDeleteArte() {
   return isDevHost();
-}
-
-function escHtml(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 function escRegex(s) {
@@ -451,9 +381,348 @@ function layoutBadgeHtml(arte) {
   return `<div class="card-layout-badge" title="Layout ${L}${name ? ' — ' + name : ''}"><span class="clb-letter">${L}</span></div>`;
 }
 
+async function loadAnimacoes() {
+  try {
+    const res = await fetch('animacoes.json?v=' + Date.now());
+    if (!res.ok) return;
+    const list = await res.json();
+    animacoesMap = Object.fromEntries((list || []).map(a => [a.slug, a]));
+  } catch (_) {}
+}
+
+function hasMotion(slug) {
+  return !!slug;
+}
+
+function hasExistingMotion(slug) {
+  return !!(animacoesMap && animacoesMap[slug]);
+}
+
+function getMotionMp4Path(slug) {
+  const m = animacoesMap[slug];
+  return m?.motion_mp4 || null;
+}
+
+function hasMotionMp4(slug) {
+  const m = animacoesMap[slug];
+  return !!(m?.motion_mp4);
+}
+
+function goToMotion(slug) {
+  window.location.href = 'motion-studio.html?slug=' + encodeURIComponent(slug);
+}
+
+function openNovaVersaoMotion(slug) {
+  if (!window.MotionSandbox?.isSandbox(slug)) return;
+  const base = modalMotionPreviewId || modalMotionVersions?.preview || 1;
+  if (!window.MotionPrompt) return;
+  MotionPrompt.open({
+    slug,
+    baseVersion: base,
+    completeCallback: async ({ slug: s, ready, versions }) => {
+      if (ready && s === modalSlug) {
+        modalMotionVersions = versions || await MotionVersions.fetchVersions(s);
+        modalMotionPreviewId = modalMotionVersions.preview || modalMotionVersions.versions.at(-1)?.id;
+        const ver = getModalMotionVersion(modalMotionPreviewId);
+        if (ver) loadModalPlayerVersion(ver);
+        renderModalVersionBar();
+        updateModalMp4DownloadLink();
+      }
+    },
+  });
+}
+
+function getModalMotionVersion(id) {
+  if (!modalMotionVersions?.versions) return null;
+  return modalMotionVersions.versions.find(v => v.id === id) || null;
+}
+
+function loadModalPlayerVersion(ver) {
+  const player = document.getElementById('modal-hf-player');
+  if (!player || !modalSlug || !ver || !window.MotionVersions) return;
+  const url = MotionVersions.versionHtmlUrl(modalSlug, ver) + '?v=' + Date.now();
+  player.setAttribute('src', url);
+  player.removeAttribute('poster');
+  requestAnimationFrame(() => playModalMotionPreview());
+}
+
+function renderModalVersionBar() {
+  const bar = document.getElementById('modal-motion-versions');
+  const pills = document.getElementById('modal-version-pills');
+  const mp4Btn = document.getElementById('modal-version-mp4');
+  if (!bar) return;
+
+  // Sem motion ainda: mostrar barra vazia com apenas "+ Nova versão"
+  if (!modalMotionVersions || !window.MotionVersions) {
+    bar.hidden = modalViewMode !== 'motion';
+    if (pills) pills.innerHTML = '';
+    if (mp4Btn) mp4Btn.hidden = true;
+    const newBtn = document.getElementById('modal-version-new');
+    if (newBtn && modalSlug) {
+      newBtn.hidden = false;
+      newBtn.onclick = () => openNovaVersaoMotion(modalSlug);
+    }
+    return;
+  }
+
+  bar.hidden = modalViewMode !== 'motion';
+  if (mp4Btn) mp4Btn.hidden = false;
+  MotionVersions.renderPills(
+    pills,
+    modalMotionVersions,
+    modalMotionPreviewId,
+    (vid) => selectModalMotionVersion(vid),
+    { canDelete: isDevHost(), onDelete: (vid) => deleteModalMotionVersion(vid) },
+  );
+  if (mp4Btn) {
+    mp4Btn.classList.toggle('approved', modalMotionVersions.mp4_from === modalMotionPreviewId);
+    mp4Btn.onclick = () => approveModalMotionMp4();
+  }
+  const newBtn = document.getElementById('modal-version-new');
+  if (newBtn && modalSlug) {
+    newBtn.hidden = false;
+    newBtn.onclick = () => openNovaVersaoMotion(modalSlug);
+  }
+}
+
+async function initModalMotionVersions(slug) {
+  modalMotionVersions = null;
+  modalMotionPreviewId = 1;
+  const bar = document.getElementById('modal-motion-versions');
+  if (!window.MotionVersions) { if (bar) bar.hidden = true; return; }
+  modalMotionVersions = await MotionVersions.fetchVersions(slug);
+  if (!modalMotionVersions) {
+    // Sem motion existente: esconder barra agora (modo estático inicial)
+    // Quando user clicar na aba Motion, setModalViewMode chamará renderModalVersionBar
+    if (bar) bar.hidden = true;
+    return;
+  }
+  modalMotionPreviewId = modalMotionVersions.preview || modalMotionVersions.versions[0]?.id || 1;
+  const ver = getModalMotionVersion(modalMotionPreviewId);
+  if (ver) loadModalPlayerVersion(ver);
+  renderModalVersionBar();
+}
+
+async function selectModalMotionVersion(versionId) {
+  if (!modalSlug || !modalMotionVersions) return;
+  modalMotionPreviewId = versionId;
+  const ver = getModalMotionVersion(versionId);
+  if (ver) loadModalPlayerVersion(ver);
+  renderModalVersionBar();
+  updateModalMp4DownloadLink();
+  if (isDevHost()) {
+    try { await MotionVersions.apiSelect(modalSlug, versionId); modalMotionVersions.preview = versionId; } catch (_) {}
+  }
+}
+
+async function deleteModalMotionVersion(versionId) {
+  if (!modalSlug || !modalMotionVersions || !window.MotionVersions) return;
+  const ver = getModalMotionVersion(versionId);
+  if (!ver || !MotionVersions.canDeleteVersion(modalMotionVersions, ver)) return;
+  const label = MotionVersions.presetLabel(ver.preset);
+  const msg = label
+    ? `Excluir versão ${versionId} (${label})? A pasta motion/v${versionId}/ será removida.`
+    : `Excluir versão ${versionId}? A pasta motion/v${versionId}/ será removida.`;
+  if (!confirm(msg)) return;
+  try {
+    const res = await MotionVersions.apiDelete(modalSlug, versionId);
+    modalMotionVersions = res.versions || modalMotionVersions;
+    modalMotionPreviewId = modalMotionVersions.preview || modalMotionVersions.versions[0]?.id || 1;
+    const next = getModalMotionVersion(modalMotionPreviewId);
+    if (next) loadModalPlayerVersion(next);
+    renderModalVersionBar();
+    updateModalMp4DownloadLink();
+  } catch (e) {
+    alert(e.message || 'Não foi possível excluir');
+  }
+}
+
+async function approveModalMotionMp4() {
+  if (!modalSlug || !modalMotionVersions) return;
+  const ver = getModalMotionVersion(modalMotionPreviewId);
+  if (!ver || !window.MotionVersions) return;
+  const mp4Btn = document.getElementById('modal-version-mp4');
+  const origLabel = mp4Btn?.textContent || '↓ MP4';
+
+  if (isDevHost()) {
+    try {
+      const res = await MotionVersions.apiApproveMp4(modalSlug, modalMotionPreviewId);
+      modalMotionVersions = res.versions || modalMotionVersions;
+      modalMotionVersions.mp4_from = modalMotionPreviewId;
+      if (res.mp4?.url) {
+        await MotionVersions.downloadVersionMp4(
+          res.mp4.url,
+          `cybersecfest_${modalSlug}_v${modalMotionPreviewId}_motion.mp4`,
+        );
+        if (mp4Btn) {
+          mp4Btn.textContent = '✓ Baixado';
+          setTimeout(() => { mp4Btn.textContent = origLabel; }, 2000);
+        }
+        renderModalVersionBar();
+        updateModalMp4DownloadLink();
+        return;
+      }
+    } catch (_) {}
+  } else {
+    modalMotionVersions.mp4_from = modalMotionPreviewId;
+  }
+
+  renderModalVersionBar();
+
+  let mp4Info = null;
+  try {
+    mp4Info = await MotionVersions.fetchVersionMp4(modalSlug, modalMotionPreviewId);
+  } catch (_) {}
+
+  if (mp4Info?.mp4?.url) {
+    try {
+      await MotionVersions.downloadVersionMp4(
+        mp4Info.mp4.url,
+        `cybersecfest_${modalSlug}_v${modalMotionPreviewId}_motion.mp4`,
+      );
+      if (mp4Btn) {
+        mp4Btn.textContent = '✓ Baixado';
+        setTimeout(() => { mp4Btn.textContent = origLabel; }, 2000);
+      }
+      updateModalMp4DownloadLink();
+      return;
+    } catch (_) {}
+  }
+
+  const prompt = MotionVersions.mp4RenderPrompt(modalSlug, ver);
+  if (navigator.clipboard?.writeText) {
+    await navigator.clipboard.writeText(prompt).catch(() => {});
+  }
+  if (mp4Btn) {
+    mp4Btn.textContent = 'Render?';
+    setTimeout(() => { mp4Btn.textContent = origLabel; }, 2500);
+  }
+  alert(
+    'MP4 ainda não renderizado para esta versão.\n\n' +
+    'Comando copiado:\n' + prompt + '\n\n' +
+    'Depois de renderizar, clique ↓ MP4 novamente.',
+  );
+  updateModalMp4DownloadLink();
+}
+
+async function updateModalMp4DownloadLink() {
+  if (!modalSlug || !window.MotionVersions) return;
+  const versionId = modalMotionVersions?.mp4_from || modalMotionPreviewId;
+  const ver = getModalMotionVersion(versionId);
+  if (!ver) return;
+
+  const actions = document.getElementById('modal-actions');
+  if (!actions) return;
+
+  let link = actions.querySelector('[data-motion-mp4-dl]');
+  let mp4Info = null;
+  try {
+    mp4Info = await MotionVersions.fetchVersionMp4(modalSlug, versionId);
+  } catch (_) {
+    try {
+      const url = MotionVersions.versionMp4Url(modalSlug, ver);
+      const head = await fetch(url, { method: 'HEAD' });
+      if (head.ok) mp4Info = { mp4: { url, draft: false } };
+    } catch (_) {}
+  }
+
+  if (!mp4Info?.mp4?.url) {
+    if (link) link.remove();
+    return;
+  }
+
+  if (!link) {
+    const pngBtn = actions.querySelector('.btn-arte-secondary');
+    link = document.createElement('a');
+    link.className = 'btn-arte btn-arte-secondary';
+    link.setAttribute('data-motion-mp4-dl', '1');
+    if (pngBtn) pngBtn.before(link);
+  }
+  link.textContent = mp4Info.mp4.draft ? '↓ MP4 (draft)' : '↓ MP4';
+  link.title = `Baixar MP4 da versão ${versionId}` + (mp4Info.mp4.draft ? ' (preview draft)' : '');
+  link.href = mp4Info.mp4.url;
+  link.download = `cybersecfest_${modalSlug}_v${versionId}_motion.mp4`;
+  link.onclick = async (e) => {
+    e.preventDefault();
+    try {
+      await MotionVersions.downloadVersionMp4(link.href, link.download);
+    } catch (err) {
+      alert(err.message || 'Falha ao baixar MP4');
+    }
+  };
+}
+
+function playModalMotionPreview() {
+  const player = document.getElementById('modal-hf-player');
+  if (!player || player.hidden) return;
+  const start = () => {
+    try {
+      if (typeof player.play === 'function') player.play();
+    } catch (_) {}
+  };
+  if (player.ready) start();
+  else player.addEventListener('ready', start, { once: true });
+}
+
+function setModalViewMode(mode) {
+  modalViewMode = mode;
+  const img = document.getElementById('modal-img');
+  const player = document.getElementById('modal-hf-player');
+  const scaler = document.getElementById('modal-art-scaler');
+  const tabs = document.querySelectorAll('.modal-view-tab');
+  tabs.forEach(t => {
+    const on = t.dataset.view === mode;
+    t.classList.toggle('active', on);
+    t.setAttribute('aria-selected', on ? 'true' : 'false');
+  });
+
+  if (mode === 'static') {
+    /* Para estático: remove animação, esconde player */
+    if (scaler) scaler.classList.remove('motion-playing');
+    let badge = document.getElementById('modal-motion-badge');
+    if (badge) badge.remove();
+    img.hidden = false;
+    if (player) {
+      player.hidden = true;
+      if (typeof player.pause === 'function') player.pause();
+    }
+    const bar = document.getElementById('modal-motion-versions');
+    if (bar) bar.hidden = true;
+  } else {
+    /* Para motion */
+    const hasPlayerSrc = player && player.getAttribute('src');
+    if (hasPlayerSrc) {
+      /* HyperFrames animation exists — use the player */
+      img.hidden = true;
+      player.hidden = false;
+      player.setAttribute('autoplay', '');
+      requestAnimationFrame(() => playModalMotionPreview());
+      renderModalVersionBar();
+    } else {
+      /* Sem HyperFrames: anima a imagem in-place com CSS */
+      img.hidden = false;
+      if (scaler) scaler.classList.add('motion-playing');
+
+      /* Badge de animação */
+      let badge = document.getElementById('modal-motion-badge');
+      if (!badge) {
+        badge = document.createElement('div');
+        badge.id = 'modal-motion-badge';
+        badge.className = 'modal-motion-badge';
+        badge.innerHTML = '<span class="mmb-dot"></span> MOTION';
+        const box = document.getElementById('modal-art-box');
+        if (box) box.appendChild(badge);
+      }
+      badge.style.display = 'flex';
+      renderModalVersionBar();
+    }
+  }
+  scaleModalArt();
+}
+
 async function loadLayoutNames() {
   try {
-    const res = await fetch('/assets/layout-names.json?v=' + Date.now());
+    const res = await fetch('assets/layout-names.json?v=' + Date.now());
     if (res.ok) LAYOUT_NAMES = await res.json();
   } catch (_) {}
 }
@@ -466,7 +735,8 @@ async function loadArtes() {
   }
   try {
     await loadLayoutNames();
-    const res = await fetch('/artes-cast.json?v=' + Date.now());
+    await loadAnimacoes();
+    const res = await fetch('artes.json?v=' + Date.now());
     if (!res.ok) {
       showLoadError('http', res.status);
       return;
@@ -479,7 +749,7 @@ async function loadArtes() {
     renderDashboard();
     renderGallery();
   } catch(e) {
-    console.warn('artes-cast.json não carregou:', e);
+    console.warn('artes.json não carregou:', e);
     showLoadError('fetch', e.message);
   }
 }
@@ -488,19 +758,19 @@ function showLoadError(kind, detail) {
   const grid = document.getElementById('grid');
   if (!grid) return;
   const isFile = kind === 'file' || location.protocol === 'file:';
-  const title = isFile ? 'Use o servidor local' : 'Não foi possível carregar artes-cast.json';
+  const title = isFile ? 'Use o servidor local' : 'Não foi possível carregar artes.json';
   const steps = isFile
     ? `<ol class="load-error-steps">
         <li>Abra o Terminal na pasta do projeto</li>
         <li>Rode: <code>cd _scripts && npm run dev</code></li>
-        <li>Acesse: <a href="http://127.0.0.1:8765/cast/">http://127.0.0.1:8765/cast/</a></li>
+        <li>Acesse: <a href="http://127.0.0.1:8765/">http://127.0.0.1:8765/</a></li>
       </ol>`
     : `<p class="load-error-detail">Confira se o servidor está rodando (<code>npm run dev</code> em <code>_scripts</code>).${detail ? `<br><small>${escHtml(String(detail))}</small>` : ''}</p>`;
   grid.innerHTML = `<div class="empty load-error">
     <div class="empty-icon">⚠</div>
     <h3>${title}</h3>
     ${steps}
-    <p class="load-error-hint">Não abra o arquivo pelo Finder — use sempre a URL <strong>http://127.0.0.1:8765/cast/</strong></p>
+    <p class="load-error-hint">Não abra o arquivo pelo Finder — use sempre a URL <strong>http://127.0.0.1:8765/</strong></p>
   </div>`;
 }
 
@@ -531,28 +801,30 @@ function renderGallery() {
 function renderGrid(artes) {
   const grid = document.getElementById('grid');
   if (artes.length === 0) {
-    grid.innerHTML = '<div class="empty"><div class="empty-icon">✦</div><h3>Nenhum episódio ainda</h3><p>As artes geradas pelo agente aparecerão aqui automaticamente.</p></div>';
+    grid.innerHTML = '<div class="empty"><div class="empty-icon">✦</div><h3>Nenhuma arte ainda</h3><p>As artes geradas pelo agente aparecerão aqui automaticamente.</p></div>';
     return;
   }
   grid.innerHTML = artes.map(arte => {
     const date = new Date(arte.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: '2-digit' });
     const num = getCreationNum(arte.slug);
-    const tipoLabel = TIPO_LABELS[arte.tipo] || arte.tipo || '';
     return `
     <div class="card" data-slug="${arte.slug}" onclick="openModalBySlug('${arte.slug}')" style="cursor:pointer">
       <div class="card-thumb" data-card-thumb>
-        <img class="card-thumb-img" src="/artes/${arte.slug}/thumb.png" alt="${escHtml(arte.headline)}" loading="lazy" onerror="this.style.opacity=0">
+        <img class="card-thumb-img" src="artes/${arte.slug}/thumb.png" alt="${arte.headline}" loading="lazy" onerror="this.style.opacity=0">
         ${layoutBadgeHtml(arte)}
         ${num ? `<div class="card-num-badge">#${num}</div>` : ''}
         ${arte.publicacao === 'backup' ? `<div class="card-backup-badge">backup</div>` : ''}
+        <!-- MOTION EM STANDBY: badge removido -->
         <span class="card-date-badge">${date}</span>
         <div class="card-overlay">
-          <div class="overlay-headline">${escHtml(arte.headline)}</div>
+          <div class="overlay-headline">${arte.headline}</div>
         </div>
       </div>
     </div>`;
   }).join('');
+
 }
+
 
 function renderDashboard() {
   const total = allArtes.length;
@@ -582,24 +854,27 @@ function renderDashboard() {
         </div>`).join('');
   }
 
-  // por tipo (episodio / convidado / insight)
-  const tipoFreq = {};
+  // por cidade
+  const cidadeFreq = {};
   allArtes.forEach(a => {
-    const t = (a.tipo || a.tipo_post || '').trim();
-    if (!t) return;
-    tipoFreq[t] = (tipoFreq[t] || 0) + 1;
+    const c = (a.cidade || '').trim();
+    if (!c) return;
+    // separar "BH e SP" em entradas individuais
+    c.split(/\s+e\s+/i).map(x => x.trim()).filter(Boolean).forEach(x => {
+      cidadeFreq[x] = (cidadeFreq[x] || 0) + 1;
+    });
   });
-  const tipoEntries = Object.entries(tipoFreq).sort((a,b) => b[1]-a[1]);
-  const tipoMax = tipoEntries.length ? tipoEntries[0][1] : 1;
-  if (tipoEntries.length === 0) {
-    document.getElementById('dash-tipo').innerHTML = '<span style="font-size:11px;color:var(--muted);font-style:italic">Nenhuma arte com tipo registrado.</span>';
+  const cidadeEntries = Object.entries(cidadeFreq).sort((a,b) => b[1]-a[1]);
+  const cidadeMax = cidadeEntries.length ? cidadeEntries[0][1] : 1;
+  if (cidadeEntries.length === 0) {
+    document.getElementById('dash-cidade').innerHTML = '<span style="font-size:11px;color:var(--muted);font-style:italic">Nenhuma arte com cidade registrada.</span>';
   } else {
-    document.getElementById('dash-tipo').innerHTML = tipoEntries
-      .map(([t, n]) => `
+    document.getElementById('dash-cidade').innerHTML = cidadeEntries
+      .map(([c, n]) => `
         <div class="dash-row">
-          <span class="dash-label">${TIPO_LABELS[t] || t}</span>
+          <span class="dash-label">${c}</span>
           <div class="dash-bar-wrap">
-            <div class="dash-bar-track"><div class="dash-bar-fill cidade" style="width:${Math.round(n/tipoMax*100)}%"></div></div>
+            <div class="dash-bar-track"><div class="dash-bar-fill cidade" style="width:${Math.round(n/cidadeMax*100)}%"></div></div>
           </div>
           <span class="dash-num cidade">${n}</span>
         </div>`).join('');
@@ -613,7 +888,7 @@ function renderDashboard() {
     else abFreq['—']++;
   });
   const abMax = Math.max(abFreq.A, abFreq.B, abFreq['—']) || 1;
-  const AB_LABELS = { A: '🅰️ FOMO / Urgência', B: '🅱️ Intelectual / Provocador', '—': 'Sem variante' };
+  const AB_LABELS = { A: '🅰️ FOMO / Urgência', B: '🅱️ Aspiracional', '—': 'Sem variante' };
   document.getElementById('dash-ab').innerHTML = Object.entries(abFreq)
     .filter(([, n]) => n > 0)
     .map(([v, n]) => `
@@ -632,6 +907,7 @@ function toggleModalPanel() {
   const expanded = modal.classList.toggle('expanded');
   btn.textContent = expanded ? '▶ Legenda' : '◀ Legenda';
   btn.title = expanded ? 'Mostrar legenda' : 'Esconder legenda';
+  // reescalar a arte após a transição
   setTimeout(scaleModalArt, 320);
 }
 
@@ -645,57 +921,77 @@ function scaleModalArt() {
 }
 
 function goToEditor(slug) {
-  window.location.href = `/artes/${slug}/arte.html`;
+  window.location.href = `artes/${slug}/arte.html`;
 }
 
 function openModal(slug, arte) {
   const modal = document.getElementById('modal');
   const img = document.getElementById('modal-img');
+  const player = document.getElementById('modal-hf-player');
+  const viewTabs = document.getElementById('modal-view-tabs');
   modalSlug = slug;
+  modalViewMode = 'static';
 
   history.replaceState(null, '', '#arte=' + slug);
 
   img.src = '';
-  setTimeout(() => { img.src = '/artes/' + slug + '/thumb.png'; scaleModalArt(); }, 10);
+  if (player) {
+    player.removeAttribute('src');
+    player.hidden = true;
+  }
+  setTimeout(() => { img.src = 'artes/' + slug + '/thumb.png'; scaleModalArt(); }, 10);
+
+  /* MOTION EM STANDBY — tabs e barra de versões ocultos */
+  if (viewTabs) viewTabs.hidden = true;
+  const verBar = document.getElementById('modal-motion-versions');
+  if (verBar) verBar.hidden = true;
+  img.hidden = false;
+
+  /* Remove badge e animação de post anterior */
+  const scaler = document.getElementById('modal-art-scaler');
+  if (scaler) scaler.classList.remove('motion-playing');
+  const prevBadge = document.getElementById('modal-motion-badge');
+  if (prevBadge) prevBadge.remove();
 
   document.getElementById('modal-badge').textContent = (() => {
     const n = getCreationNum(slug);
     const total = getGalleryTotalCount();
     return n ? `#${n} de ${total}` : 'Arte';
   })();
-  document.getElementById('modal-headline').innerHTML = arte.headline;
+  document.getElementById('modal-headline').textContent = arte.headline;
   const canDelete = canDeleteArte();
   document.getElementById('modal-actions').innerHTML = `
     <button class="btn-arte btn-arte-primary" onclick="goToEditor('${slug}')">Editor</button>
     <button class="btn-arte btn-arte-secondary" onclick="downloadArtePNG('${slug}', this)">↓ PNG</button>
-    <a class="btn-arte btn-arte-secondary" href="/artes/${slug}/arte.html" download="cyberseccast_${slug}.html">↓ HTML</a>
+    <a class="btn-arte btn-arte-secondary" href="artes/${slug}/arte.html" download="cybersecfest_${slug}.html">↓ HTML</a>
     ${canDelete ? `<button type="button" class="btn-arte btn-arte-danger" id="btn-delete-arte" onclick="deletarArte('${slug}')">🗑 Excluir</button>` : ''}
   `;
   const metaEl = document.getElementById('modal-meta');
   const rows = [];
   const postNum = getCreationNum(slug);
   if (postNum) rows.push(`<div class="modal-meta-row"><span class="modal-meta-key">Post</span><span class="modal-meta-val"><span class="modal-meta-badge">#${postNum} de ${getGalleryTotalCount()}</span></span></div>`);
-  if (arte.tipo || arte.tipo_post) {
-    const tipo = arte.tipo || arte.tipo_post;
-    rows.push(`<div class="modal-meta-row"><span class="modal-meta-key">Tipo</span><span class="modal-meta-val"><span class="modal-meta-badge">${TIPO_LABELS[tipo] || tipo}</span></span></div>`);
-  }
-  if (arte.subtitulo) rows.push(`<div class="modal-meta-row"><span class="modal-meta-key">Subtítulo</span><span class="modal-meta-val">${escHtml(arte.subtitulo.replace(/<br\s*\/?>/gi, ' '))}</span></div>`);
+  if (arte.subtitulo) rows.push(`<div class="modal-meta-row"><span class="modal-meta-key">Subtítulo</span><span class="modal-meta-val">${arte.subtitulo}</span></div>`);
   if (arte.palavras_azuis) {
-    const hl = arte.palavras_azuis.split(',').map(p => `<span class="palavra-azul">${escHtml(p.trim())}</span>`).join(', ');
-    rows.push(`<div class="modal-meta-row"><span class="modal-meta-key">Destaque</span><span class="modal-meta-val">${hl}</span></div>`);
+    const hl = arte.palavras_azuis.split(',').map(p => `<span class="palavra-azul">${p.trim()}</span>`).join(', ');
+    rows.push(`<div class="modal-meta-row"><span class="modal-meta-key">Palavras azuis</span><span class="modal-meta-val">${hl}</span></div>`);
   }
-  if (arte.angulo_editorial) rows.push(`<div class="modal-meta-row"><span class="modal-meta-key">Ângulo</span><span class="modal-meta-val">${escHtml(arte.angulo_editorial)}</span></div>`);
+  if (arte.cidade) rows.push(`<div class="modal-meta-row"><span class="modal-meta-key">Cidade</span><span class="modal-meta-val"><span class="modal-meta-badge">🏙️ ${arte.cidade}</span></span></div>`);
+  if (arte.formato) {
+    const fmt = {feed_vertical:'Feed Vertical',feed_quadrado:'Feed Quadrado',stories:'Stories',linkedin:'LinkedIn'}[arte.formato] || arte.formato;
+    rows.push(`<div class="modal-meta-row"><span class="modal-meta-key">Formato</span><span class="modal-meta-val">${fmt}</span></div>`);
+  }
   metaEl.innerHTML = rows.length ? rows.join('') + '<div class="modal-divider"></div>' : '';
-
   const captionEl = document.getElementById('modal-caption-text');
   const copyBtn = document.getElementById('btn-copy');
   copyBtn.classList.remove('copied');
   copyBtn.textContent = '⎘ Copiar';
   captionEl.textContent = arte.legenda || '';
   if (!arte.legenda) captionEl.innerHTML = '<span class="modal-caption-empty">Legenda não disponível para esta arte.</span>';
-
   modal.classList.add('open');
+  /* MOTION EM STANDBY — reativar quando pipeline estiver estável */
+  // initModalMotionVersions(slug).then(() => updateModalMp4DownloadLink());
 
+  /* Versões de imagem — limpa e carrega */
   const versoesWrap = document.getElementById('modal-img-versoes');
   if (versoesWrap) { versoesWrap.hidden = true; document.getElementById('modal-img-versoes-pills').innerHTML = ''; }
   loadImgVersoes(slug);
@@ -703,7 +999,7 @@ function openModal(slug, arte) {
 
 async function loadImgVersoes(slug) {
   try {
-    const res  = await fetch(`${API}/arte/imagem/versoes?slug=${encodeURIComponent(slug)}`);
+    const res  = await fetch(`/api/arte/imagem/versoes?slug=${encodeURIComponent(slug)}`);
     const data = await res.json();
     if (res.ok && data.ok) renderImgVersoes(data);
   } catch { /* ignora silenciosamente */ }
@@ -738,7 +1034,7 @@ async function deletarImgVersao(id) {
   if (!modalSlug) return;
   if (!confirm(`Deletar v${id}? Esta ação não pode ser desfeita.`)) return;
   try {
-    const res  = await fetch(`${API}/arte/imagem/versao/deletar`, {
+    const res  = await fetch('/api/arte/imagem/versao/deletar', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ slug: modalSlug, id }),
@@ -758,7 +1054,7 @@ async function ativarImgVersao(id) {
   pills.forEach(p => p.disabled = true);
 
   try {
-    const res  = await fetch(`${API}/arte/imagem/versao/ativar`, {
+    const res  = await fetch('/api/arte/imagem/versao/ativar', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ slug: modalSlug, id }),
@@ -766,8 +1062,11 @@ async function ativarImgVersao(id) {
     const data = await res.json();
     if (!res.ok || !data.ok) throw new Error(data.erro || `Erro ${res.status}`);
 
+    const ts = Date.now();
     const img = document.getElementById('modal-img');
-    if (img) img.src = data.thumb;
+    if (img) img.src = data.thumb + '?t=' + ts;
+    const galeria = document.querySelector(`.art-thumb[data-slug="${modalSlug}"]`);
+    if (galeria) galeria.src = data.thumb + '?t=' + ts;
 
     if (data.versoes) renderImgVersoes(data.versoes);
   } catch (e) {
@@ -795,7 +1094,7 @@ async function mudarImagem() {
   status.className = 'modal-img-edit-status';
 
   try {
-    const res = await fetch(`${API}/arte/imagem/mudar`, {
+    const res = await fetch('/api/arte/imagem/mudar', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ slug: modalSlug, instrucao }),
@@ -806,13 +1105,19 @@ async function mudarImagem() {
       throw new Error(data.erro || `Erro ${res.status}`);
     }
 
+    /* Atualiza imagem no modal sem fechar */
     const img = document.getElementById('modal-img');
     img.src = data.thumb;
+
+    /* Atualiza thumb na galeria */
+    const galeria = document.querySelector(`.art-thumb[data-slug="${modalSlug}"]`);
+    if (galeria) galeria.src = data.thumb;
 
     status.textContent = '✅ Imagem atualizada!';
     status.className = 'modal-img-edit-status ok';
     document.getElementById('modal-img-instrucao').value = '';
 
+    /* Recarrega pills com a nova versão */
     if (data.versoes) renderImgVersoes(data.versoes);
     else loadImgVersoes(modalSlug);
 
@@ -841,28 +1146,42 @@ function openModalBySlug(slug) {
   if (arte) openModal(slug, arte);
 }
 
+function copyArteLink(slug) {
+  const url = `${location.origin}/artes/${slug}/`;
+  navigator.clipboard.writeText(url).then(() => {
+    const btn = document.getElementById('btn-copy-link');
+    const orig = btn.textContent;
+    btn.textContent = '✓ Link copiado!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
 async function downloadArtePNG(slug, btn) {
   if (!btn) return;
   const original = btn.innerHTML;
   btn.innerHTML = '⏳ Gerando...';
   btn.disabled = true;
 
+  // iframe oculto em tamanho nativo (sem transform/scale)
   const tempIframe = document.createElement('iframe');
   tempIframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:540px;height:675px;border:none;opacity:0;pointer-events:none;';
   document.body.appendChild(tempIframe);
 
   try {
+    // 1 — carregar arte.html no iframe oculto
     await new Promise((resolve, reject) => {
       tempIframe.onload = resolve;
       tempIframe.onerror = reject;
-      tempIframe.src = `/artes/${slug}/arte.html`;
-      setTimeout(reject, 10000);
+      tempIframe.src = `artes/${slug}/arte.html`;
+      setTimeout(reject, 10000); // timeout 10s
     });
 
     const doc = tempIframe.contentDocument || tempIframe.contentWindow.document;
     const artCanvas = doc.querySelector('.art-canvas');
     if (!artCanvas) throw new Error('.art-canvas não encontrado');
 
+    // 2 — capturar com dom-to-image-more (suporte a object-fit + filter)
     const dataUrl = await domtoimage.toPng(artCanvas, {
       width: 540,
       height: 675,
@@ -870,8 +1189,9 @@ async function downloadArtePNG(slug, btn) {
       quality: 1,
     });
 
+    // 3 — disparar download
     const link = document.createElement('a');
-    link.download = `cyberseccast_${slug}.png`;
+    link.download = `cybersecfest_${slug}.png`;
     link.href = dataUrl;
     document.body.appendChild(link);
     link.click();
@@ -879,7 +1199,8 @@ async function downloadArtePNG(slug, btn) {
 
   } catch(e) {
     console.warn('Erro na captura:', e);
-    const w = window.open(`/artes/${slug}/arte.html`, '_blank', 'width=620,height=820,left=200,top=80');
+    // Fallback elegante: abre arte em janela pequena
+    const w = window.open(`artes/${slug}/arte.html`, '_blank', 'width=620,height=820,left=200,top=80');
     if (!w) alert('Permita popups para esta página e tente novamente.');
   } finally {
     document.body.removeChild(tempIframe);
@@ -891,9 +1212,12 @@ async function downloadArtePNG(slug, btn) {
 function closeModal(e) {
   if (!e || e.target === document.getElementById('modal')) {
     document.getElementById('modal').classList.remove('open');
-    const mi = document.getElementById('modal-img');
+    var mi = document.getElementById('modal-img');
     if (mi) mi.src = '';
+    var hp = document.getElementById('modal-hf-player');
+    if (hp) { hp.removeAttribute('src'); hp.hidden = true; }
     modalSlug = null;
+    modalViewMode = 'static';
     if (location.hash.startsWith('#arte=')) {
       history.replaceState(null, '', location.pathname + location.search);
     }
@@ -906,14 +1230,14 @@ async function deletarArte(slug) {
 
   const num = getCreationNum(slug);
   const titulo = (arte.headline || slug).replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 80);
-  const msg = `Excluir permanentemente${num ? ` o post #${num}` : ''}?\n\n"${titulo}"\n\nRemove a entrada em artes-cast.json, a pasta artes/${slug}/ e o histórico editorial. Esta ação não pode ser desfeita.`;
+  const msg = `Excluir permanentemente${num ? ` o post #${num}` : ''}?\n\n“${titulo}”\n\nRemove a entrada em artes.json, a pasta artes/${slug}/ e o histórico editorial. Esta ação não pode ser desfeita.`;
   if (!confirm(msg)) return;
 
   const btn = document.getElementById('btn-delete-arte');
   if (btn) { btn.disabled = true; btn.textContent = '⏳ Excluindo…'; }
 
   try {
-    const res = await fetch(`${API}/arte/deletar`, {
+    const res = await fetch('/api/arte/deletar', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ slug }),
@@ -996,16 +1320,23 @@ function closeSideDrawer() {
 async function checkDevServerFluxo() {
   const warn = document.getElementById('server-warn');
   try {
-    const res = await fetch(`${API}/status?v=` + Date.now());
+    const res = await fetch('/api/status?v=' + Date.now());
     if (!res.ok) throw new Error('no status');
     const data = await parseApiJson(res);
     devServerApis = data.apis || [];
-    const deleteOk = devServerApis.some(a => a.includes('arte/deletar'));
+    const campanhaOk = devServerApis.includes('campanha');
+    const deleteOk = devServerApis.includes('arte/deletar');
     if (warn) {
-      warn.hidden = data.fluxo === 'v2-propostas' && deleteOk;
+      warn.hidden = data.fluxo === 'v2-propostas' && campanhaOk && deleteOk;
       if (!warn.hidden) {
         const el = document.getElementById('server-warn-text');
-        if (el) el.textContent = 'Servidor CAST desatualizado — reinicie: cd _scripts && npm run dev';
+        if (el) {
+          if (!deleteOk) {
+            el.textContent = 'Servidor sem exclusão de posts — reinicie: cd _scripts && npm run dev';
+          } else if (!campanhaOk) {
+            el.textContent = 'Servidor sem modo campanha — reinicie: cd _scripts && npm run dev';
+          }
+        }
       }
     }
     if (allArtes.length) renderGallery();
@@ -1014,7 +1345,7 @@ async function checkDevServerFluxo() {
   } catch (_) {}
   if (warn) {
     try {
-      const r2 = await fetch(`${API}/propostas?v=` + Date.now());
+      const r2 = await fetch('/api/propostas?v=' + Date.now());
       warn.hidden = r2.ok;
     } catch {
       warn.hidden = false;
@@ -1053,7 +1384,7 @@ function initPedidoPanel() {
       status.className = 'pedido-status';
       status.textContent = '⏳ Descartando lote anterior…';
       try {
-        const rej = await fetch(`${API}/propostas/rejeitar`, {
+        const rej = await fetch('/api/propostas/rejeitar', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ loteId: pendente.id }),
@@ -1068,7 +1399,7 @@ function initPedidoPanel() {
       }
     }
 
-    const objetivo       = document.getElementById('pedido-objetivo')?.value || 'audiencia';
+    const objetivo      = document.getElementById('pedido-objetivo')?.value || 'audiencia';
     const tipoPostManual = document.getElementById('pedido-tipo')?.value || undefined;
     const forcarPropostas = document.getElementById('pedido-forcar')?.checked || false;
     const payload = {
@@ -1084,7 +1415,7 @@ function initPedidoPanel() {
     status.textContent = '⏳ Gerando 3 rotas editoriais (só texto)…';
 
     try {
-      const res = await fetch(`${API}/pedido`, {
+      const res = await fetch('/api/pedido', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -1126,13 +1457,13 @@ function initPedidoPanel() {
 
   btn.addEventListener('click', submitPedido);
   document.getElementById('campanha-btn')?.addEventListener('click', async () => {
-    const campBtn   = document.getElementById('campanha-btn');
-    const objetivo  = document.getElementById('campanha-objetivo')?.value || 'engajamento';
+    const campBtn = document.getElementById('campanha-btn');
+    const objetivo = document.getElementById('campanha-objetivo')?.value || 'inscricoes';
     const quantidade = Number(document.getElementById('campanha-qtd')?.value || 5);
-    const tema      = document.getElementById('pedido-tema')?.value.trim() || '';
+    const tema = document.getElementById('pedido-tema')?.value.trim() || '';
     if (propostasEstado.lotePendente) {
       if (!confirm('Existe lote pendente. Descartar e gerar campanha?')) return;
-      await fetch(`${API}/propostas/rejeitar`, {
+      await fetch('/api/propostas/rejeitar', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ loteId: propostasEstado.lotePendente.id }),
@@ -1141,9 +1472,9 @@ function initPedidoPanel() {
     }
     campBtn.disabled = true;
     status.className = 'pedido-status';
-    status.textContent = `⏳ Gerando campanha CAST (${quantidade} peças)…`;
+    status.textContent = `⏳ Gerando campanha (${quantidade} peças)…`;
     try {
-      const res  = await fetch(`${API}/campanha`, {
+      const res = await fetch('/api/campanha', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ objetivo, quantidade, tema }),
@@ -1174,7 +1505,7 @@ function initPedidoPanel() {
 
 async function loadPropostasEstado() {
   try {
-    const res = await fetch(`${API}/propostas?v=` + Date.now());
+    const res = await fetch('/api/propostas?v=' + Date.now());
     if (!res.ok) return;
     const data = await res.json();
     if (!data.ok) return;
@@ -1243,6 +1574,10 @@ function renderBancoPanel() {
   }
 }
 
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
 function resetModaisFechados() {
   closePropostasOverlay();
   closeSideDrawer();
@@ -1260,25 +1595,32 @@ function openPropostasOverlay(lote) {
   const overlay = document.getElementById('propostas-overlay');
   const grid = document.getElementById('propostas-grid');
   const sub = document.getElementById('propostas-sub');
-  sub.textContent = `${lote.propostas.length} propostas · escolha 1 para gerar imagem`;
-
+  sub.textContent = lote.modo === 'campanha'
+    ? `Campanha · ${lote.propostas.length} rotas · objetivo: ${lote.objetivo || '—'}`
+    : `${lote.propostas.length} propostas · escolha 1 para gerar imagem`;
   const defaultId = (lote.propostas.find(p => p.recomendada) || lote.propostas[0]).id;
+  const exportBtn = document.getElementById('propostas-export-pack');
+  if (exportBtn) {
+    exportBtn.hidden = lote.modo !== 'campanha';
+    exportBtn.dataset.loteId = lote.id;
+  }
 
   grid.innerHTML = lote.propostas.map(p => {
     const stats = headlineStats(p.headline);
     const statsClass = stats.words > 10 || stats.lines > 5 ? ' warn' : '';
+    const fmt = FORMATO_LABELS[p.formato] || p.formato || '';
     return `
     <article class="prop-card${p.recomendada ? ' recommended' : ''}" data-id="${p.id}">
       ${p.recomendada ? '<span class="prop-rec">Recomendada</span>' : ''}
-      <div class="prop-angulo">${escHtml(p.angulo)}${p.tipo_post ? ` · <span class="prop-tipo">${escHtml(TIPO_LABELS[p.tipo_post] || p.tipo_post)}</span>` : ''}</div>
+      <div class="prop-angulo">${escHtml(p.angulo)}${p.tipo_post ? ` · <span class="prop-tipo">${escHtml(p.tipo_post)}</span>` : ''}${fmt ? ` · <span class="prop-fmt">${escHtml(fmt)}</span>` : ''}</div>
       <div class="prop-hl-preview" aria-label="Preview do título">${renderHeadlinePreview(p.headline, p.palavras_azuis)}</div>
-      <div class="prop-hl-stats${statsClass}">${stats.words}/10 palavras · ${stats.lines}/5 linhas${p.palavras_azuis ? ` · destaque: ${escHtml(p.palavras_azuis)}` : ''}</div>
+      <div class="prop-hl-stats${statsClass}">${stats.words}/10 palavras · ${stats.lines}/5 linhas${p.palavras_azuis ? ` · azul: ${escHtml(p.palavras_azuis)}` : ''}</div>
       <p class="prop-sub">${escHtml(p.subtitulo || '')}</p>
       <div class="prop-legenda-label">CTA visual na arte</div>
       <input type="text" class="prop-cta-input" data-prop-id="${p.id}" maxlength="48"
-        placeholder="NOVO EPISÓDIO · OUÇA AGORA · EP 42"
+        placeholder="INSCRIÇÕES ABERTAS · SEJA PATROCINADOR · VAGAS LIMITADAS"
         value="${escHtml(p.cta_visual || '')}">
-      ${p.cta_visual ? `<div class="prop-cta-hint">Sugerido pela IA — edite se quiser</div>` : '<div class="prop-cta-hint">Aparece no layout E (sempre) e em J/L quando preenchido</div>'}
+      ${p.cta_visual ? `<div class="prop-cta-hint">Sugerido pela IA — edite se quiser</div>` : '<div class="prop-cta-hint">Aparece no layout E (sempre) e em J/L/O/P quando preenchido</div>'}
       ${p.contexto_visual ? `<div class="prop-legenda-label">Cena visual (IA)</div><div class="prop-contexto">${escHtml(p.contexto_visual)}</div>` : ''}
       <div class="prop-legenda-label">Legenda completa</div>
       <div class="prop-legenda">${escHtml(p.legenda || '')}</div>
@@ -1299,7 +1641,7 @@ function openPropostasOverlay(lote) {
   const sugEl = document.getElementById('propostas-sugestao-visual');
   if (sugEl) {
     const b = lote.tema_briefing || '';
-    sugEl.value = /imagem|visual|fundo|est[úu]dio|cena|execut|monitor/i.test(b) ? b : '';
+    sugEl.value = /imagem|visual|fundo|tur[ií]stic|masp|ponto|marco|skyline|ibirapuera|copan|paulista/i.test(b) ? b : '';
   }
   overlay.classList.add('open');
   overlay.setAttribute('aria-hidden', 'false');
@@ -1336,6 +1678,7 @@ async function submitAprovarPropostas() {
   }
   const bancoIds = [...overlay.querySelectorAll('.prop-banco:checked')].map(cb => cb.value)
     .filter(id => id !== principal);
+  const gerarBackupVisual = document.getElementById('propostas-backup-visual')?.checked;
   const sugestaoVisual = document.getElementById('propostas-sugestao-visual')?.value.trim();
   const edicoes = {};
   function patchFromCard(cardId) {
@@ -1358,10 +1701,10 @@ async function submitAprovarPropostas() {
   document.getElementById('propostas-aprovar').disabled = true;
 
   try {
-    const res = await fetch(`${API}/propostas/aprovar`, {
+    const res = await fetch('/api/propostas/aprovar', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ loteId, principalId: principal, bancoIds, edicoes }),
+      body: JSON.stringify({ loteId, principalId: principal, bancoIds, gerarBackupVisual, edicoes }),
     });
     const data = await res.json();
     if (!res.ok || !data.ok) throw new Error(data.erro || 'Falha na aprovação');
@@ -1389,7 +1732,7 @@ async function submitRejeitarPropostas() {
   const loteId = overlay?.dataset.loteId;
   if (!loteId || !confirm('Rejeitar todas as propostas deste lote?')) return;
   try {
-    const res = await fetch(`${API}/propostas/rejeitar`, {
+    const res = await fetch('/api/propostas/rejeitar', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ loteId }),
@@ -1411,7 +1754,7 @@ async function loadCalendarioEditorial() {
   if (!bar || !slotsEl) return;
 
   try {
-    const res = await fetch(`${API}/temas/calendario?v=` + Date.now());
+    const res = await fetch('/api/temas/calendario?v=' + Date.now());
     if (!res.ok) throw new Error('API indisponível');
     const data = await res.json();
     if (!data.ok) throw new Error(data.erro || 'Falha');
@@ -1437,13 +1780,48 @@ async function loadCalendarioEditorial() {
       return `
         <div class="cal-slot${key === hojeKey ? ' today' : ''}">
           <div class="cal-slot-day">${label}</div>
-          <div class="cal-slot-tipo">${escHtml(TIPO_LABELS[slot.tipo_post] || slot.tipo_post || '—')}</div>
+          <div class="cal-slot-tipo">${escHtml(slot.tipo_post || '—')}</div>
           <div class="cal-slot-obs">${escHtml(slot.observacao || '')}</div>
           ${recent ? `<div class="cal-slot-last">Último: ${escHtml(recent.slug)}</div>` : ''}
         </div>`;
     }).join('');
   } catch (_) {
-    /* calendário é opcional, não mostra barra se não disponível */
+    try {
+      const res = await fetch('temas.json?v=' + Date.now());
+      if (!res.ok) return;
+      const temas = await res.json();
+      calendarioData = { calendario: temas.calendario_editorial || {}, historico: (temas.historico_recente || []).slice(-8) };
+      bar.hidden = false;
+      const slots = calendarioData.calendario;
+      slotsEl.innerHTML = ['segunda', 'quarta', 'sexta'].map((key, i) => {
+        const labels = ['Seg', 'Qua', 'Sex'];
+        const slot = slots[key] || {};
+        return `<div class="cal-slot"><div class="cal-slot-day">${labels[i]}</div><div class="cal-slot-tipo">${escHtml(slot.tipo_post || '—')}</div><div class="cal-slot-obs">${escHtml(slot.observacao || '')}</div></div>`;
+      }).join('');
+    } catch (e2) { /* silencioso */ }
+  }
+}
+
+async function exportCampanhaPack() {
+  const btn = document.getElementById('propostas-export-pack');
+  const status = document.getElementById('propostas-status');
+  const loteId = btn?.dataset.loteId;
+  if (!loteId) return;
+  btn.disabled = true;
+  if (status) status.textContent = '⏳ Gerando pack ZIP…';
+  try {
+    const res = await fetch('/api/campanha/export?loteId=' + encodeURIComponent(loteId));
+    const data = await res.json();
+    if (!res.ok || !data.ok) throw new Error(data.erro || 'Falha no export');
+    if (status) status.textContent = '✅ Pack pronto — baixando…';
+    const a = document.createElement('a');
+    a.href = data.url + '?v=' + Date.now();
+    a.download = data.filename || 'campanha.zip';
+    a.click();
+  } catch (e) {
+    if (status) status.textContent = '❌ ' + e.message;
+  } finally {
+    btn.disabled = false;
   }
 }
 
@@ -1462,6 +1840,7 @@ function initGalleryFilters() {
 function initPropostasUI() {
   document.getElementById('propostas-aprovar')?.addEventListener('click', submitAprovarPropostas);
   document.getElementById('propostas-rejeitar')?.addEventListener('click', submitRejeitarPropostas);
+  document.getElementById('propostas-export-pack')?.addEventListener('click', exportCampanhaPack);
   document.getElementById('propostas-overlay')?.addEventListener('click', e => {
     if (e.target.id === 'propostas-overlay') closePropostasOverlay();
   });
@@ -1469,7 +1848,7 @@ function initPropostasUI() {
     const btn = document.getElementById('banco-consumir-btn');
     btn.disabled = true;
     try {
-      const res = await fetch(`${API}/banco/consumir`, { method: 'POST' });
+      const res = await fetch('/api/banco/consumir', { method: 'POST' });
       const data = await res.json();
       if (!res.ok || !data.ok) throw new Error(data.erro || 'Banco vazio');
       await loadArtes();

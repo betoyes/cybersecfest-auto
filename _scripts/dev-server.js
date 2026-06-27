@@ -97,7 +97,7 @@ async function readBody(req, maxBytes = 2 * 1024 * 1024) {
 }
 
 function resolveStaticPath(urlPath) {
-  let rel = urlPath === '/' ? 'index.html' : urlPath.replace(/^\//, '').replace(/\/$/, '');
+  let rel = urlPath === '/' ? 'home.html' : urlPath.replace(/^\//, '').replace(/\/$/, '');
 
   if (!rel) rel = 'index.html';
 
