@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CybersecFEST — Motion Studio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@700&family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/gallery.css?v=20260624-del">
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@hyperframes/player@0.7.3/dist/hyperframes-player.js"></script>
+  <script src="assets/js/motion-sandbox.js?v=20260624"></script>
+  <script src="assets/js/motion-versions.js?v=20260624-mp4"></script>
+  <script src="assets/js/motion-prompt.js?v=20260624-presets"></script>
+</head>
+<body class="motion-studio-body">
+
+<header class="studio-header">
+  <a href="index.html" class="studio-back" id="studio-back">← Galeria</a>
+  <div class="studio-title-wrap">
+    <span class="studio-eyebrow">Motion Studio · AnimAgent</span>
+    <h1 class="studio-title" id="studio-headline">—</h1>
+    <p class="studio-slug" id="studio-slug-display"></p>
+  </div>
+  <div class="studio-actions" id="studio-actions">
+    <a class="studio-btn ghost" id="studio-editor" href="#">Estático</a>
+    <a class="studio-btn ghost" id="studio-mp4-dl" href="#" download hidden>MP4</a>
+    <a class="studio-btn ghost" id="studio-html" href="#" target="_blank" rel="noopener" hidden>Motion HTML</a>
+  </div>
+</header>
+
+<main class="studio-main" id="studio-main">
+  <div class="studio-player-col">
+    <div class="motion-version-bar studio-version-bar" id="studio-version-bar" hidden>
+      <span class="motion-version-label">Versão</span>
+      <div class="motion-version-pills" id="studio-version-pills"></div>
+      <button type="button" class="motion-version-new" id="studio-version-new" title="Pedir nova versão ao AnimAgent">+ Nova versão</button>
+      <button type="button" class="motion-version-mp4" id="studio-version-mp4" title="Baixar MP4 desta versão">↓ MP4</button>
+    </div>
+    <div class="studio-player-shell" id="studio-shell">
+      <hyperframes-player
+        id="hf-player"
+        width="1080"
+        height="1350"
+        controls
+        loop
+        autoplay
+        style="width:100%;max-width:min(540px,92vw);aspect-ratio:4/5;"
+      ></hyperframes-player>
+      <p class="studio-player-label">Clique nos números para comparar versões — ↓ MP4 baixa ou marca export</p>
+    </div>
+  </div>
+
+  <aside class="studio-side">
+    <div class="studio-meta" id="studio-meta" hidden></div>
+
+    <div class="studio-workflow" id="studio-workflow-ready" hidden>
+      <h2 class="studio-wf-title">Fluxo de versões</h2>
+      <ol class="studio-wf-steps">
+        <li><strong>Preview</strong> — clique <strong>1 · 2 · 3</strong> para comparar versões</li>
+        <li><strong>Nova versão</strong> — botão + pede variação sem apagar as anteriores</li>
+        <li><strong>↓ MP4</strong> — baixa o vídeo ou copia comando de render</li>
+        <li><strong>Render</strong> — <code>npm run render</code> na pasta da versão</li>
+      </ol>
+      <p class="studio-wf-note">Use <strong>+ Nova versão</strong> para variação criativa ou chat de ajustes — versões anteriores ficam nos números.</p>
+    </div>
+
+    <div class="studio-empty-panel" id="studio-empty" hidden>
+      <div class="studio-empty-icon">🎬</div>
+      <h2 class="studio-empty-title">Esta arte ainda não foi animada</h2>
+      <p class="studio-empty-text">
+        O post estático existe em <code>arte.html</code>, mas ainda não há versões em
+        <code>artes/<span id="studio-slug-label"></span>/motion/</code>.
+      </p>
+
+      <div class="studio-wf-box">
+        <h3>Como pedir animação</h3>
+        <ol>
+          <li>Volte à <a href="#" id="studio-back-inline">galeria</a> e confira o post estático</li>
+          <li>No chat (Cursor), diga por exemplo:<br>
+            <em class="studio-prompt">“Anime o slug <span id="studio-slug-prompt"></span> — preset criativo, estilo CybersecFEST”</em>
+          </li>
+          <li>O AnimAgent cria <code>motion/v1/</code> e registra em <code>versions.json</code></li>
+          <li>Cada refazer adiciona <strong>v2, v3…</strong> — você escolhe qual exportar</li>
+        </ol>
+      </div>
+
+      <div class="studio-example" id="studio-example" hidden>
+        <span>Sandbox motion:</span>
+        <a id="studio-sandbox-link" href="#">▶ Post #10 · Layout E</a>
+      </div>
+
+      <a href="index.html" class="studio-cta" id="studio-cta-back">← Voltar à galeria</a>
+    </div>
+
+    <div class="studio-hint" id="studio-hint" hidden>
+      <strong>Hot-reload (dev)</strong>
+      <p>Edição fina da timeline com preview ao vivo:</p>
+      <code id="studio-cmd"></code>
+    </div>
+  </aside>
+</main>
+
+<script>
+const params = new URLSearchParams(location.search);
+let slug = params.get('slug') || '';
+let motionVersions = null;
+let previewId = 1;
+const player = document.getElementById('hf-player');
+const shell = document.getElementById('studio-shell');
+const empty = document.getElementById('studio-empty');
+const hint = document.getElementById('studio-hint');
+const workflowReady = document.getElementById('studio-workflow-ready');
+const playerLabel = document.querySelector('.studio-player-label');
+const MV = window.MotionVersions;
+
+function getVersion(id) {
+  return motionVersions?.versions?.find(v => v.id === id) || null;
+}
+
+function loadPlayerVersion(ver) {
+  if (!ver || !slug || !MV) return;
+  const url = MV.versionHtmlUrl(slug, ver) + '?v=' + Date.now();
+  player.setAttribute('src', url);
+  player.setAttribute('autoplay', '');
+  document.getElementById('studio-html').href = url;
+  if (hint && !hint.hidden) {
+    const dir = !ver.dir || ver.dir === '.' ? 'motion' : 'motion/' + ver.dir;
+    document.getElementById('studio-cmd').textContent = 'cd artes/' + slug + '/' + dir + ' && npm run dev';
+  }
+  requestAnimationFrame(() => {
+    try { player.play?.(); } catch (_) {}
+  });
+}
+
+function renderStudioVersionBar() {
+  const bar = document.getElementById('studio-version-bar');
+  const pills = document.getElementById('studio-version-pills');
+  const mp4Btn = document.getElementById('studio-version-mp4');
+  if (!motionVersions || !MV) {
+    if (bar) bar.hidden = true;
+    return;
+  }
+  bar.hidden = false;
+  MV.renderPills(
+    pills,
+    motionVersions,
+    previewId,
+    (vid) => selectStudioVersion(vid),
+    { canDelete: true, onDelete: (vid) => deleteStudioVersion(vid) },
+  );
+  if (mp4Btn) {
+    mp4Btn.classList.toggle('approved', motionVersions.mp4_from === previewId);
+    mp4Btn.onclick = () => approveStudioMp4();
+  }
+  const newBtn = document.getElementById('studio-version-new');
+  if (newBtn) {
+    newBtn.onclick = () => {
+      if (!window.MotionPrompt) return;
+      MotionPrompt.open({
+        slug,
+        baseVersion: previewId,
+        completeCallback: async ({ ready, versions }) => {
+          if (ready) {
+            motionVersions = versions || await MV.fetchVersions(slug);
+            previewId = motionVersions.preview || motionVersions.versions.at(-1)?.id;
+            loadPlayerVersion(getVersion(previewId));
+            renderStudioVersionBar();
+            updateStudioMeta();
+            updateStudioMp4Link();
+          }
+        },
+      });
+    };
+  }
+}
+
+async function selectStudioVersion(versionId) {
+  previewId = versionId;
+  const ver = getVersion(versionId);
+  if (ver) loadPlayerVersion(ver);
+  renderStudioVersionBar();
+  updateStudioMeta();
+  try {
+    const res = await MV.apiSelect(slug, versionId);
+    motionVersions = res.versions || motionVersions;
+    motionVersions.preview = versionId;
+  } catch (_) {}
+  updateStudioMp4Link();
+}
+
+async function deleteStudioVersion(versionId) {
+  if (!slug || !motionVersions || !MV) return;
+  const ver = getVersion(versionId);
+  if (!ver || !MV.canDeleteVersion(motionVersions, ver)) return;
+  const label = MV.presetLabel(ver.preset);
+  const msg = label
+    ? `Excluir versão ${versionId} (${label})? A pasta motion/v${versionId}/ será removida.`
+    : `Excluir versão ${versionId}? A pasta motion/v${versionId}/ será removida.`;
+  if (!confirm(msg)) return;
+  try {
+    const res = await MV.apiDelete(slug, versionId);
+    motionVersions = res.versions || motionVersions;
+    previewId = motionVersions.preview || motionVersions.versions[0]?.id || 1;
+    loadPlayerVersion(getVersion(previewId));
+    renderStudioVersionBar();
+    updateStudioMeta();
+    updateStudioMp4Link();
+  } catch (e) {
+    alert(e.message || 'Não foi possível excluir');
+  }
+}
+
+async function approveStudioMp4() {
+  const ver = getVersion(previewId);
+  if (!ver || !MV) return;
+  const btn = document.getElementById('studio-version-mp4');
+  const orig = btn?.textContent || '↓ MP4';
+
+  try {
+    const res = await MV.apiApproveMp4(slug, previewId);
+    motionVersions = res.versions || motionVersions;
+    motionVersions.mp4_from = previewId;
+    if (res.mp4?.url) {
+      await MV.downloadVersionMp4(res.mp4.url, `cybersecfest_${slug}_v${previewId}_motion.mp4`);
+      if (btn) {
+        btn.textContent = '✓ Baixado';
+        setTimeout(() => { btn.textContent = orig; }, 2000);
+      }
+      renderStudioVersionBar();
+      updateStudioMp4Link();
+      return;
+    }
+  } catch (_) {
+    motionVersions.mp4_from = previewId;
+  }
+
+  renderStudioVersionBar();
+  const info = await MV.fetchVersionMp4(slug, previewId).catch(() => null);
+  if (info?.mp4?.url) {
+    await MV.downloadVersionMp4(info.mp4.url, `cybersecfest_${slug}_v${previewId}_motion.mp4`);
+    if (btn) {
+      btn.textContent = '✓ Baixado';
+      setTimeout(() => { btn.textContent = orig; }, 2000);
+    }
+    updateStudioMp4Link();
+    return;
+  }
+
+  const prompt = MV.mp4RenderPrompt(slug, ver);
+  if (navigator.clipboard?.writeText) await navigator.clipboard.writeText(prompt).catch(() => {});
+  alert('MP4 ainda não renderizado.\n\nComando copiado:\n' + prompt);
+  updateStudioMp4Link();
+}
+
+async function updateStudioMp4Link() {
+  const link = document.getElementById('studio-mp4-dl');
+  if (!link || !MV) return;
+  const versionId = motionVersions?.mp4_from || previewId;
+  const ver = getVersion(versionId);
+  if (!ver) {
+    link.hidden = true;
+    return;
+  }
+  const info = await MV.fetchVersionMp4(slug, versionId).catch(() => null);
+  if (info?.mp4?.url) {
+    link.textContent = info.mp4.draft ? '↓ MP4 (draft)' : '↓ MP4';
+    link.href = info.mp4.url;
+    link.download = `cybersecfest_${slug}_v${versionId}_motion.mp4`;
+    link.onclick = async (e) => {
+      e.preventDefault();
+      await MV.downloadVersionMp4(link.href, link.download);
+    };
+    link.hidden = false;
+  } else {
+    link.hidden = true;
+  }
+}
+
+function updateStudioMeta() {
+  const ver = getVersion(previewId);
+  const meta = document.getElementById('studio-meta');
+  if (!ver || !meta) return;
+  const rows = [
+    ['Versão', previewId + (motionVersions.mp4_from === previewId ? ' · export' : '')],
+    ['Preset', ver.preset || '—'],
+    ['Duração', ver.duracao_s ? ver.duracao_s + 's' : '—'],
+    ['Pasta', ver.dir === '.' ? 'motion/' : 'motion/' + ver.dir],
+  ];
+  meta.innerHTML = rows.map(([k, v]) =>
+    `<div class="studio-meta-row"><span>${k}</span><strong>${v}</strong></div>`
+  ).join('');
+}
+
+function showEmpty() {
+  shell.hidden = true;
+  if (playerLabel) playerLabel.hidden = true;
+  document.getElementById('studio-version-bar').hidden = true;
+  empty.hidden = false;
+  workflowReady.hidden = true;
+  document.getElementById('studio-meta').hidden = true;
+  document.getElementById('studio-mp4-dl').hidden = true;
+  document.getElementById('studio-html').hidden = true;
+}
+
+function showReady() {
+  shell.hidden = false;
+  if (playerLabel) playerLabel.hidden = false;
+  empty.hidden = true;
+  workflowReady.hidden = false;
+  document.getElementById('studio-meta').hidden = false;
+}
+
+async function init() {
+  if (!slug) {
+    document.getElementById('studio-headline').textContent = 'Slug não informado';
+    showEmpty();
+    empty.querySelector('.studio-empty-text').textContent = 'Use motion-studio.html?slug=nome-da-arte';
+    return;
+  }
+
+  if (window.MotionSandbox && !MotionSandbox.isSandbox(slug)) {
+    document.getElementById('studio-headline').textContent = 'Motion sandbox apenas';
+    showEmpty();
+    empty.querySelector('.studio-empty-text').textContent =
+      `Testes motion só em ${MotionSandbox.label}. Demais cards: estático por enquanto.`;
+    const ex = document.getElementById('studio-example');
+    const link = document.getElementById('studio-sandbox-link');
+    if (ex && link) {
+      ex.hidden = false;
+      link.href = 'motion-studio.html?slug=' + encodeURIComponent(MotionSandbox.slug);
+      link.textContent = '▶ ' + MotionSandbox.label;
+    }
+    return;
+  }
+
+  const backUrl = 'index.html#arte=' + encodeURIComponent(slug);
+  document.getElementById('studio-back').href = backUrl;
+  document.getElementById('studio-back-inline').href = backUrl;
+  document.getElementById('studio-cta-back').href = backUrl;
+  document.getElementById('studio-editor').href = 'artes/' + slug + '/arte.html';
+  document.getElementById('studio-slug-label').textContent = slug;
+  document.getElementById('studio-slug-prompt').textContent = slug;
+  document.getElementById('studio-slug-display').textContent = slug;
+
+  try {
+    const artesRes = await fetch('artes.json?v=' + Date.now());
+    if (artesRes.ok) {
+      const artes = await artesRes.json();
+      const arte = artes.find(a => a.slug === slug);
+      if (arte) document.getElementById('studio-headline').textContent = arte.headline;
+    }
+  } catch (_) {}
+
+  motionVersions = MV ? await MV.fetchVersions(slug) : null;
+  if (!motionVersions?.versions?.length) {
+    showEmpty();
+    return;
+  }
+
+  previewId = motionVersions.preview || motionVersions.versions[0].id;
+  showReady();
+  loadPlayerVersion(getVersion(previewId));
+  renderStudioVersionBar();
+  updateStudioMeta();
+  updateStudioMp4Link();
+
+  document.getElementById('studio-html').hidden = false;
+
+  if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+    hint.hidden = false;
+  }
+}
+
+init();
+</script>
+</body>
+</html>

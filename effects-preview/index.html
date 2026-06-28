@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>CybersecFEST — Motion Library v2</title>
+  <link rel="stylesheet" href="styles.css?v=20260625o">
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+</head>
+<body>
+
+<header class="lab-header">
+  <div class="lab-brand">
+    <a href="../" class="lab-back">← Galeria</a>
+    <span class="lab-eyebrow" id="lab-eyebrow">Motion Library v2</span>
+    <h1 class="lab-title">Motion Lab</h1>
+  </div>
+  <div class="lab-stats">
+    <span class="lab-combos-info" id="combo-count-header"></span>
+    <button type="button" class="btn btn-primary" id="btn-export">↓ Exportar JSON</button>
+  </div>
+</header>
+
+<div class="lab-layout">
+
+  <aside class="preview-col">
+    <div class="preview-col-head">
+      <h2>Canvas</h2>
+      <p>Composição genérica 1080×1350</p>
+    </div>
+
+    <div class="stage-wrap">
+      <div class="stage-scaler" id="stage-scaler">
+        <div id="preview-stage">
+          <div class="fx-scene" id="fx-scene">
+            <div class="fx-blackout" id="fx-blackout"></div>
+            <div class="fx-bg-wrap" id="fx-bg-wrap">
+              <img class="fx-bg" id="fx-bg" src="assets/bg-cyber-city.png?v=2" alt="">
+            </div>
+            <div class="fx-overlay"></div>
+            <div class="fx-vignette"></div>
+
+            <div class="fx-portal-reveal" id="fx-portal-reveal"></div>
+            <div class="fx-power-grid" id="fx-power-grid"></div>
+            <div class="fx-energy-wipe" id="fx-energy-wipe"></div>
+            <div class="fx-frame-punch-flash" id="fx-frame-punch-flash"></div>
+
+            <div class="fx-startup-flash" id="fx-startup-flash"></div>
+            <div class="fx-light-sweep" id="fx-light-sweep"></div>
+            <div class="fx-impact-flash" id="fx-impact-flash"></div>
+            <div class="fx-signal-distortion" id="fx-signal-distortion"></div>
+
+            <div class="fx-blue-map" id="fx-blue-map"></div>
+            <div class="fx-focus-window" id="fx-focus-window"></div>
+            <div class="fx-finish-smoke" id="fx-finish-smoke"></div>
+            <div class="fx-finish-code" id="fx-finish-code"></div>
+            <div class="fx-finish-code fx-finish-code-alt" id="fx-finish-code-alt"></div>
+            <div class="fx-ambient-flicker" id="fx-ambient-flicker"></div>
+            <div class="fx-depth-shift" id="fx-depth-shift"></div>
+            <div class="fx-holographic-bloom" id="fx-holographic-bloom"></div>
+            <div class="fx-edge-energy" id="fx-edge-energy"></div>
+            <div class="fx-logo-glow" id="fx-logo-glow"></div>
+            <div class="fx-cta-glass" id="fx-cta-glass"></div>
+            <div class="fx-data-burst" id="fx-data-burst"></div>
+            <div class="fx-shutter" id="fx-shutter"></div>
+
+            <div class="fx-vhs-rgb" id="fx-vhs-rgb" aria-hidden="true"></div>
+            <div class="fx-vhs-noise" id="fx-vhs-noise" aria-hidden="true"></div>
+            <div class="fx-pixel-dissolve" id="fx-pixel-dissolve" aria-hidden="true"></div>
+            <div class="fx-mosaic-slice" id="fx-mosaic-slice" aria-hidden="true"></div>
+            <div class="fx-paper-tear" id="fx-paper-tear" aria-hidden="true"></div>
+            <div class="fx-cta-slide-track" id="fx-cta-slide-track" aria-hidden="true"></div>
+            <div class="fx-cta-slide-lock" id="fx-cta-slide-lock" aria-hidden="true"></div>
+            <div class="fx-pulse-ring" id="fx-pulse-ring" aria-hidden="true"></div>
+            <div class="fx-orbit-text" id="fx-orbit-text" aria-hidden="true"></div>
+            <div class="fx-ripple-signal" id="fx-ripple-signal" aria-hidden="true"></div>
+            <div class="fx-flag-wave" id="fx-flag-wave" aria-hidden="true"></div>
+            <div class="fx-flip-panel" id="fx-flip-panel" aria-hidden="true"></div>
+            <div class="fx-static-interference" id="fx-static-interference" aria-hidden="true"></div>
+
+            <!-- SVG Motion layers -->
+            <div class="fx-svg-net" id="fx-svg-net" aria-hidden="true"></div>
+            <div class="fx-stagger-grid" id="fx-stagger-grid" aria-hidden="true"></div>
+            <div class="fx-node-field" id="fx-node-field" aria-hidden="true"></div>
+            <div class="fx-shape-morph" id="fx-shape-morph" aria-hidden="true"></div>
+            <div class="fx-orbit-ring" id="fx-orbit-ring" aria-hidden="true"></div>
+            <div class="fx-scan-cursor" id="fx-scan-cursor" aria-hidden="true"></div>
+
+            <!-- Animated Mesh / Patterns / Depth layers -->
+            <div class="fx-amd" id="fx-constellation"    aria-hidden="true"></div>
+            <div class="fx-amd" id="fx-neural-depth"     aria-hidden="true"></div>
+            <div class="fx-amd" id="fx-cmd-grid"         aria-hidden="true"></div>
+            <div class="fx-amd" id="fx-laser-grid"       aria-hidden="true"></div>
+            <div class="fx-amd" id="fx-circuit-map"      aria-hidden="true"></div>
+            <div class="fx-amd" id="fx-hex-shield"       aria-hidden="true"></div>
+            <div class="fx-amd" id="fx-radar-field"      aria-hidden="true"></div>
+            <div class="fx-amd" id="fx-topographic"      aria-hidden="true"></div>
+            <div class="fx-amd" id="fx-data-rain"        aria-hidden="true"></div>
+            <div class="fx-amd" id="fx-wave-particles"   aria-hidden="true"></div>
+            <div class="fx-amd" id="fx-city-link-depth"  aria-hidden="true"></div>
+            <div class="fx-amd" id="fx-polygon-fracture" aria-hidden="true"></div>
+            <div class="fx-amd" id="fx-orbital-hud"      aria-hidden="true"></div>
+            <div class="fx-amd" id="fx-firewall-wall"    aria-hidden="true"></div>
+            <div class="fx-amd" id="fx-digital-fabric"   aria-hidden="true"></div>
+            <div class="fx-amd" id="fx-mesh-ripple"      aria-hidden="true"></div>
+            <div class="fx-amd" id="fx-amd-signal-route" aria-hidden="true"></div>
+            <div class="fx-amd" id="fx-node-chain"       aria-hidden="true"></div>
+            <div class="fx-amd" id="fx-depth-fabric"     aria-hidden="true"></div>
+            <div class="fx-amd" id="fx-hud-pattern"      aria-hidden="true"></div>
+
+            <!-- Depth / Blur / Focus / Lens layers -->
+            <div class="fx-radial-focus" id="fx-radial-focus" aria-hidden="true"></div>
+            <div class="fx-bokeh-field" id="fx-bokeh-field" aria-hidden="true"></div>
+            <div class="fx-depth-fog"   id="fx-depth-fog"   aria-hidden="true"></div>
+            <div class="fx-tilt-shift-top" id="fx-tilt-shift-top" aria-hidden="true"></div>
+            <div class="fx-tilt-shift-bot" id="fx-tilt-shift-bot" aria-hidden="true"></div>
+            <div class="fx-frosted-wipe-strip" id="fx-frosted-wipe-strip" aria-hidden="true"></div>
+            <div class="fx-lens-flare"  id="fx-lens-flare"  aria-hidden="true"></div>
+            <div class="fx-glass-panel" id="fx-glass-panel" aria-hidden="true"></div>
+            <div class="fx-aperture-ring" id="fx-aperture-ring" aria-hidden="true"></div>
+            <div class="fx-optic-brackets" id="fx-optic-brackets" aria-hidden="true"></div>
+
+            <div class="fx-keyword-box" id="fx-keyword-box"></div>
+            <div class="fx-keyword-under" id="fx-keyword-under"></div>
+            <div class="fx-hud-brackets" id="fx-hud-brackets">
+              <span class="fx-hud-corner fx-hud-tl"></span>
+              <span class="fx-hud-corner fx-hud-tr"></span>
+              <span class="fx-hud-corner fx-hud-bl"></span>
+              <span class="fx-hud-corner fx-hud-br"></span>
+            </div>
+
+            <div class="fx-mesh fx-mesh-alt" id="fx-mesh-neural">
+              <svg viewBox="0 0 1080 1350" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <g id="fx-neural-lines">
+                  <path class="fx-neural-line" d="M720 120 Q820 200 780 340 T860 520 T740 680 T880 860"/>
+                  <path class="fx-neural-line" d="M640 280 Q760 320 700 460 T820 620 T680 780"/>
+                  <path class="fx-neural-line" d="M800 180 L920 280 L860 420 L760 380 L700 260 Z"/>
+                  <path class="fx-neural-line" d="M680 520 L800 480 L880 600 L820 740 L700 700 Z"/>
+                </g>
+                <g id="fx-neural-nodes">
+                  <circle class="fx-neural-node" data-chain="0" cx="720" cy="120" r="4"/>
+                  <circle class="fx-neural-node" data-chain="1" cx="780" cy="340" r="3.5"/>
+                  <circle class="fx-neural-node" data-chain="2" cx="860" cy="520" r="4"/>
+                  <circle class="fx-neural-node" data-chain="3" cx="740" cy="680" r="3.5"/>
+                  <circle class="fx-neural-node" data-chain="4" cx="880" cy="860" r="4"/>
+                  <circle class="fx-neural-node" data-chain="5" cx="700" cy="260" r="3"/>
+                  <circle class="fx-neural-node" data-chain="6" cx="820" cy="740" r="3.5"/>
+                </g>
+              </svg>
+            </div>
+
+            <div class="fx-mesh fx-mesh-alt" id="fx-mesh-shield">
+              <svg viewBox="0 0 1080 1350" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <g id="fx-shield-polygons">
+                  <polygon class="fx-shield-poly" points="620,200 900,180 960,400 820,520 640,480"/>
+                  <polygon class="fx-shield-poly" points="660,480 920,440 980,680 800,820 620,760"/>
+                  <polygon class="fx-shield-poly" points="700,760 880,720 940,920 760,1020 640,940"/>
+                  <polygon class="fx-shield-poly" points="740,120 860,100 900,280 780,360 680,300"/>
+                </g>
+              </svg>
+            </div>
+
+            <div class="fx-mesh fx-mesh-alt" id="fx-mesh-circuit">
+              <svg viewBox="0 0 1080 1350" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <g id="fx-circuit-lines">
+                  <path class="fx-circuit-line" d="M600 160 H780 V300 H920 V480 H760 V620 H640 V780 H880 V960"/>
+                  <path class="fx-circuit-line" d="M680 240 H840 V400 H760 V560 H900 V720"/>
+                  <path class="fx-circuit-line" d="M720 360 H860 V520 H700 V680 H820 V840"/>
+                </g>
+                <g id="fx-circuit-nodes">
+                  <circle class="fx-circuit-node" cx="780" cy="300" r="3"/>
+                  <circle class="fx-circuit-node" cx="920" cy="480" r="3"/>
+                  <circle class="fx-circuit-node" cx="760" cy="620" r="3"/>
+                  <circle class="fx-circuit-node" cx="880" cy="960" r="3"/>
+                  <circle class="fx-circuit-node" cx="840" cy="400" r="2.5"/>
+                  <circle class="fx-circuit-node" cx="820" cy="840" r="2.5"/>
+                </g>
+              </svg>
+            </div>
+
+            <div class="fx-mesh fx-mesh-alt" id="fx-mesh-radar">
+              <svg viewBox="0 0 1080 1350" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <circle class="fx-radar-ring" cx="820" cy="420" r="120" fill="none" stroke="rgba(20,168,244,0.35)" stroke-width="1"/>
+                <circle class="fx-radar-ring" cx="820" cy="420" r="200" fill="none" stroke="rgba(20,168,244,0.25)" stroke-width="1"/>
+                <circle class="fx-radar-ring" cx="820" cy="420" r="280" fill="none" stroke="rgba(20,168,244,0.15)" stroke-width="1"/>
+                <line class="fx-radar-sweep" id="fx-radar-sweep" x1="820" y1="420" x2="820" y2="140" stroke="rgba(20,168,244,0.7)" stroke-width="2"/>
+              </svg>
+            </div>
+
+            <div class="fx-mesh fx-mesh-alt" id="fx-mesh-rain"></div>
+            <div class="fx-mesh fx-mesh-alt" id="fx-mesh-firewall"></div>
+            <div class="fx-mesh fx-mesh-alt" id="fx-mesh-laser"></div>
+
+            <div class="fx-radar-opening" id="fx-radar-opening">
+              <svg viewBox="0 0 1080 1350" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <line class="fx-radar-arm" x1="540" y1="675" x2="540" y2="200" stroke="rgba(20,168,244,0.8)" stroke-width="3"/>
+              </svg>
+            </div>
+
+            <div class="fx-mesh" id="fx-mesh">
+              <svg viewBox="0 0 1080 1350" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <g id="fx-mesh-lines">
+                  <path class="fx-mesh-line" d="M600 140 L760 80 L900 170 L840 320 L700 355 L620 255 Z"/>
+                  <path class="fx-mesh-line" d="M660 390 L820 335 L960 455 L885 595 L725 555 L645 475 Z"/>
+                  <path class="fx-mesh-line" d="M700 650 L860 595 L1000 735 L920 895 L760 835 L680 735 Z"/>
+                  <path class="fx-mesh-line" d="M760 80 L820 335 L860 595 L780 835"/>
+                  <path class="fx-mesh-line" d="M900 170 L960 455 L1000 735 L920 895"/>
+                </g>
+                <g id="fx-mesh-nodes">
+                  <circle class="fx-mesh-node" cx="760" cy="80" r="4"/>
+                  <circle class="fx-mesh-node" cx="900" cy="170" r="3.5"/>
+                  <circle class="fx-mesh-node" cx="840" cy="320" r="4"/>
+                  <circle class="fx-mesh-node" cx="820" cy="335" r="3.5"/>
+                  <circle class="fx-mesh-node" cx="960" cy="455" r="4"/>
+                  <circle class="fx-mesh-node" cx="920" cy="895" r="3.5"/>
+                </g>
+                <circle class="fx-signal-dot" id="fx-signal-dot" r="5" cx="760" cy="80"/>
+                <path class="fx-mesh-link" id="fx-mesh-link" d="M920 895 L620 1020 L340 1120"/>
+                <path class="fx-signal-route" id="fx-signal-route" d="M760 80 L820 335 L860 595 L920 895 L620 1020 L340 1120"/>
+              </svg>
+            </div>
+
+            <div class="fx-hl-fragments" id="fx-hl-fragments" aria-hidden="true"></div>
+            <div class="fx-keyword-stamp" id="fx-keyword-stamp"></div>
+            <div class="fx-data-packets" id="fx-data-packets" aria-hidden="true"></div>
+
+            <div class="fx-scan-h" id="fx-scan-h"></div>
+            <div class="fx-scan-v" id="fx-scan-v"></div>
+            <div class="fx-scan-d" id="fx-scan-d"></div>
+
+            <div class="fx-content">
+              <div>
+                <div class="fx-logo-wrap" id="fx-logo-wrap">
+                  <div class="fx-logo-pixels" id="fx-logo-pixels"></div>
+                  <img class="fx-logo" id="fx-logo" src="assets/logo-cyberfest.png" alt="CybersecFEST">
+                </div>
+              </div>
+              <div class="fx-center">
+                <h2 class="fx-headline" id="fx-headline">
+                  <span class="fx-hl-row"><span class="fx-hl-inner" id="fx-row-1"><span class="fx-blue">C-Levels</span></span></span>
+                  <span class="fx-hl-row"><span class="fx-hl-inner" id="fx-row-2">reunidos em BH,</span></span>
+                  <span class="fx-hl-row"><span class="fx-hl-inner" id="fx-row-3">a maior</span></span>
+                  <span class="fx-hl-row"><span class="fx-hl-inner" id="fx-row-4"><span class="fx-blue" id="fx-impact-word">confraria</span></span></span>
+                  <span class="fx-hl-row"><span class="fx-hl-inner" id="fx-row-5">cyber</span></span>
+                </h2>
+                <div class="fx-divider" id="fx-divider"></div>
+                <p class="fx-subtitle" id="fx-subtitle">Edição exclusiva CybersecFEST — networking estratégico para líderes de segurança.</p>
+              </div>
+              <div class="fx-bottom">
+                <div class="fx-cta-wrap">
+                  <svg class="fx-cta-energy" id="fx-cta-energy" viewBox="0 0 400 80" preserveAspectRatio="none" aria-hidden="true">
+                    <rect class="fx-cta-energy-line fx-cta-el-top" x="0" y="2" width="0" height="2"/>
+                    <rect class="fx-cta-energy-line fx-cta-el-right" x="398" y="0" width="2" height="0"/>
+                    <rect class="fx-cta-energy-line fx-cta-el-bottom" x="400" y="78" width="0" height="2"/>
+                    <rect class="fx-cta-energy-line fx-cta-el-left" x="0" y="80" width="2" height="0"/>
+                  </svg>
+                  <div class="fx-cta-outline" id="fx-cta-outline"></div>
+                  <div class="fx-cta-pulse" id="fx-cta-pulse"></div>
+                  <div class="fx-cta" id="fx-cta">
+                    INSCRIÇÕES ABERTAS
+                    <span class="fx-cta-arrow" id="fx-cta-arrow">→</span>
+                  </div>
+                </div>
+                <div class="fx-eco" id="fx-ecosystem">
+                  <img src="assets/logo-devops.webp" alt="">
+                  <div class="fx-eco-sep"></div>
+                  <img src="assets/logo-iam.webp" alt="">
+                  <div class="fx-eco-sep"></div>
+                  <img src="assets/logo-alcatraz.webp" alt="">
+                </div>
+              </div>
+            </div>
+
+            <div class="fx-grain"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="stage-label">1080 × 1350 · proporção 4:5</p>
+
+    <div class="preview-controls">
+      <button type="button" class="btn btn-primary" id="btn-replay">Repetir animação</button>
+      <button type="button" class="btn btn-ghost" id="btn-reset">Resetar preview</button>
+      <div class="speed-group" id="speed-group">
+        <button type="button" class="btn btn-sm" data-speed="0.5">0.5×</button>
+        <button type="button" class="btn btn-sm active" data-speed="1">1×</button>
+        <button type="button" class="btn btn-sm" data-speed="1.5">1.5×</button>
+      </div>
+    </div>
+
+    <div class="phase-track" id="phase-track">
+      <div class="phase-seg" data-phase="opening"></div>
+      <div class="phase-seg" data-phase="logo"></div>
+      <div class="phase-seg" data-phase="mesh"></div>
+      <div class="phase-seg" data-phase="headline"></div>
+      <div class="phase-seg" data-phase="cta"></div>
+      <div class="phase-seg" data-phase="transition"></div>
+    </div>
+    <div class="phase-labels">
+      <span>Abertura</span><span>Logo</span><span>Malha</span><span>Texto</span><span>CTA</span><span>Scan</span>
+    </div>
+
+    <p class="preview-status" id="preview-status">Pronto — selecione um efeito ou combo.</p>
+  </aside>
+
+  <main class="main-col">
+
+    <section class="section section-combos" id="section-combos">
+      <div class="section-head">
+        <h2>Combos prontos</h2>
+        <span id="combo-count"></span>
+      </div>
+      <div class="combo-grid" id="combo-buttons"></div>
+    </section>
+
+  </main>
+</div>
+
+  <script src="effects-data.js?v=20260625o"></script>
+  <script src="effects-v2-impl.js?v=20260625o"></script>
+  <script src="effects-v2-rest.js?v=20260625o"></script>
+  <script src="effects-social-impact.js?v=20260625o"></script>
+  <script src="effects-svg-motion.js?v=20260625o"></script>
+  <script src="effects-depth-focus.js?v=20260625o"></script>
+  <script src="effects-animated-mesh.js?v=20260625o"></script>
+  <script src="app.js?v=20260625o"></script>
+</body>
+</html>

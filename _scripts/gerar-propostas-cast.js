@@ -127,7 +127,7 @@ function buildCastSystemPrompt(objetivo) {
   return CAST_AUDIENCIA_SYSTEM;
 }
 
-async function gerarRotasLLM(tipoPost, temas, temaLivre = '', opts = {}) {
+async function gerarRotasLLM(tipoPost, temas, temaLivre = '', opts = {}, historicoArtes = '') {
   const objetivo   = opts.objetivo || 'audiencia';
   const cfg        = getCastObjetivoConfig(objetivo);
   const systemPrompt = buildCastSystemPrompt(objetivo);
@@ -146,7 +146,7 @@ async function gerarRotasLLM(tipoPost, temas, temaLivre = '', opts = {}) {
   const temaExtra = ''; // mantido vazio — temaHeader já carrega o briefing no topo
 
   const extraLong = opts.forceLong
-    ? `\nATENÇÃO: tentativa anterior fora do padrão. Cada legenda DEVE ter ${LEGENDA_LINHAS_IDEAL[0]}–${LEGENDA_LINHAS_IDEAL[1]} linhas de corpo.\n`
+    ? `\nATENÇÃO: tentativa anterior fora do padrão. Cada legenda DEVE ter ${REGRAS_LEGENDA.linhasCorpoIdeal[0]}–${REGRAS_LEGENDA.linhasCorpoIdeal[1]} linhas de corpo.\n`
     : '';
 
   const tipoPtBR = tipoPost === 'episodio' ? 'novo episódio'
@@ -160,6 +160,9 @@ async function gerarRotasLLM(tipoPost, temas, temaLivre = '', opts = {}) {
     : `Estrutura: gancho 2–3 linhas → desenvolvimento 4–6 linhas → posicionamento CYBERSEC.CAST 1–2 linhas → CTA ✅ → hashtags (10–15)`;
 
   const refBlock = buildReferenciaCopyBlock(objetivo, { maxArtes: 2, maxSkill: 2 });
+  const historicoArtesLine = historicoArtes
+    ? `\nArtes aprovadas recentemente (evite repetir tom/estrutura): ${historicoArtes}`
+    : '';
 
   const prompt = isComercial
     ? `${temaHeader}${CAST_HEADLINE_PROMPT_BLOCK}
@@ -173,7 +176,7 @@ Cada post deve usar um tipo diferente de abordagem:
 - Rota B: Post sobre público decisor e relacionamento B2B (quem assiste → como percepção se forma → presença de marca → CTA)
 - Rota C: Post sobre ecossistema (CyberSecFest + I AM TECH DAY + CAST como plataforma integrada → CTA)
 
-Histórico recente (evite repetir ângulos): ${historico}
+Histórico recente (evite repetir ângulos): ${historico}${historicoArtesLine}
 
 Marque UMA rota como "recomendada": true.
 
@@ -188,6 +191,7 @@ RETORNE APENAS JSON válido (sem markdown):
       "subtitulo": "1 frase, 12-20 palavras — a tese central para o patrocinador",
       "cta_visual": "máx 4 palavras UPPERCASE. Ex: SEJA PARCEIRO, PATROCINE, FALE CONOSCO, RESERVE SUA VAGA",
       "contexto_visual": "cena do estúdio CAST: ambiente executivo escuro, iluminação indigo/violet, mesa de entrevista ou reunião de lideranças — SEM texto visível, SEM produto de marca",
+      "layout_sugerido": "letra A–Q: use C/M/N para conteúdo gráfico/abstrato, D/G/K/F se há pessoa ou convidado, H/L/J para insight ou dado visual",
       "legenda": "Post completo para LinkedIn. ${legendaInstrucao} Frases curtas. Uma ideia por linha. Tom institucional, consultivo. Sem anúncio. Sem escassez. Sem métricas de vaidade."
     }
   ]
@@ -204,7 +208,7 @@ Tom da legenda: ${cfg.legendaTom}
 ${extraLong}
 CONTEXTO DO PODCAST:
 - Temas da grade: ${temasGrade}
-- Histórico recente (evitar repetir ângulos): ${historico}
+- Histórico recente (evitar repetir ângulos): ${historico}${historicoArtesLine}
 
 Marque UMA proposta como "recomendada": true.
 
@@ -219,7 +223,8 @@ RETORNE APENAS JSON válido (sem markdown):
       "subtitulo": "1 frase completa, 12-20 palavras",
       "cta_visual": "máx 4 palavras UPPERCASE. Opções: ${cfg.ctasSuger}",
       "contexto_visual": "cena fotográfica do podcast: ambiente (estúdio escuro, vidro, mesa profissional), iluminação (indigo LED, violet rim), quem (host, convidado, mesa de entrevista) — SEM texto na cena",
-      "legenda": "LEGENDA pronta para LinkedIn/Instagram — ${LEGENDA_LINHAS_IDEAL[0]}–${LEGENDA_LINHAS_IDEAL[1]} linhas de corpo, frases curtas, uma ideia por linha. ${legendaInstrucao}"
+      "layout_sugerido": "letra A–Q: use C/M/N para conteúdo gráfico/abstrato, D/G/K/F se há pessoa ou convidado, H/L/J para insight ou dado visual",
+      "legenda": "LEGENDA pronta para LinkedIn/Instagram — ${REGRAS_LEGENDA.linhasCorpoIdeal[0]}–${REGRAS_LEGENDA.linhasCorpoIdeal[1]} linhas de corpo, frases curtas, uma ideia por linha. ${legendaInstrucao}"
     }
   ]
 }`;
@@ -244,6 +249,7 @@ RETORNE APENAS JSON válido (sem markdown):
       subtitulo: p.subtitulo || '',
       cta_visual: (p.cta_visual || '').trim(),
       contexto_visual: p.contexto_visual || '',
+      layout_sugerido: /^[A-Q]$/i.test(p.layout_sugerido || '') ? String(p.layout_sugerido).toUpperCase() : null,
       legenda: p.legenda || '',
     };
   });
@@ -279,18 +285,18 @@ Reescreva APENAS a legenda. Aprofunde o dilema, adicione linhas de tensão e con
   return proposta;
 }
 
-async function gerarRotasComValidacao(tipoPost, temas, temaLivre = '', objetivo = 'audiencia') {
+async function gerarRotasComValidacao(tipoPost, temas, temaLivre = '', objetivo = 'audiencia', historicoArtes = '') {
   const { linhasCorpoIdeal } = REGRAS_LEGENDA;
   console.log(`   CAST calibração: ${linhasCorpoIdeal[0]}–${linhasCorpoIdeal[1]} linhas · ${getMinLegendaChars()} chars mín · objetivo: ${objetivo}`);
 
   // Passo 1: geração normal
-  let propostas = await gerarRotasLLM(tipoPost, temas, temaLivre, { objetivo });
+  let propostas = await gerarRotasLLM(tipoPost, temas, temaLivre, { objetivo }, historicoArtes);
   let fora = propostas.filter(p => !legendaDentroDoPadrao(p.legenda));
 
   // Passo 2: se há legendas fora do padrão, regenera lote com forceLong
   if (fora.length) {
     console.log(`⚠️  CAST passo 2: ${fora.length} legenda(s) fora do padrão — regenerando lote com forceLong...`);
-    propostas = await gerarRotasLLM(tipoPost, temas, temaLivre, { objetivo, forceLong: true });
+    propostas = await gerarRotasLLM(tipoPost, temas, temaLivre, { objetivo, forceLong: true }, historicoArtes);
     fora = propostas.filter(p => !legendaDentroDoPadrao(p.legenda));
   }
 
@@ -324,8 +330,37 @@ async function criarLotePropostasCast({ tipoPost, objetivo = 'audiencia', tema =
   }
 
   const cfg = getCastObjetivoConfig(objetivo);
+
+  // Feedback loop: histórico de artes aprovadas para evitar repetição
+  let historicoArtes = '';
+  try {
+    const fs   = require('fs');
+    const path = require('path');
+    const artesPath = path.join(__dirname, '..', 'artes-cast.json');
+    if (fs.existsSync(artesPath)) {
+      const artes = JSON.parse(fs.readFileSync(artesPath, 'utf8'));
+      historicoArtes = buildHistoricoArtesBlock(artes);
+      if (historicoArtes) console.log(`   Histórico CAST: ${Math.min(artes.length, 10)} artes aprovadas para contexto`);
+    }
+  } catch { /* não crítico — prossegue sem histórico */ }
+
   console.log(`📝 CAST — Fase 1: gerando 3 rotas [${cfg.label}] (só texto)...`);
-  const propostas = await gerarRotasComValidacao(tipoPost, temas, tema, objetivo);
+  let propostas = await gerarRotasComValidacao(tipoPost, temas, tema, objetivo, historicoArtes);
+
+  // Detecção de similaridade — aviso não-bloqueante
+  try {
+    const { marcarSimilares } = require('./utils/similaridade.js');
+    const { getEmbedding }    = require('./utils/llm.js');
+    const fs   = require('fs');
+    const path = require('path');
+    const artesPath = path.join(__dirname, '..', 'artes-cast.json');
+    if (fs.existsSync(artesPath)) {
+      const artes = JSON.parse(fs.readFileSync(artesPath, 'utf8')).slice(0, 10);
+      propostas = await marcarSimilares(propostas, artes, getEmbedding);
+    }
+  } catch (e) {
+    console.warn('⚠️  Similaridade: erro geral (não crítico):', e.message);
+  }
 
   const lote = {
     id: newId('cast-lote'),
@@ -343,6 +378,16 @@ async function criarLotePropostasCast({ tipoPost, objetivo = 'audiencia', tema =
 
   console.log(`✅ CAST lote ${lote.id} — ${propostas.length} propostas aguardando aprovação`);
   return lote;
+}
+
+function buildHistoricoArtesBlock(artes) {
+  if (!artes || !artes.length) return '';
+  return artes.slice(0, 10).map(a => {
+    const tipo   = a.tipo   || 'episodio';
+    const layout = a.layout || 'C';
+    const hl     = (a.headline || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().split(' ').slice(0, 3).join(' ');
+    return `${tipo}/${layout}: '${hl}'`;
+  }).join('; ');
 }
 
 module.exports = { criarLotePropostasCast };

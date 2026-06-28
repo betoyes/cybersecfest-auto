@@ -248,6 +248,10 @@ if (location.protocol === 'file:') {
       <input type="checkbox" id="filter-show-backup">
       <span>Mostrar testes / backup</span>
     </label>
+    <label class="gallery-filter">
+      <input type="checkbox" id="filter-show-publicado">
+      <span>Só publicadas</span>
+    </label>
     <span class="gallery-filter-hint" id="gallery-filter-hint"></span>
   </div>
   <div class="grid" id="grid">
@@ -295,8 +299,13 @@ if (location.protocol === 'file:') {
               autocomplete="off"
             >
             <button type="button" class="modal-img-edit-btn" id="modal-img-edit-btn" onclick="mudarImagem()">Gerar</button>
+            <button type="button" class="modal-img-edit-btn modal-img-variar-btn" id="modal-img-variar-btn" onclick="variarCena()" title="Variação fiel da mesma composição via gpt-image-1 com seed fixo">Variar</button>
           </div>
           <p class="modal-img-edit-status" id="modal-img-edit-status" hidden></p>
+          <div id="modal-seed-wrap" hidden style="font-size:11px;color:var(--muted,#888);margin-top:4px;">
+            Seed: <input id="modal-img-seed" type="number" style="width:110px;background:transparent;border:none;color:inherit;font-size:inherit;" readonly>
+            <button onclick="copySeed()" style="background:transparent;border:none;cursor:pointer;color:inherit;font-size:10px;" title="Copiar seed">⎘</button>
+          </div>
           <div class="modal-img-versoes" id="modal-img-versoes" hidden>
             <span class="modal-img-versoes-label">Versões:</span>
             <div class="modal-img-versoes-pills" id="modal-img-versoes-pills"></div>
@@ -360,7 +369,8 @@ let creationOrderMap = {};
 let LAYOUT_NAMES = {};
 let propostasEstado = { lotePendente: null, banco: [], bancoCount: 0 };
 let devServerApis = [];
-let showBackupArtes = false;
+let showBackupArtes   = false;
+let showPublicadoOnly = false;
 let calendarioData = null;
 let modalSlug = null;
 
@@ -426,7 +436,10 @@ async function parseApiJson(res) {
 }
 
 function getVisibleArtes() {
-  return allArtes.filter(a => showBackupArtes || a.publicacao !== 'backup');
+  return allArtes.filter(a =>
+    (showBackupArtes || a.publicacao !== 'backup') &&
+    (!showPublicadoOnly || a.publicado === true)
+  );
 }
 
 function getGalleryTotalCount() {
@@ -545,13 +558,29 @@ function renderGrid(artes) {
         ${layoutBadgeHtml(arte)}
         ${num ? `<div class="card-num-badge">#${num}</div>` : ''}
         ${arte.publicacao === 'backup' ? `<div class="card-backup-badge">backup</div>` : ''}
+        ${arte.publicado ? `<div class="card-publicado-badge" title="Publicada">✓</div>` : ''}
         <span class="card-date-badge">${date}</span>
+        <span class="card-vers-badge" data-vers-slug="${arte.slug}" hidden></span>
         <div class="card-overlay">
           <div class="overlay-headline">${escHtml(arte.headline)}</div>
         </div>
       </div>
     </div>`;
   }).join('');
+  loadVersionBadges(artes);
+}
+
+async function loadVersionBadges(artes) {
+  await Promise.allSettled(artes.map(async arte => {
+    try {
+      const r = await fetch(`${API}/arte/imagem/versoes?slug=${encodeURIComponent(arte.slug)}`);
+      if (!r.ok) return;
+      const { versoes } = await r.json();
+      if (!versoes || versoes.length <= 1) return;
+      const el = document.querySelector(`.card-vers-badge[data-vers-slug="${arte.slug}"]`);
+      if (el) { el.textContent = `${versoes.length}v`; el.hidden = false; }
+    } catch { /* sem badge se falhar */ }
+  }));
 }
 
 function renderDashboard() {
@@ -669,6 +698,8 @@ function openModal(slug, arte) {
     <button class="btn-arte btn-arte-primary" onclick="goToEditor('${slug}')">Editor</button>
     <button class="btn-arte btn-arte-secondary" onclick="downloadArtePNG('${slug}', this)">↓ PNG</button>
     <a class="btn-arte btn-arte-secondary" href="/artes/${slug}/arte.html" download="cyberseccast_${slug}.html">↓ HTML</a>
+    <button class="btn-arte btn-arte-secondary" onclick="duplicarArte('${slug}', this)">Duplicar</button>
+    <button type="button" class="btn-arte ${arte.publicado ? 'btn-arte-primary' : 'btn-arte-secondary'}" id="btn-publicado-arte" onclick="togglePublicado('${slug}')">${arte.publicado ? '✓ Publicada' : 'Marcar publicada'}</button>
     ${canDelete ? `<button type="button" class="btn-arte btn-arte-danger" id="btn-delete-arte" onclick="deletarArte('${slug}')">🗑 Excluir</button>` : ''}
   `;
   const metaEl = document.getElementById('modal-meta');
@@ -699,6 +730,25 @@ function openModal(slug, arte) {
   const versoesWrap = document.getElementById('modal-img-versoes');
   if (versoesWrap) { versoesWrap.hidden = true; document.getElementById('modal-img-versoes-pills').innerHTML = ''; }
   loadImgVersoes(slug);
+  loadSeedFromState(slug);
+}
+
+async function loadSeedFromState(slug) {
+  const wrap = document.getElementById('modal-seed-wrap');
+  if (!wrap) return;
+  wrap.hidden = true;
+  try {
+    const state = await fetch(`/artes/${slug}/state.json`).then(r => r.ok ? r.json() : null).catch(() => null);
+    if (state && typeof state.seed === 'number') {
+      document.getElementById('modal-img-seed').value = state.seed;
+      wrap.hidden = false;
+    }
+  } catch { /* seed é opcional */ }
+}
+
+function copySeed() {
+  const v = document.getElementById('modal-img-seed')?.value;
+  if (v) navigator.clipboard.writeText(v).catch(() => {});
 }
 
 async function loadImgVersoes(slug) {
@@ -826,6 +876,48 @@ async function mudarImagem() {
   }
 }
 
+async function variarCena() {
+  if (!modalSlug) return;
+  const instrucao = document.getElementById('modal-img-instrucao').value.trim();
+
+  const varBtn = document.getElementById('modal-img-variar-btn');
+  const genBtn = document.getElementById('modal-img-edit-btn');
+  const status = document.getElementById('modal-img-edit-status');
+
+  varBtn.disabled = true;
+  genBtn.disabled = true;
+  varBtn.textContent = '⏳ Variando…';
+  status.hidden = false;
+  status.textContent = 'Gerando variação com gpt-image-1… ~45s.';
+  status.className = 'modal-img-edit-status';
+
+  try {
+    const res = await fetch(`${API}/arte/imagem/mudar`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ slug: modalSlug, instrucao: instrucao || ' ', variar: true }),
+    });
+    const data = await res.json();
+    if (!res.ok || !data.ok) throw new Error(data.erro || `Erro ${res.status}`);
+
+    const img = document.getElementById('modal-img');
+    img.src = data.thumb;
+    status.textContent = '✅ Variação gerada!';
+    status.className = 'modal-img-edit-status ok';
+
+    if (data.versoes) renderImgVersoes(data.versoes);
+    else loadImgVersoes(modalSlug);
+    setTimeout(() => { status.hidden = true; }, 4000);
+  } catch (e) {
+    status.textContent = `❌ ${e.message}`;
+    status.className = 'modal-img-edit-status erro';
+  } finally {
+    varBtn.disabled = false;
+    genBtn.disabled = false;
+    varBtn.textContent = 'Variar';
+  }
+}
+
 function copyCaption() {
   const text = document.getElementById('modal-caption-text').textContent;
   if (!text.trim()) return;
@@ -897,6 +989,30 @@ function closeModal(e) {
     if (location.hash.startsWith('#arte=')) {
       history.replaceState(null, '', location.pathname + location.search);
     }
+  }
+}
+
+async function duplicarArte(slug, btn) {
+  const instrucao = prompt('Instrução para a nova imagem (deixe em branco para usar o contexto original):') ?? '';
+  if (instrucao === null) return; // cancelou
+  const label = btn.textContent;
+  btn.textContent = 'Gerando…';
+  btn.disabled = true;
+  try {
+    const r = await fetch(`${API}/arte/duplicar`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ slug, instrucao: instrucao.trim() }),
+    });
+    const data = await r.json();
+    if (!data.ok) throw new Error(data.erro || 'Erro ao duplicar');
+    closeModal();
+    await loadArtes();
+    openModalBySlug(data.slug);
+  } catch (e) {
+    alert('Erro ao duplicar: ' + e.message);
+    btn.textContent = label;
+    btn.disabled = false;
   }
 }
 
@@ -1270,6 +1386,7 @@ function openPropostasOverlay(lote) {
     return `
     <article class="prop-card${p.recomendada ? ' recommended' : ''}" data-id="${p.id}">
       ${p.recomendada ? '<span class="prop-rec">Recomendada</span>' : ''}
+      ${p.similar_a ? `<span class="prop-similar" title="Headline/subtítulo similar à arte ${escHtml(p.similar_a)}">⚠ similar a post anterior</span>` : ''}
       <div class="prop-angulo">${escHtml(p.angulo)}${p.tipo_post ? ` · <span class="prop-tipo">${escHtml(TIPO_LABELS[p.tipo_post] || p.tipo_post)}</span>` : ''}</div>
       <div class="prop-hl-preview" aria-label="Preview do título">${renderHeadlinePreview(p.headline, p.palavras_azuis)}</div>
       <div class="prop-hl-stats${statsClass}">${stats.words}/10 palavras · ${stats.lines}/5 linhas${p.palavras_azuis ? ` · destaque: ${escHtml(p.palavras_azuis)}` : ''}</div>
@@ -1447,16 +1564,40 @@ async function loadCalendarioEditorial() {
   }
 }
 
+async function togglePublicado(slug) {
+  const arte = allArtes.find(a => a.slug === slug);
+  if (!arte) return;
+  const novoValor = !arte.publicado;
+  try {
+    const r = await apiFetch(`${API}/arte/salvar`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ slug, publicado: novoValor }) });
+    if (!r.ok) throw new Error(r.erro || 'Falha');
+    arte.publicado    = novoValor;
+    arte.publicado_em = novoValor ? new Date().toISOString() : null;
+    renderGallery();
+    openModalBySlug(slug);
+  } catch (e) { alert('Erro ao marcar: ' + e.message); }
+}
+
 function initGalleryFilters() {
   const cb = document.getElementById('filter-show-backup');
-  if (!cb) return;
-  cb.checked = showBackupArtes;
-  cb.addEventListener('change', () => {
-    showBackupArtes = cb.checked;
-    buildCreationOrder(allArtes);
-    renderStats();
-    renderGallery();
-  });
+  if (cb) {
+    cb.checked = showBackupArtes;
+    cb.addEventListener('change', () => {
+      showBackupArtes = cb.checked;
+      buildCreationOrder(allArtes);
+      renderStats();
+      renderGallery();
+    });
+  }
+  const cbPub = document.getElementById('filter-show-publicado');
+  if (cbPub) {
+    cbPub.checked = showPublicadoOnly;
+    cbPub.addEventListener('change', () => {
+      showPublicadoOnly = cbPub.checked;
+      buildCreationOrder(allArtes);
+      renderGallery();
+    });
+  }
 }
 
 function initPropostasUI() {

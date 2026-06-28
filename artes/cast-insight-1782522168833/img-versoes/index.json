@@ -1,0 +1,25 @@
+{
+  "ativa": 4,
+  "versoes": [
+    {
+      "id": 1,
+      "criada_em": "2026-06-27T01:03:36.869Z",
+      "label": "Original"
+    },
+    {
+      "id": 2,
+      "criada_em": "2026-06-27T01:05:08.543Z",
+      "label": "crie outra versão"
+    },
+    {
+      "id": 3,
+      "criada_em": "2026-06-27T01:05:51.054Z",
+      "label": "crie mais uma versão"
+    },
+    {
+      "id": 4,
+      "criada_em": "2026-06-27T01:06:49.171Z",
+      "label": "a silhueta de 2 pessoas conversando num podcast"
+    }
+  ]
+}

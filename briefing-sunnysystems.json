@@ -1,0 +1,57 @@
+{
+  "slug": "sunnysystems",
+  "nome": "Sunny Systems",
+  "segmento": "Empresa de tecnologia especializada em ajudar organizações a transformar ambientes em operações visíveis, eficientes e governáveis. Atua em Observabilidade, FinOps, Platform Engineering, DevSecOps, AppSec, Cloud, Automação, Engenharia de Plataforma, Governança, Qualidade de Software e IA aplicada à operação.",
+  "publico": "CTOs, CIOs, VPs de Engenharia, Heads de Plataforma, Infra, Cloud, SRE, DevOps, FinOps, Segurança e DevSecOps, Tech Leads, Engineering Managers, Staff Engineers, Principal Engineers, Arquitetos de Software e Cloud, Profissionais de Observabilidade e FinOps, líderes de Produto e Operações.",
+  "tom": "Técnico, estratégico, direto, inteligente, maduro, seguro, pragmático e orientado a resultado. Sofisticado sem ser frio. Próximo de quem vive operações complexas. Nunca explica conceitos básicos para público experiente.",
+  "posicionamento": "Tecnologia precisa gerar controle, não complexidade. Transformamos complexidade em operações previsíveis. Parceira estratégica que conecta produto, engenharia, operação, segurança, cloud, custo e resultado.",
+  "diferenciais": [
+    "Observabilidade com contexto — correlação de logs, métricas e traces",
+    "FinOps aplicado — controle de custos de cloud e observabilidade com previsibilidade",
+    "Platform Engineering — plataformas internas, Golden Paths, autonomia com guardrails",
+    "DevSecOps integrado — segurança no ciclo de desenvolvimento, não como etapa final",
+    "IA aplicada à operação — com governança, soberania e foco em durabilidade de software",
+    "Produtos próprios: ScopeWard, DevXOS, Sunshine, Soberania de IA"
+  ],
+  "produtos": [
+    {
+      "nome": "ScopeWard",
+      "descricao": "Governança de cloud e auditoria de ambientes. Visibilidade antes que custo e risco se tornem invisíveis.",
+      "cta": "CONHEÇA O SCOPEWARD"
+    },
+    {
+      "nome": "DevXOS",
+      "descricao": "Inteligência de engenharia — analisa histórico Git e mede se a IA torna o código mais durável, não apenas mais rápido.",
+      "cta": "VER DEVXOS"
+    },
+    {
+      "nome": "Sunshine",
+      "descricao": "FinOps para custos de observabilidade. Controle de ingestão, telemetria e custo em Datadog.",
+      "cta": "CONTROLE SEU CUSTO"
+    },
+    {
+      "nome": "Soberania de IA",
+      "descricao": "LLMs on-premises e IA de coding dentro da infraestrutura do cliente. Segurança, privacidade e governança de dados.",
+      "cta": "SAIBA MAIS"
+    }
+  ],
+  "temas": [
+    "Observabilidade", "FinOps", "Platform Engineering", "DevSecOps", "AppSec",
+    "Cloud", "OpenTelemetry", "Datadog", "AIOps", "SRE", "DevOps",
+    "Governança", "Engenharia de Software", "Automação", "IA aplicada à operação"
+  ],
+  "contato": "contato@sunnysystems.com.br",
+  "site": "sunnysystems.com.br",
+  "logos": [],
+  "cores": {
+    "fundo": "#0f0f0f",
+    "destaque": "#f97316",
+    "texto": "#f8fafc"
+  },
+  "fontes": {
+    "headline": "Space Grotesk",
+    "corpo": "Inter"
+  },
+  "cta_padrao": "CONHEÇA A SUNNY SYSTEMS",
+  "hashtags": ["#SunnySystems", "#Observabilidade", "#FinOps", "#PlatformEngineering", "#DevOps", "#SRE", "#DevSecOps", "#Cloud", "#OpenTelemetry", "#AIOps"]
+}

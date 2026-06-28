@@ -1,0 +1,29 @@
+[
+  {
+    "id": "motion-1782444132607",
+    "slug": "blog-1782058741657",
+    "mode": "surpresa",
+    "instrucoes": "",
+    "baseVersion": 1,
+    "targetVersion": 1,
+    "presetId": null,
+    "status": "failed",
+    "created_at": "2026-06-26T03:22:12.607Z",
+    "updated_at": "2026-06-26T03:22:17.638Z",
+    "message": "versions.json inválido"
+  },
+  {
+    "id": "motion-1782445425267",
+    "slug": "blog-1782058741657",
+    "mode": "surpresa",
+    "instrucoes": "",
+    "baseVersion": 1,
+    "targetVersion": 2,
+    "presetId": null,
+    "status": "done",
+    "created_at": "2026-06-26T03:43:45.267Z",
+    "updated_at": "2026-06-26T03:43:47.116Z",
+    "message": "Versão 2 gerada (entrance-premium-6s)",
+    "preset": "entrance-premium-6s"
+  }
+]

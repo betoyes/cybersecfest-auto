@@ -2,16 +2,16 @@
 
 /**
  * Brand-aware layout renderer.
- * Chama renderLayout() normalmente (CybersecFEST) e aplica substituição de tokens
- * para outras marcas. Abordagem aditiva pura — renderLayout() não é modificado.
+ * Chama renderLayout() e aplica substituições de tokens para marcas adicionais.
+ * Abordagem aditiva pura — renderLayout() não é modificado.
  */
 
 const { renderLayout } = require('./layouts.js');
 const { assetDataUri } = require('./embed-assets.js');
 
 /**
- * Substitui o logo CybersecFEST pelo logo CAST no HTML gerado.
- * O logo é embutido como base64 data URI, então precisamos trocar a URI inteira.
+ * Substitui o logo CybersecFEST pelo logo da marca no HTML gerado.
+ * O logo é embutido como base64 data URI.
  */
 function swapLogo(html, newLogoAsset) {
   const festLogoUri = assetDataUri('logo-cyberfest.png');
@@ -21,13 +21,17 @@ function swapLogo(html, newLogoAsset) {
 }
 
 /**
- * Remove o bloco de logos do ecossistema (DevOps, IAM, Alcatraz)
- * que são específicos do CybersecFEST.
- * O elemento tem id="el-eco" em todos os layouts.
+ * Move o logo principal do canto superior DIREITO para o ESQUERDO para o CAST.
+ * Layout A usa .logo-bar{right:30px} — substituição direta de string, sem CSS injection.
+ * Outros layouts já posicionam o logo à esquerda no fluxo do conteúdo.
  */
-function removeEcoLogos(html) {
-  // Remove o elemento completo com id="el-eco" (pode estar em div, etc.)
-  return html.replace(/<[^>]+id="el-eco"[^>]*>[\s\S]*?<\/[^>]+>/g, '');
+function moveCastLogoToLeft(html) {
+  const TARGET = '.logo-bar{position:absolute;top:24px;right:30px;z-index:3;}';
+  if (!html.includes(TARGET)) {
+    // CSS do layout A mudou — logo pode estar mal posicionado. Atualizar TARGET em brand-renderer.js.
+    process.stderr.write('[brand-renderer] moveCastLogoToLeft: string CSS não encontrada — logo pode estar mal posicionado\n');
+  }
+  return html.replace(TARGET, '.logo-bar{position:absolute;top:24px;left:34px;z-index:3;}');
 }
 
 /**
@@ -45,12 +49,13 @@ function applyTokenReplacements(html, replacements) {
  * Renderiza um layout com as configurações de uma marca específica.
  *
  * @param {string} slug
- * @param {object} arte — mesma estrutura de artes.json
+ * @param {object} arte — mesma estrutura de artes.json (deve conter arte.layout)
  * @param {object} brand — módulo de _brands/{id}/brand.js (ou null = CybersecFEST)
  * @returns {string} HTML completo da arte com tokens da marca aplicados
  */
 function renderLayoutForBrand(slug, arte, brand = null) {
-  const html = renderLayout(slug, arte);
+  void slug;
+  const html = renderLayout(arte.layout || 'C', arte);
 
   if (!brand || brand.id === 'cybersecfest') return html;
 
@@ -64,8 +69,11 @@ function renderLayoutForBrand(slug, arte, brand = null) {
     result = swapLogo(result, brand.logo_asset);
   }
 
-  // 3. remover logos de ecossistema do CybersecFEST
-  result = removeEcoLogos(result);
+  // 3. mover logo para esquerda (layout A posiciona à direita por padrão)
+  result = moveCastLogoToLeft(result);
+
+  // Eco logos: mantém os mesmos do CybersecFEST (devops, iam, alcatraz)
+  // conforme solicitado pelo usuário — não substituir
 
   return result;
 }

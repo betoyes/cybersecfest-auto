@@ -1,6 +1,6 @@
 {
   "slug": "evento-1782045624931",
-  "preview": 1,
+  "preview": 2,
   "mp4_from": 1,
   "versions": [
     {
@@ -10,6 +10,15 @@
       "duracao_s": 13,
       "created_at": "2026-06-25T23:30:00.000Z",
       "note": "Cinematográfico — Ken Burns respirando, reveal de logo por varredura, linhas entrando em blocos, partículas sutis e loop ambiente",
+      "mp4": null
+    },
+    {
+      "id": 2,
+      "dir": "v2",
+      "preset": "confraria-lite-8s",
+      "duracao_s": 8,
+      "created_at": "2026-06-26T03:43:26.304Z",
+      "note": "Variação criativa automática",
       "mp4": null
     }
   ]

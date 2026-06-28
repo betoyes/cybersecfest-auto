@@ -1,0 +1,15 @@
+{
+  "ativa": 3,
+  "versoes": [
+    {
+      "id": 2,
+      "criada_em": "2026-06-26T19:00:44.680Z",
+      "label": "gere uma nova imagem"
+    },
+    {
+      "id": 3,
+      "criada_em": "2026-06-26T20:09:15.314Z",
+      "label": "gere uma nova imagem"
+    }
+  ]
+}

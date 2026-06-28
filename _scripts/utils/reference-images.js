@@ -3,7 +3,8 @@
 const fs   = require('fs');
 const path = require('path');
 
-const REF_ROOT = path.join(__dirname, '../../assets/referencias');
+const REF_ROOT      = path.join(__dirname, '../../assets/referencias');
+const REF_ROOT_CAST = path.join(__dirname, '../../assets/referencias-cast');
 
 /** Fundos reais das artes #1 e #2 — padrão ouro de tonalidade azul */
 const GRANDE_REFERENCIA = {
@@ -24,6 +25,22 @@ const STYLE_REF_INSTRUCTION = [
   '',
   'SKIN RULE: natural warm skin on face/hands — blue ONLY in environment, rim on hair/shoulder edge.',
   'Output: PURE PHOTOGRAPHY, zero text.',
+].join('\n');
+
+const STYLE_REF_INSTRUCTION_CAST = [
+  'CAST REFERENCE IMAGES — match their INDIGO/VIOLET TONALITY AND PODCAST STUDIO MOOD.',
+  'MOOD BOARD ONLY — do NOT copy composition, faces, poses, or layout from references.',
+  'Create an ORIGINAL scene as described in the text prompt.',
+  '',
+  'Extract from CAST references (podcast studio, executive interviews, dark indigo lighting):',
+  '  • indigo #6366f1 and violet #8b5cf6 as practical light IN THE SCENE (LED rim, backlight halo, screen glow)',
+  '  • deep dark background #07060f with indigo/violet highlights — cinematic, intimate, premium',
+  '  • podcast studio environment: microphones, glass panels, executive table, soft directional lighting',
+  '  • reflective surfaces: dark glass, brushed metal, studio floor catching indigo light',
+  '  • cinematic contrast: intimate darkness, vibrant indigo/violet accents, C-Level executive feel',
+  '',
+  'SKIN RULE: natural warm skin on face/hands — indigo/violet ONLY in environment and rim light.',
+  'Output: PURE PHOTOGRAPHY, zero text, no logos.',
 ].join('\n');
 
 function listPng(dir) {
@@ -139,13 +156,34 @@ function getReferencePartsForGeneration({ tipo, layout, max = 3, contextoVisual 
   return { paths, parts };
 }
 
+/**
+ * Versão CAST — usa assets/referencias-cast/*.
+ * Prioriza: bg-institutional > estudio > stock-v6, até max imagens.
+ */
+function getReferencePartsForGenerationCast({ max = 3 } = {}) {
+  const all = listPng(REF_ROOT_CAST);
+  // Ordem de preferência: institucionais primeiro, depois estúdio, depois stock
+  const ordered = [
+    ...all.filter(f => /bg-institutional/.test(path.basename(f))),
+    ...all.filter(f => /estudio/.test(path.basename(f))),
+    ...all.filter(f => /stock|background|host-edgar-amanda/.test(path.basename(f))),
+    ...all.filter(f => !/bg-institutional|estudio|stock|background|host-edgar-amanda/.test(path.basename(f))),
+  ];
+  const deduped = [...new Set(ordered)].slice(0, max);
+  const parts = loadReferenceParts(deduped, max);
+  return { paths: deduped, parts };
+}
+
 module.exports = {
   REF_ROOT,
+  REF_ROOT_CAST,
   GRANDE_REFERENCIA,
   STYLE_REF_INSTRUCTION,
+  STYLE_REF_INSTRUCTION_CAST,
   pickGrandeReferencia,
   pickSupplementalRef,
   pickReferencePaths,
   loadReferenceParts,
   getReferencePartsForGeneration,
+  getReferencePartsForGenerationCast,
 };

@@ -123,6 +123,11 @@
   .card--cast:hover { border-color: rgba(99,102,241,0.5); box-shadow: 0 12px 40px rgba(99,102,241,0.12); }
   .card--cast::before { background: radial-gradient(ellipse at top left, rgba(99,102,241,0.06), transparent 70%); }
 
+  /* Sunny Systems */
+  .card--sunny { border-color: rgba(251,180,20,0.2); }
+  .card--sunny:hover { border-color: rgba(251,180,20,0.5); box-shadow: 0 12px 40px rgba(251,180,20,0.12); }
+  .card--sunny::before { background: radial-gradient(ellipse at top left, rgba(251,180,20,0.06), transparent 70%); }
+
   /* Placeholder */
   .card--new { border-color: var(--border); border-style: dashed; opacity: 0.5; cursor: default; }
   .card--new:hover { transform: none; box-shadow: none; }
@@ -259,19 +264,27 @@
       </div>
     </a>
 
-    <!-- Placeholder novo cliente -->
-    <div class="card card--new">
-      <span class="card-badge badge--new"><span class="badge-dot"></span>Em breve</span>
+    <!-- Sunny Systems -->
+    <a class="card card--sunny" href="/sunnysystems/">
+      <span class="card-badge" style="background:rgba(251,180,20,0.12);color:#f97316;border-color:rgba(251,180,20,0.2)"><span class="badge-dot" style="background:#f97316"></span>LinkedIn · Conteúdo</span>
       <div>
-        <div class="card-name">Novo cliente</div>
+        <div class="card-name">Sunny Systems</div>
       </div>
       <p class="card-desc">
-        Adicione um novo cliente com identidade visual e agente editorial próprios.
+        Observabilidade, FinOps e Platform Engineering. Pipeline editorial para LinkedIn com autoridade técnica.
       </p>
       <div class="card-meta">
-        <span>Pipeline pronto para expansão</span>
+        <div class="card-meta-stat">
+          <strong style="color:#f97316">4 produtos</strong>
+          <span>ScopeWard · DevXOS · Sunshine · IA</span>
+        </div>
+        <div class="card-meta-stat" style="text-align:center">
+          <strong>7</strong>
+          <span>pilares editoriais</span>
+        </div>
+        <div class="card-arrow">→</div>
       </div>
-    </div>
+    </a>
 
   </div>
 </main>

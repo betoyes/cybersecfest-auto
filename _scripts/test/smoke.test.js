@@ -248,6 +248,52 @@ describe('campanha-presets.js', () => {
   });
 });
 
+describe('routes/cast.js — factory', () => {
+  const castFactory = require('../routes/cast.js');
+
+  it('factory exporta função', () => {
+    assert.equal(typeof castFactory, 'function');
+  });
+
+  it('factory devolve todos os handlers', () => {
+    const HANDLERS = [
+      'handleCastArtesList', 'handleCastCriarArte', 'handleCastSalvarArte',
+      'handleCastMudarImagem', 'handleCastImgVersoesGet', 'handleCastAtivarImgVersao',
+      'handleCastArteHtmlDynamic', 'handleFestReaplicar', 'handleCastExportar',
+      'handleCastReaplicar', 'handleCastDeletarArte', 'handleCastPedido',
+      'handleCastPropostasGet', 'handleCastAprovar', 'handleCastRejeitar',
+      'handleCastConsumirBanco', 'handleCastCampanha', 'invalidateArtesCast',
+    ];
+    const noop = () => {};
+    const fakeLog = { info: noop, warn: noop, error: noop };
+    const handlers = castFactory({
+      ROOT, ARTES_TTL: 10000,
+      setBusy: () => true, clearBusy: noop,
+      json: noop, readBody: async () => ({}),
+      log: fakeLog, LAYOUT_BG_POS: {}, readArtes: () => [],
+    });
+    for (const name of HANDLERS) {
+      assert.equal(typeof handlers[name], 'function', `handler faltando: ${name}`);
+    }
+  });
+});
+
+describe('utils/img-versoes.js', () => {
+  const { imgVersDir, readImgVersoes } = require('../utils/img-versoes.js');
+  const tmpSlug = `test-slug-${Date.now()}`;
+
+  it('imgVersDir retorna path correto', () => {
+    const p = imgVersDir(tmpSlug);
+    assert.ok(p.includes('img-versoes'), 'path deve conter img-versoes');
+    assert.ok(p.includes(tmpSlug));
+  });
+
+  it('readImgVersoes retorna estrutura vazia quando não existe', () => {
+    const data = readImgVersoes(tmpSlug);
+    assert.deepEqual(data, { ativa: null, versoes: [] });
+  });
+});
+
 describe('galeria-templates manifest', () => {
   it('manifest lista 17 templates com arte.html', () => {
     const manifest = JSON.parse(

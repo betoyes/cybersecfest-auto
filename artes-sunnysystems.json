@@ -1,0 +1,26 @@
+[
+  {
+    "slug": "sunnysystems-1782593760869",
+    "tipo": "autoridade",
+    "tema": "gere um post sobre observabilidade",
+    "layout": "C",
+    "headline": "Observabilidade é <br> MAIS que<br> visualização",
+    "palavras_azuis": "MAIS",
+    "subtitulo": "Entender o contexto é essencial",
+    "legenda": "No mundo da tecnologia, ter muitos dashboards não significa ter clareza. \nCada alerta que chega sem um contexto sólido é apenas um gerador de ansiedade automatizada. \nVocê pode saber o que quebrou, mas entender por que isso importa é o verdadeiro diferencial.\nUma observabilidade madura não se limita a responder o que falhou. Ela revela as razões críticas por trás dos incidentes. \nMenos ruído, mais capacidade de diagnóstico.\nVocê já parou para pensar em como sua estratégia de observabilidade pode crescer? \n#SunnySystems #Observability #TechLeadership",
+    "contexto_visual": "Abstract representation of interconnected data points forming a complex yet harmonious network, symbolizing clarity emerging from complexity",
+    "criadoEm": "2026-06-27T20:56:00.869Z"
+  },
+  {
+    "slug": "sunnysystems-1782593802266",
+    "tipo": "autoridade",
+    "tema": "gere um post sobre observabilidade",
+    "layout": "C",
+    "headline": "VER o problema<br>não é o mesmo que<br>ENTENDER",
+    "palavras_azuis": "VER ENTENDER",
+    "subtitulo": "Diferenciar informação de insight",
+    "legenda": "Em um ambiente repleto de dados, a verdadeira questão não é apenas enxergar. É conseguir entender o que está por trás de cada alerta, cada métrica.<br><br>Numa operação complexa, se você apenas acumula dados, está fadado a um mar de informações desconexas e a diagnósticos eternos.<br><br>Observabilidade madura deve ir além. Não basta identificar o que quebrou, mas sim por que isso importa no contexto do seu negócio.<br><br>Na Sunny Systems, acreditamos que a diferença entre informação e insight é o que determina a capacidade de resposta ágil.<br><br>Você tem conseguido diferenciar o que realmente importa?<br><br>#Observabilidade #EficiênciaOperacional #SunnySystems",
+    "contexto_visual": "Abstract representation of a human eye with layers of data clouds and digital connections intertwining",
+    "criadoEm": "2026-06-27T20:56:42.266Z"
+  }
+]

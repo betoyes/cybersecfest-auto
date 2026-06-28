@@ -71,7 +71,7 @@ input[type=range]{width:100%;accent-color:#14A8F4;cursor:pointer;height:3px}
 .art-canvas .left-col,.art-canvas .right-panel,.art-canvas .right-panel-b,.art-canvas .right-img,.art-canvas .img-left,.art-canvas .img-left-b,.art-canvas .text-band,.art-canvas .img-band{z-index:2}
 .cta-pill{z-index:2;position:relative}
 .badge-layout{position:absolute;bottom:22px;right:14px;background:rgba(20,168,244,0.18);border:1px solid rgba(20,168,244,0.35);color:#14A8F4;font-family:'Montserrat',sans-serif;font-size:9px;font-weight:600;padding:3px 8px;border-radius:4px;letter-spacing:1px;z-index:3}
-@media print{#topbar,#pl,#pr{display:none!important}#main-area{display:flex!important;align-items:center!important;justify-content:center!important}#ca{flex:1!important;background:none!important;padding:0!important}.cl,.ci{display:none!important}}
+@media print{#topbar,#pl,#pr{display:none!important}#main-area{display:flex!important;align-items:center!important;justify-content:center!important}#ca{flex:1!important;background:none!important;padding:0!important}.cl,.ci,.badge-layout{display:none!important}}
 html.embed body{display:block!important;height:100vh!important;overflow:hidden!important}
 html.embed #topbar,html.embed .ep{display:none!important}
 html.embed #main-area{height:100vh!important}
@@ -101,6 +101,12 @@ const PANEL_LEFT = `
       <div class="ep-c"><div class="ep-l">Peso (headline)</div><div class="ep-seg" id="fwseg"><button class="ep-sb" data-v="400">400</button><button class="ep-sb" data-v="500">500</button><button class="ep-sb on" data-v="700">700</button></div></div>
     </div>
     <button class="ep-rst" id="rstAll">↺ Resetar fundo</button>
+    <div id="previewPane" class="ep-s" style="display:none">
+      <div class="ep-st">Preview</div>
+      <div style="width:100%;height:285px;overflow:hidden;background:#02050a;border:1px solid rgba(255,255,255,.08);position:relative">
+        <iframe id="previewFrame" scrolling="no" sandbox="allow-scripts allow-same-origin" style="width:540px;height:675px;border:none;transform:scale(0.422);transform-origin:top left;position:absolute;top:0;left:0;pointer-events:none;transition:opacity .2s"></iframe>
+      </div>
+    </div>
   </div>`;
 
 const PANEL_RIGHT = `
@@ -125,12 +131,15 @@ const PANEL_RIGHT = `
       <div class="ep-c"><div class="ep-l">Deslocar ←→ <em id="vtx">0px</em></div><input type="range" id="stx" min="-250" max="250" value="0"></div>
       <div class="ep-c"><div class="ep-l">Deslocar ↑↓ <em id="vty">0px</em></div><input type="range" id="sty" min="-250" max="250" value="0"></div>
       <div class="ep-c"><div class="ep-l">Escala <em id="vts">100%</em></div><input type="range" id="sts" min="40" max="200" value="100"></div>
+      <div class="ep-c"><div class="ep-l">Texto</div><textarea id="hlEdit" class="ep-sel" rows="3" style="resize:vertical;min-height:56px;line-height:1.5;font-size:10px;font-family:inherit" placeholder="Título..."></textarea></div>
+      <div class="ep-c"><div class="ep-l">Palavras azuis</div><input type="text" id="hlBlue" class="ep-sel" placeholder="ex: MELHOR ANÚNCIO" style="font-size:10px;font-family:inherit;width:100%;box-sizing:border-box;"></div>
     </div>
     <div class="ep-s">
       <div class="ep-tag">Subtítulo</div>
       <div class="ep-c"><div class="ep-l">Alinhamento</div><div class="ep-seg" id="staseg"><button class="ep-sb" data-v="left">◀ Esq</button><button class="ep-sb on" data-v="center">Ctr</button><button class="ep-sb" data-v="right">Dir ▶</button></div></div>
       <div class="ep-c"><div class="ep-l">Deslocar ←→ <em id="vsx">0px</em></div><input type="range" id="ssx" min="-250" max="250" value="0"></div>
       <div class="ep-c"><div class="ep-l">Deslocar ↑↓ <em id="vsy">0px</em></div><input type="range" id="ssy" min="-250" max="250" value="0"></div>
+      <div class="ep-c"><div class="ep-l">Texto</div><textarea id="subEdit" class="ep-sel" rows="3" style="resize:vertical;min-height:56px;line-height:1.5;font-size:10px;font-family:inherit" placeholder="Subtítulo..."></textarea></div>
     </div>
     <div class="ep-s" id="ctaSection">
       <div class="ep-tag">CTA Pill</div>
@@ -279,10 +288,6 @@ function normalizeCanvas(inner, layout) {
   }
   out = out.replace(/\sclass="ecosystem"\sclass="ecosystem"/g, ' class="ecosystem"');
 
-  if (layout && !out.includes('badge-layout')) {
-    out += `\n<div class="badge-layout">LAYOUT ${String(layout).toUpperCase()}</div>`;
-  }
-
   return out;
 }
 
@@ -290,7 +295,7 @@ function annotateCanvas(inner, layout) {
   return normalizeCanvas(inner, layout);
 }
 
-function buildEditorHtml({ inner, layoutCss, layout, layoutN, title, back, slug, editorState, formato = DEFAULT_FORMATO, palavrasAzuis = '' }) {
+function buildEditorHtml({ inner, layoutCss, layout, layoutN, title, back, slug, editorState, formato = DEFAULT_FORMATO, palavrasAzuis = '', saveUrl = null, previewUrl = '' }) {
   const css = layoutCss || (layout ? getLayoutCss(layout) : '');
   const stateBlock = editorState
     ? `<script type="application/json" id="editor-state">${JSON.stringify(editorState)}</script>\n`
@@ -329,19 +334,19 @@ ${css ? `\n/* Layout ${layout} */\n${css}` : ''}
 ${PANEL_LEFT}
   <div id="ca">
     <div id="cw">
-      <div class="cl">CybersecFEST · Layout ${layout} — ${layoutN} · <span id="fmtLabel">${fmt.label}</span></div>
+      <div class="cl">${(slug||'').startsWith('cast-')?'CybersecCAST':'CybersecFEST'} · Layout ${layout} — ${layoutN} · <span id="fmtLabel">${fmt.label}</span></div>
       <div class="art-canvas" id="the-canvas" data-formato="${fmt.id}" data-export-w="${fmt.exportW}" data-export-h="${fmt.exportH}" style="width:${fmt.width}px;height:${fmt.height}px">${canvasInner}</div>
       <div class="ci" id="fmtDims">${fmt.exportW} × ${fmt.exportH} px</div>
     </div>
   </div>
 ${PANEL_RIGHT}
 </div>
-${stateBlock}${metaBlock}<script>${editorV3Script(slug)}<\/script>
+${stateBlock}${metaBlock}<script>${editorV3Script(slug, { saveUrl, previewUrl })}<\/script>
 </body>
 </html>`;
 }
 
-function wrapWithEditor(simpleHtml, { layout, headline, slug, editorState: stateOverride = null, back: backOverride = null, formato = DEFAULT_FORMATO, palavrasAzuis = '' }) {
+function wrapWithEditor(simpleHtml, { layout, headline, slug, editorState: stateOverride = null, back: backOverride = null, formato = DEFAULT_FORMATO, palavrasAzuis = '', save = null, previewUrl = '' }) {
   const layoutN = LAYOUT_NAMES[layout] || layout;
   const title   = (headline || 'Arte CybersecFEST').replace(/"/g, '&quot;').slice(0, 80);
   const isTemplate = /^template-[a-q]$/i.test(String(slug || ''));
@@ -363,7 +368,7 @@ function wrapWithEditor(simpleHtml, { layout, headline, slug, editorState: state
     const layoutCss = resolveLayoutCss(simpleHtml, layout);
     if (canvasLooksValid(canvas, layout)) {
       const inner = normalizeCanvas(canvas, layout);
-      return buildEditorHtml({ inner, layoutCss, layout, layoutN, title, back, slug, editorState, formato, palavrasAzuis });
+      return buildEditorHtml({ inner, layoutCss, layout, layoutN, title, back, slug, editorState, formato, palavrasAzuis, saveUrl: save, previewUrl });
     }
     // Canvas corrompido — caller deve re-renderizar via renderLayout
     return null;
@@ -371,7 +376,7 @@ function wrapWithEditor(simpleHtml, { layout, headline, slug, editorState: state
 
   const inner     = annotateCanvas(extractCanvasInner(simpleHtml), layout);
   const layoutCss = resolveLayoutCss(simpleHtml, layout);
-  return buildEditorHtml({ inner, layoutCss, layout, layoutN, title, back, slug, editorState, formato, palavrasAzuis });
+  return buildEditorHtml({ inner, layoutCss, layout, layoutN, title, back, slug, editorState, formato, palavrasAzuis, saveUrl: save, previewUrl });
 }
 
 module.exports = { wrapWithEditor, normalizeCanvas, buildEditorHtml, extractCanvasFromEditor, resolveLayoutCss, canvasLooksValid };

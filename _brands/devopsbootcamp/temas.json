@@ -1,0 +1,141 @@
+{
+  "_meta": {
+    "versao": "1.0.0",
+    "descricao": "Banco de temas do DevOps Bootcamp — Plataforma de treinamentos enterprise DevOps, SRE, Kubernetes e Platform Engineering",
+    "atualizado_em": "2023-10-05",
+    "marca": "DevOps Bootcamp"
+  },
+  "podcast": {
+    "nome": "DevOps Bootcamp",
+    "tagline": "O treinamento mais prático de DevOps do Brasil",
+    "posicionamento": "Feito por quem opera em produção, não por quem só escreve slides.",
+    "descricao": "Plataforma de treinamentos enterprise DevOps, SRE, Kubernetes e Platform Engineering para times de TI de médias e grandes empresas brasileiras.",
+    "formato": "Cursos hands-on com projetos reais e infraestrutura prática",
+    "frequencia": "Contínua",
+    "plataformas": [
+      "devopsbootcamp.net"
+    ],
+    "ecossistema": [
+      "Comunidade DevOps Bootcamp"
+    ],
+    "contato": "contato@devopsbootcamp.net",
+    "hosts": [],
+    "publico_alvo": [
+      "DevOps engineers",
+      "SREs",
+      "Platform engineers",
+      "CTOs",
+      "Heads de Infraestrutura"
+    ],
+    "numeros": {
+      "profissionais_conectados": "150.000+",
+      "trilhas_oferecidas": 3,
+      "anos_expertise": "5+",
+      "cursos_disponiveis": 10
+    }
+  },
+  "editorial": {
+    "tom": "Técnico, direto, orientado a resultado prático. Sem hype, sem jargão vazio.",
+    "pilares": [
+      "Conteúdo criado por practitioners com experiência real em produção",
+      "Projetos hands-on com infraestrutura real",
+      "Trilhas focadas em resultados concretos"
+    ],
+    "angulos_recorrentes": [
+      "Desafios de implementar Kubernetes em produção",
+      "Integração de segurança no pipeline DevOps",
+      "Construindo plataformas internas eficazes",
+      "Melhores práticas de SRE para alta disponibilidade",
+      "Automação e eficiência com GitOps"
+    ],
+    "evitar": [
+      "Jargões vazios e hype sem fundamento",
+      "Conteúdo teórico sem aplicação prática",
+      "Promessas exageradas sem entrega"
+    ]
+  },
+  "patrocinio": {
+    "cotas": [],
+    "setores_alvo": [
+      "Tecnologia",
+      "DevOps",
+      "Infraestrutura",
+      "Segurança",
+      "Cloud"
+    ]
+  },
+  "temas_grade": [
+    "Kubernetes",
+    "DevSecOps",
+    "Platform Engineering",
+    "SRE",
+    "GitOps",
+    "CI/CD",
+    "Terraform",
+    "Observabilidade"
+  ],
+  "calendario_editorial": {
+    "segunda": {
+      "tipo_post": "artigo",
+      "observacao": "Artigo técnico sobre práticas DevOps"
+    },
+    "quarta": {
+      "tipo_post": "case",
+      "observacao": "Estudo de caso de implementação bem-sucedida"
+    },
+    "sexta": {
+      "tipo_post": "dica",
+      "observacao": "Dica prática ou insight técnico"
+    }
+  },
+  "convidados_recorrentes": [],
+  "historico_recente": [],
+  "historico_aprovacoes": [],
+  "categorias_conteudo": [
+    {
+      "nome": "Implementação de Kubernetes",
+      "descricao": "Exploração profunda das melhores práticas e desafios na implementação do Kubernetes em ambientes de produção.",
+      "temas": [
+        "Kubernetes",
+        "Orquestração de Contêineres",
+        "Alta Disponibilidade"
+      ]
+    },
+    {
+      "nome": "Segurança DevOps",
+      "descricao": "Integração de práticas de segurança dentro do ciclo de vida do DevOps para proteger pipelines e aplicações.",
+      "temas": [
+        "DevSecOps",
+        "Segurança de Pipelines",
+        "Compliance em DevOps"
+      ]
+    },
+    {
+      "nome": "Engenharia de Plataforma",
+      "descricao": "Desenvolvimento de plataformas internas para melhorar a produtividade dos desenvolvedores e a eficiência operacional.",
+      "temas": [
+        "Platform Engineering",
+        "Internal Developer Platforms",
+        "Backstage e ArgoCD"
+      ]
+    },
+    {
+      "nome": "Observabilidade e Automação",
+      "descricao": "Ferramentas e práticas para monitorar, automatizar e otimizar sistemas complexos em produção.",
+      "temas": [
+        "Observabilidade",
+        "Automação de Infraestrutura",
+        "Monitoramento Contínuo"
+      ]
+    },
+    {
+      "nome": "Práticas de SRE",
+      "descricao": "Princípios e práticas de Engenharia de Confiabilidade de Sites para manter sistemas altamente disponíveis e resilientes.",
+      "temas": [
+        "SRE",
+        "Alta Disponibilidade",
+        "Gestão de Incidentes"
+      ]
+    }
+  ]
+}

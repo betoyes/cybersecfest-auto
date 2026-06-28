@@ -24,6 +24,7 @@ function aplicarEdicoes(proposta, edicoes = {}) {
 }
 
 function propostaParaArtePayload(proposta, tipoPost, opts = {}) {
+  const layoutSugerido = /^[A-Q]$/i.test(proposta.layout_sugerido || '') ? String(proposta.layout_sugerido).toUpperCase() : null;
   return {
     tipoPost: proposta.tipo_post || tipoPost,
     headline:       proposta.headline,
@@ -35,6 +36,7 @@ function propostaParaArtePayload(proposta, tipoPost, opts = {}) {
     propostaId:     proposta.id,
     angulo:         proposta.angulo,
     ctaVisual:      proposta.cta_visual,
+    layoutOverride: layoutSugerido,
   };
 }
 
@@ -50,6 +52,7 @@ function itemBancoFromProposta(proposta, lote) {
     legenda:        proposta.legenda,
     contexto_visual:proposta.contexto_visual,
     cta_visual:     proposta.cta_visual || '',
+    layout_sugerido:proposta.layout_sugerido || null,
     aprovado_em:    new Date().toISOString(),
     origem_lote:    lote.id,
   };
@@ -140,6 +143,7 @@ async function consumirBancoCast() {
     propostaId:      item.id,
     angulo:          item.angulo,
     ctaVisual:       item.cta_visual,
+    layoutOverride:  /^[A-Q]$/i.test(item.layout_sugerido || '') ? String(item.layout_sugerido).toUpperCase() : null,
   });
 
   return { ...resultado, fromBanco: true, bancoId: item.id };

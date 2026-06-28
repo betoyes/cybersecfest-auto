@@ -1,5 +1,7 @@
 'use strict';
 
+const { escHtml } = require('./escape.js');
+
 const FONT_FACES = `
       @font-face {
         font-family: 'Ubuntu';
@@ -78,10 +80,6 @@ const BASE_CSS = `
       .eco { display: flex; align-items: center; gap: 32px; padding-top: 20px; border-top: 1px solid rgba(246,248,255,0.1); }
       .eco img { height: 60px; width: auto; object-fit: contain; filter: brightness(0) invert(1); opacity: 0.88; }
       .eco-sep { width: 1px; height: 28px; background: rgba(246,248,255,0.12); }`;
-
-function escHtml(s) {
-  return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-}
 
 function escRegex(s) {
   return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');

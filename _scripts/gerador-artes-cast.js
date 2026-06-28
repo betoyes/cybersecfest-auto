@@ -17,6 +17,8 @@ const path = require('path');
 
 const { getJSON, putFile, putBinary, putJSON, REPO_ROOT, isLocal, ensureDir } = require('./utils/storage.js');
 const { generateText, generateImage }    = require('./utils/llm.js');
+const { getReferencePartsForGenerationCast } = require('./utils/reference-images.js');
+const { CAST_STYLE_REF_INSTRUCTION }         = require('../_brands/cyberseccast/imagem-prompt.js');
 const { validateLayout }                 = require('./utils/imagem-prompt.js');
 const { buildCastImagePrompt }           = require('../_brands/cyberseccast/imagem-prompt.js');
 const CAST_BRAND                         = require('../_brands/cyberseccast/brand.js');
@@ -117,7 +119,18 @@ async function gerarArteCast({
   // 3. Gerar imagem IA com identidade CAST (indigo/violet, podcast)
   console.log('🖼️  CAST — Gerando imagem IA (estilo indigo #6366f1, podcast executivo)...');
   const imgPrompt = buildCastImagePrompt({ tipo: tipoPost, layout, contextoVisual, slug });
-  const imgBuffer = await generateImage(imgPrompt, { tipo: tipoPost, layout, contextoVisual, useReferences: false });
+  const castRefs  = getReferencePartsForGenerationCast({ max: 3 });
+  if (castRefs.paths.length) {
+    console.log(`   📎 CAST refs: ${castRefs.paths.map(p => path.basename(p)).join(', ')}`);
+  }
+  // _styleInstruction substitui o STYLE_REF_INSTRUCTION do FEST dentro de generateImageNanoBanana
+  // para evitar instrução dupla (FEST cyan + CAST indigo) que confunde o modelo
+  const imgBuffer = await generateImage(imgPrompt, {
+    tipo: tipoPost, layout, contextoVisual,
+    useReferences: false,
+    _referenceParts: castRefs.parts,
+    _styleInstruction: castRefs.parts.length ? CAST_STYLE_REF_INSTRUCTION : null,
+  });
   if (!imgBuffer?.length || imgBuffer.length < 500) {
     throw new Error(`Imagem CAST inválida (${imgBuffer?.length || 0} bytes)`);
   }
@@ -154,7 +167,8 @@ async function gerarArteCast({
   console.log('🏗️  CAST — Gerando HTML com brand CAST...');
   const ctaPayload = (ctaVisual || '').trim() || null;
 
-  let html = renderLayoutForBrand(layout, {
+  let html = renderLayoutForBrand(slug, {
+    layout,          // obrigatório: renderLayoutForBrand usa arte.layout
     imageBase64,
     headline,
     subtitulo,

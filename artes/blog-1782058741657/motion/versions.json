@@ -1,0 +1,25 @@
+{
+  "slug": "blog-1782058741657",
+  "preview": 2,
+  "mp4_from": null,
+  "versions": [
+    {
+      "id": 1,
+      "dir": "v1",
+      "preset": "kinetic-swipe-7s",
+      "duracao_s": 7,
+      "created_at": "2026-06-26T03:40:21.097Z",
+      "note": "Variação criativa automática",
+      "mp4": null
+    },
+    {
+      "id": 2,
+      "dir": "v2",
+      "preset": "entrance-premium-6s",
+      "duracao_s": 6.5,
+      "created_at": "2026-06-26T03:43:45.383Z",
+      "note": "Variação criativa automática",
+      "mp4": null
+    }
+  ]
+}

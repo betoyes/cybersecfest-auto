@@ -1,0 +1,14 @@
+{
+  "env": {
+    "ECC_DISABLED_HOOKS": "pre:bash:gateguard-fact-force,pre:edit-write:gateguard-fact-force"
+  },
+  "permissions": {
+    "allow": [
+      "Bash(cd _scripts && npm test)",
+      "Bash(lsof -i :8765)",
+      "Bash(curl -s http://localhost:8765/*)",
+      "mcp__headroom__headroom_retrieve",
+      "mcp__headroom__headroom_stats"
+    ]
+  }
+}

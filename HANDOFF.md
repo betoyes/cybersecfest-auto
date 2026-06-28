@@ -1,7 +1,89 @@
 # CybersecFEST — Documento de Handoff para Nova IA
 
-> **Última atualização:** 26 jun 2026 — sessão Claude Code (bugfixes CAST v2)  
+> **Última atualização:** 28 jun 2026 — sessão Claude Code (12 melhorias CAST + porte completo para Sunny Systems / client-router)  
 > **Propósito:** Onboarding completo para qualquer IA ou agente que vá dar continuidade a este projeto.
+
+---
+
+## CHANGELOG RECENTE
+
+### 28 jun 2026 — 9 melhorias Plano-2 + configuração de tokens
+
+**`_scripts/utils/client-router.js`:**
+- `handleCalendario` — rota `GET /api/{slug}/temas/calendario` (Fase 1)
+- `handleSalvarArte` — aceita `publicado: bool` sem `state`; persiste `publicado` + `publicado_em` (Fase 6)
+- `_getArteEmbeddings(artes)` — cache 60s para embeddings das artes; invalida em `writeArtes` (Fase 4)
+- `_gerarImagem` — valida qualidade (< 50KB) com 1 retry automático (Fase 8)
+- Thumbnails fire-and-forget em criar/duplicar/aprovar; await mantido em salvar/reaplicar (Fase 3)
+- `handleExportarZip` inclui `arte.html` (Fase 5)
+
+**`_scripts/routes/cast.js`:**
+- `handleFestArteHtmlDynamic` — renderização dinâmica de artes FEST (elimina gotcha 16) (Fase 2)
+- Thumbnails fire-and-forget em criar/duplicar (Fase 3)
+- `handleCastExportarZip` inclui `arte.html` (Fase 5)
+
+**`_scripts/dev-server.js`:**
+- Intercepta `/artes/(evento|blog|patrocinador|palestrante)-*/arte.html` antes do serveStatic (Fase 2)
+
+**`_scripts/utils/similaridade.js`:**
+- `marcarSimilares` aceita 4º arg `arteEmbeddingsPrecomputed` (Fase 4)
+
+**`_scripts/utils/llm.js`:**
+- `validateImageQuality(imgBuffer)` exportada — check tamanho mínimo (Fase 8)
+
+**`_brands/sunnysystems/imagem-prompt.js`:**
+- `LAYOUT_COMPOSITION_HINTS` A/B/C/D/G/H/J/M/N injetados no prompt (Fase 9)
+
+**`sunnysystems/index.html` + `cast/index.html`:**
+- Filtro "Só publicadas" + badge ✓ no card + botão toggle no modal (Fase 6)
+- `#modal-seed-wrap` + `loadSeedFromState` + `copySeed` (Fase 7)
+
+**`.claude/settings.json`** (novo):
+- `ECC_DISABLED_HOOKS` desabilita GateGuard para este projeto
+- Permissões: npm test, lsof :8765, curl localhost, mcp headroom
+
+Ver `PLANO-MELHORIAS-2.md` para especificação completa das 9 fases.
+
+---
+
+### 28 jun 2026 — 12 melhorias + porte Sunny Systems
+
+**Novos módulos:**
+- `_scripts/utils/similaridade.js` — cosine similarity via embeddings `text-embedding-3-small`
+
+**`_scripts/utils/llm.js`** — 3 novas funções exportadas:
+- `generateImageGptImage1WithSeed(prompt, seed?)` — variação controlada; retorna `{ buffer, seed }`
+- `getEmbedding(input)` — embedding de texto ou array
+- `detectSubjectPosition(imgBuffer)` — posição do sujeito via `gpt-4o-mini` vision; retorna `left|center|right|abstract`
+
+**`_scripts/utils/editor-v3-script.js` / `editor-wrap.js`** — editor agora genérico:
+- `editorV3Script(slug, { saveUrl, previewUrl })` — URLs injetadas, não mais hardcoded por produto
+- Headline, subtítulo e `palavras_azuis` sempre no payload de save (antes condicionados a `isCast`)
+
+**`_scripts/utils/client-router.js`** — reescrito com todas as melhorias portadas do CAST:
+- `handleExportarZip`, `handleDuplicarArte`, `handlePreview` (novos handlers)
+- `handleMudarImagem` suporta `variar: true` com seed; `handleSalvarArte` persiste `palavras_azuis`
+- `handlePedido` com feedback loop (últimas 5 artes) + similaridade + campo `cena_visual`
+- `handleAprovarProposta` / `handleCriarArte` com `_detectSmartBgPos` automático
+- Lock por slug via `_setBusy/_clearBusy`; `configureLock()` exportado
+- `buildArteHtml(arteSlug, arte, bgPosOverride?)` — suporta override de posição inicial
+- `previewUrl: /api/{slug}/arte/preview` injetado no editor
+
+**Novas rotas (todos os clientes dinâmicos via `client-router.js`):**
+```
+POST /api/{slug}/arte/preview      → read-only, sem escrita em disco
+POST /api/{slug}/arte/duplicar     → copia fundo.png + state.json, gera novo thumb
+GET  /api/{slug}/exportar-zip      → ZIP com thumb.png + fundo.png + artes.json
+```
+
+**`sunnysystems/index.html`:** botão Variar + Duplicar, chip de similaridade  
+**`assets/css/gallery.css`:** `.modal-img-variar-btn`, `.prop-similar`  
+**`_scripts/gerar-propostas-cast.js`:** feedback loop + similaridade para CAST  
+**`_scripts/routes/cast.js`:** ZIP, duplicar, seed+variar, smartBgPos, lock por slug
+
+Ver `PLANO-MELHORIAS.md` para tabela completa de fases e arquivos.
+
+---
 
 ---
 
@@ -14,7 +96,8 @@ Este repositório é a **fábrica automatizada de conteúdo** para dois produtos
 
 ### O que ele faz:
 - Gera **artes gráficas** para Instagram (feed vertical 1080×1350) automaticamente via IA
-- Exibe as artes em **galerias locais** (`index.html` para FEST, `cast/index.html` para CAST)
+- Exibe as artes em **galerias locais** (`fest/index.html` para FEST, `cast/index.html` para CAST)
+- Home **Studio** em `home.html` (raiz `/`) com seleção de produto
 - Permite **editar** artes via editor visual inline no navegador
 - Gera **animações HTML/GSAP** (Motion System) para as artes estáticas
 - Renderiza as animações como **MP4** via HyperFrames CLI
@@ -36,7 +119,11 @@ Este repositório é a **fábrica automatizada de conteúdo** para dois produtos
 ```
 cybersecfest-auto-1/               ← raiz do projeto
 │
-├── index.html                     ← GALERIA PÚBLICA (abre no browser local e Vercel)
+├── home.html                      ← STUDIO HOME — seleção de produto (/, local e Vercel)
+├── fest/
+│   └── index.html                 ← GALERIA FEST (/fest/) — todos os paths absolutos
+├── cast/
+│   └── index.html                 ← GALERIA CAST (/cast/)
 ├── artes.json                     ← BANCO FEST — lista de todas as artes FEST
 ├── artes-cast.json                ← BANCO CAST — lista de todas as artes CAST
 ├── temas.json                     ← contexto editorial FEST, temas, rotação de layouts
@@ -100,25 +187,25 @@ cybersecfest-auto-1/               ← raiz do projeto
 │       └── BRIEF-PROMPT-ANIMACAO.md ← guia para criar briefs de animação
 │
 ├── _scripts/                      ← scripts Node.js do sistema
-│   ├── dev-server.js              ← servidor HTTP local (porta 8765) — FEST + CAST
+│   ├── dev-server.js              ← servidor HTTP local (porta 8765) — ~710 linhas
 │   ├── gerador-artes.js           ← gera arte FEST completa via IA
 │   ├── gerador-artes-cast.js      ← gera arte CAST completa via IA
-│   ├── pipeline.js                ← orquestra geração FEST completa
 │   ├── pedido-run.js              ← executa pedido de nova arte FEST
 │   ├── pedido-run-cast.js         ← executa pedido de nova arte CAST
 │   ├── aprovar-propostas.js       ← aprovação de lotes FEST
 │   ├── aprovar-propostas-cast.js  ← aprovação de lotes CAST
 │   ├── gerar-propostas-cast.js    ← gera 3 propostas CAST via LLM
-│   ├── animar-arte.js             ← CLI para criar animação em um post
 │   ├── motion-pedido-run.js       ← worker: gera versão motion em background
+│   ├── routes/
+│   │   ├── cast.js                ← handlers CAST (factory setupCastRoutes)
+│   │   └── motion.js              ← handlers Motion (factory setupMotionRoutes)
 │   └── utils/
 │       ├── layouts.js             ← renderiza HTML de cada layout (A–Q)
 │       ├── brand-renderer.js      ← aplica tokens de marca sobre HTML do layout
 │       ├── editor-wrap.js         ← wrapper editor visual (painéis CSS + HTML)
 │       ├── editor-v3-script.js    ← JS do editor (sliders, save, export PNG)
-│       ├── formatos.js            ← dimensões de display e export por formato
+│       ├── img-versoes.js         ← lê/escreve histórico img-versoes/ por slug
 │       ├── llm.js                 ← Gemini (imagens) + GPT-4o (texto) + cadeia de fallback
-│       ├── storage.js             ← abstração leitura/escrita (local e GitHub)
 │       ├── thumb-composto.js      ← captura screenshot da arte como thumb.png
 │       ├── editor-state.js        ← lê/escreve estado do editor inline
 │       ├── motion-gerador.js      ← lógica de geração de versões motion
@@ -126,7 +213,6 @@ cybersecfest-auto-1/               ← raiz do projeto
 │       ├── motion-versoes.js      ← leitura/escrita de versions.json
 │       ├── motion-pedidos.js      ← fila de pedidos (pedidos.json)
 │       ├── motion-mp4.js          ← resolve arquivo MP4 de uma versão
-│       ├── motion-sandbox.js      ← controle de sandbox (Node.js)
 │       └── …outros utilitários
 │
 ├── _brands/
@@ -792,6 +878,12 @@ patrocinador: F → I → B → Q → (repete)
 
 ## 12. ESTADO ATUAL DO PROJETO (jun/2026)
 
+### Studio Home — O que está funcionando:
+- ✅ `home.html` na raiz (`/`) — seleção de produto com cards FEST, CAST e placeholder "novo cliente"
+- ✅ `fest/index.html` — galeria FEST em `/fest/` com todos os paths absolutos (foi migrada de `/`)
+- ✅ `cast/index.html` — link "← Studio" adicionado no header
+- ✅ `assets/css/gallery.css` — classe `.back-home` adicionada (usada pela galeria FEST)
+
 ### CybersecFEST — O que está funcionando:
 - ✅ Geração automática de artes (blog, evento, patrocinador)
 - ✅ Editor visual inline no modal da galeria
@@ -836,7 +928,12 @@ A UI de motion está **comentada** em `index.html` com marcadores `<!-- MOTION E
 - ❌ Posts do tipo `palestrante` ainda não foram criados
 - ❌ Deploy automático para o Vercel (ainda manual)
 - ❌ Reativar UI de motion quando pipeline estiver estável
-- ❌ nodemon no `package.json` de `_scripts` (auto-restart ao salvar .js)
+
+### Refatorações recentes (jun/2026):
+- ✅ `nodemon` — `npm run dev` reinicia automaticamente ao salvar qualquer `.js`
+- ✅ Cache em memória em `embed-assets.js` — assets lidos do disco uma só vez por processo
+- ✅ Warning em `moveCastLogoToLeft` — stderr se string CSS não for encontrada
+- ✅ `dev-server.js` fragmentado: 1526 → 710 linhas; handlers CAST em `routes/cast.js`, Motion em `routes/motion.js`, versões de imagem em `utils/img-versoes.js`
 
 ---
 
@@ -883,7 +980,10 @@ Isso é responsabilidade do **SuperAgent** (CREAO). O Cursor/AnimAgent não deve
 | `animacoes.json` | registro de animações | AnimAgent (append-only) |
 | `index.html` | galeria pública | SuperAgent (via PR) |
 | `AGENTS.md` | protocolo colaboração | Qualquer agente via PR |
-| `_scripts/dev-server.js` | servidor + API | Cursor |
+| `_scripts/dev-server.js` | servidor + rotas FEST + dispatch (~710 linhas) | Cursor |
+| `_scripts/routes/cast.js` | handlers CAST (factory) | Cursor |
+| `_scripts/routes/motion.js` | handlers Motion (factory) | Cursor |
+| `_scripts/utils/img-versoes.js` | versões de imagem por slug | Cursor |
 | `_scripts/utils/motion-gerador.js` | gera versões motion | Cursor/AnimAgent |
 | `_scripts/utils/motion-presets.js` | templates HTML presets | Cursor/AnimAgent |
 | `_scripts/utils/motion-versoes.js` | lê/escreve versions.json | Cursor/AnimAgent |
@@ -1005,6 +1105,17 @@ cat animacoes.json
 
 26. **Pipeline de validação de legenda CAST (3 passos):** `gerarRotasComValidacao` em `gerar-propostas-cast.js` valida por linhas (6–12) E chars (≥320). Passo 1: geração normal. Passo 2: `forceLong: true` se houver falhas. Passo 3: `expandirLegendaCast` individual para cada legenda ainda curta. O log do servidor mostra `· ângulo: N linhas · X chars ★ ⚠️` — monitorar qualidade em tempo real.
 
+27. **Título editável no editor (jun/2026):** O painel direito da seção TÍTULO agora tem dois campos: `hlEdit` (textarea — texto + quebras de linha com `\n` → `<br>`) e `hlBlue` (input — palavras azuis separadas por espaço/vírgula). Ao digitar, `buildTitlHtml()` reconstrui o `TITL.innerHTML` envolvendo as palavras marcadas em `<span style="color:#14A8F4">` (FEST) ou `<span style="color:#6366f1">` (CAST). O campo `hlBlue` é pré-preenchido lendo os `<span[style*="color"]>` existentes no DOM. A edição é visual apenas — não persiste em `state.json` nem no `arte.html` em disco (próxima iteração: salvar via `saveBody.headline`).
+
+29. **Arquitetura multi-cliente (jun/2026):** Qualquer novo cliente pode ser onboardado sem tocar em código. Fluxo completo:
+    1. `node _scripts/onboarding-cliente.js --briefing briefing.json` — gera via GPT-4o: `_brands/{slug}/brand.js`, `imagem-prompt.js`, `temas.json`, `_agents/{slug}-estrategista/knowledge.js`, `system-prompt.js`; cria galeria `{slug}/index.html`, banco `artes-{slug}.json` e registra em `_clients.json`.
+    2. Reiniciar o servidor — `loadClients()` lê `_clients.json` e instancia um `ClientRouter` por cliente ativo.
+    3. `dispatchClient(req, res, urlPath)` no handler despacha automaticamente todas as rotas do cliente.
+    Rotas disponíveis por cliente: `GET /{slug}/`, `GET /api/{slug}/artes`, `POST /api/{slug}/arte/criar|salvar|deletar|imagem/mudar|reaplicar`, `GET /artes/{slug}-*/arte.html`.
+    Arquivos: `_scripts/onboarding-cliente.js`, `_scripts/utils/client-router.js`, `_clients.json`, `briefing-exemplo.json`.
+
+28. **FEST `arte.html` agora é dinâmico (resolvido em 28 jun 2026):** `handleFestArteHtmlDynamic` em `routes/cast.js` intercepta `GET /artes/(evento|blog|patrocinador|palestrante)-*/arte.html` antes do `serveStatic`. Mudanças em `editor-wrap.js` ou `editor-v3-script.js` refletem automaticamente sem regenerar. Artes sem `fundo.png` (legado) ainda servem o arquivo estático em disco.
+
 ---
 
 ## 13. Agentes Editoriais
@@ -1033,5 +1144,5 @@ Importado por: `_scripts/gerar-propostas-cast.js`
 
 **Para adicionar novos convidados/episódios:** editar apenas `_agents/cast-estrategista/knowledge.js` → array `temporada.episodios_gravados`. O sistema pega automaticamente na próxima requisição (sem restart necessário, o arquivo é lido em runtime).
 
-*Documento atualizado em 26 jun 2026 — sessão Claude Code (agentes editoriais FEST + CAST)*  
+*Documento atualizado em 27 jun 2026 — sessão Claude Code (refatoração dev-server → routes/, nodemon, cache embed-assets)*  
 *Para dúvidas sobre sessões anteriores: ver histórico de commits no git.*

@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1350" />
+    <title>CybersecFEST — A conversa que não cabe em reunião. · Motion</title>
+    <style>
+      @font-face {
+        font-family: 'Ubuntu';
+        font-style: normal;
+        font-weight: 700;
+        src: url('assets/fonts/Ubuntu-Bold.woff2') format('woff2');
+      }
+      @font-face {
+        font-family: 'Montserrat';
+        font-style: normal;
+        font-weight: 400;
+        src: url('assets/fonts/Montserrat-Regular.woff2') format('woff2');
+      }
+      @font-face {
+        font-family: 'Montserrat';
+        font-style: normal;
+        font-weight: 600;
+        src: url('assets/fonts/Montserrat-SemiBold.woff2') format('woff2');
+      }
+      @font-face {
+        font-family: 'Montserrat';
+        font-style: normal;
+        font-weight: 700;
+        src: url('assets/fonts/Montserrat-Bold.woff2') format('woff2');
+      }
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+      html, body {
+        width: 1080px; height: 1350px; overflow: hidden;
+        background: #02050A; font-family: 'Montserrat', sans-serif; color: #F6F8FF;
+      }
+      #root { position: relative; width: 1080px; height: 1350px; overflow: hidden; background: #02050A; }
+      .scene { position: absolute; inset: 0; overflow: hidden; }
+      .bg-img {
+        position: absolute; inset: -8%; width: 116%; height: 116%;
+        object-fit: cover; object-position: 62% 50%; transform-origin: 62% 50%;
+      }
+      .overlay {
+        position: absolute; inset: 0; z-index: 2;
+        /* Esquerda 100% sólida para cobrir texto baked no thumb.png;
+           transição suave entre 55% e 78% para revelar o personagem à direita */
+        background: linear-gradient(to right, #02050a 0%, #02050a 55%, rgba(2,5,10,0.18) 78%, rgba(2,5,10,0) 100%),
+          linear-gradient(to top, rgba(2,5,10,0.75) 0%, rgba(2,5,10,0) 35%);
+      }
+      .grain {
+        position: absolute; inset: 0; z-index: 8; opacity: 0.04; pointer-events: none;
+        mix-blend-mode: overlay;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      }
+      .panel {
+        position: absolute; inset: 0; z-index: 5;
+        display: flex; flex-direction: column; justify-content: space-between;
+        padding: 64px 60px 52px 68px;
+      }
+      .top { display: flex; flex-direction: column; }
+      .logo { height: 128px; width: auto; max-width: 440px; object-fit: contain; object-position: left center; margin-bottom: 32px; }
+      .label { font-size: 18px; letter-spacing: 0.25em; color: #14A8F4; text-transform: uppercase; margin-bottom: 28px; font-weight: 700; }
+      .center { flex: 1; display: flex; flex-direction: column; justify-content: center; max-width: 58%; padding: 20px 0; }
+      .headline {
+        font-family: 'Ubuntu', sans-serif; font-weight: 700; font-size: 58px; line-height: 1.08;
+        text-transform: uppercase; color: #F6F8FF; margin-bottom: 32px; letter-spacing: -0.01em;
+      }
+      .hl-row { display: block; overflow: hidden; }
+      .hl-inner { display: inline-block; }
+      .blue { color: #14A8F4; }
+      .divider { width: 72px; height: 4px; background: linear-gradient(90deg, #14A8F4, transparent); margin-bottom: 26px; transform-origin: left center; }
+      .subtitle { font-size: 24px; line-height: 1.65; color: #D5D8ED; max-width: 480px; }
+      .bottom { display: flex; flex-direction: column; gap: 24px; max-width: 65%; }
+      .cta {
+        display: inline-block; width: fit-content;
+        background: rgba(20,168,244,0.13); border: 1px solid rgba(20,168,244,0.38);
+        color: #14A8F4; font-size: 14px; font-weight: 700; letter-spacing: 0.22em;
+        text-transform: uppercase; padding: 10px 24px;
+      }
+      .eco { display: flex; align-items: center; gap: 32px; padding-top: 20px; border-top: 1px solid rgba(246,248,255,0.1); }
+      .eco img { height: 60px; width: auto; object-fit: contain; filter: brightness(0) invert(1); opacity: 0.88; }
+      .eco-sep { width: 1px; height: 28px; background: rgba(246,248,255,0.12); }</style>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+  </head>
+  <body>
+    <div id="root" data-composition-id="entrance-premium-6s" data-start="0" data-width="1080" data-height="1350" data-duration="6.5">
+      <section id="scene" class="clip scene" data-start="0" data-duration="6.5" data-track-index="1">
+
+        <img class="bg-img" id="bg" src="assets/fundo.png" alt="" />
+        <div class="overlay" id="overlay"></div>
+        <div class="panel">
+          <div class="top">
+            <img class="logo" id="logo" src="assets/logo-cyberfest.png" alt="CybersecFEST" />
+            <div class="label" id="label">CybersecFEST · Confraria</div>
+          </div>
+          <div class="center">
+            <h1 class="headline"><span class="hl-row"><span class="hl-inner" id="row-1">A <span class="blue">conversa</span></span></span>
+              <span class="hl-row"><span class="hl-inner" id="row-2">que não</span></span>
+              <span class="hl-row"><span class="hl-inner" id="row-3">cabe em</span></span>
+              <span class="hl-row"><span class="hl-inner" id="row-4">reunião.</span></span></h1>
+            <div class="divider" id="divider"></div>
+            <p class="subtitle" id="subtitle">Benchmarking real. Entre quem realmente decide.</p>
+          </div>
+          <div class="bottom">
+            <div class="cta" id="cta">Inscrições abertas</div>
+            <div class="eco" id="eco">
+              <img src="assets/logo-devops.webp" alt="" /><div class="eco-sep"></div>
+              <img src="assets/logo-iam.webp" alt="" /><div class="eco-sep"></div>
+              <img src="assets/logo-alcatraz.webp" alt="" />
+            </div>
+          </div>
+        </div>
+        <div class="grain"></div>
+      </section>
+    </div>
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+      tl.fromTo('#bg', { scale: 1.18, x: 30, filter: 'brightness(0.55) saturate(0.85)' }, { scale: 1.06, x: 0, filter: 'brightness(1) saturate(1)', duration: 6.5, ease: 'none' }, 0);
+      tl.from('#overlay', { opacity: 0, duration: 0.8, ease: 'power2.out' }, 0.1);
+      tl.from('#logo', { y: -24, opacity: 0, duration: 0.55, ease: 'power3.out' }, 0.35);
+      tl.from('#label', { letterSpacing: '0.45em', opacity: 0, duration: 0.6, ease: 'power2.out' }, 0.55);
+      tl.from('#row-1', { y: '110%', duration: 0.52, ease: 'expo.out' }, 0.85);
+      tl.from('#row-2', { y: '110%', duration: 0.52, ease: 'expo.out' }, 1.07);
+      tl.from('#row-3', { y: '110%', duration: 0.52, ease: 'expo.out' }, 1.29);
+      tl.from('#row-4', { y: '110%', duration: 0.52, ease: 'expo.out' }, 1.51);
+      tl.from('#divider', { scaleX: 0, duration: 0.45, ease: 'power4.inOut' }, 2.08);
+      tl.from('#subtitle', { y: 18, opacity: 0, duration: 0.65, ease: 'power2.out' }, 2.28);
+      tl.from('#cta', { y: 28, opacity: 0, duration: 0.5, ease: 'back.out(1.6)' }, 2.93);
+      tl.from('#eco img', { y: 20, opacity: 0, duration: 0.38, stagger: 0.08, ease: 'power2.out' }, 3.28);
+      window.__timelines['entrance-premium-6s'] = tl;
+    </script>
+  </body>
+</html>

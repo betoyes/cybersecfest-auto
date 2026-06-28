@@ -4,17 +4,23 @@ const fs   = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 
-const BASE_ASSETS = 'https://raw.githubusercontent.com/betoyes/cybersecfest-auto/main/assets';
-const CACHE_FILE  = path.join(__dirname, '.asset-cache.json');
+const BASE_ASSETS  = 'https://raw.githubusercontent.com/betoyes/cybersecfest-auto/main/assets';
+const LOCAL_ASSETS = path.join(__dirname, '../../assets');
+const CACHE_FILE   = path.join(__dirname, '.asset-cache.json');
+
+let _memCache = null;
 
 function loadCache() {
+  if (_memCache) return _memCache;
   if (fs.existsSync(CACHE_FILE)) {
-    try { return JSON.parse(fs.readFileSync(CACHE_FILE, 'utf8')); } catch { /* refresh */ }
+    try { _memCache = JSON.parse(fs.readFileSync(CACHE_FILE, 'utf8')); return _memCache; } catch { /* refresh */ }
   }
-  return {};
+  _memCache = {};
+  return _memCache;
 }
 
 function saveCache(cache) {
+  _memCache = cache;
   fs.writeFileSync(CACHE_FILE, JSON.stringify(cache, null, 2));
 }
 
@@ -26,17 +32,26 @@ function mimeFor(name) {
   return 'application/octet-stream';
 }
 
-/** Retorna data URI embutido — referência SuperAgent (sem dependência de URL externa no thumb). */
+/** Retorna data URI embutido — tenta local primeiro, depois GitHub. */
 function assetDataUri(name) {
   const cache = loadCache();
   if (cache[name]) return cache[name];
 
-  const url = `${BASE_ASSETS}/${name}`;
-  const buf = execSync(`curl -fsSL "${url}"`, {
-    encoding: null,
-    maxBuffer: 15 * 1024 * 1024,
-    stdio: ['pipe', 'pipe', 'pipe']
-  });
+  let buf;
+
+  // 1 — arquivo local (sempre disponível em dev, e em CI se commitado)
+  const localPath = path.join(LOCAL_ASSETS, name);
+  if (fs.existsSync(localPath)) {
+    buf = fs.readFileSync(localPath);
+  } else {
+    // 2 — fallback: GitHub raw
+    const url = `${BASE_ASSETS}/${name}`;
+    buf = execSync(`curl -fsSL "${url}"`, {
+      encoding: null,
+      maxBuffer: 15 * 1024 * 1024,
+      stdio: ['pipe', 'pipe', 'pipe']
+    });
+  }
 
   const uri = `data:${mimeFor(name)};base64,${buf.toString('base64')}`;
   cache[name] = uri;

@@ -1,59 +1,30 @@
 'use strict';
 
 const path = require('path');
-const fs   = require('fs');
-
-const CHROME_PATHS = [
-  process.env.CHROME_PATH,
-  '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
-  '/Applications/Chromium.app/Contents/MacOS/Chromium',
-  '/usr/bin/google-chrome',
-  '/usr/bin/chromium-browser'
-].filter(Boolean);
-
-function findChrome() {
-  for (const p of CHROME_PATHS) {
-    if (fs.existsSync(p)) return p;
-  }
-  return null;
-}
+const { launchBrowser } = require('./puppeteer-browser.js');
 
 /**
- * Captura #the-canvas do arte.html (modo ?embed) como thumb.png composto.
+ * Captura #the-canvas do arte.html (modo ?embed) como thumb composto.
  */
 async function gerarThumbComposto(arteHtmlPath, thumbOutPath) {
-  let puppeteer;
-  try {
-    puppeteer = require('puppeteer-core');
-  } catch {
-    try {
-      puppeteer = require('puppeteer');
-    } catch {
-      throw new Error('Instale puppeteer-core: npm install puppeteer-core');
-    }
-  }
-
-  const executablePath = findChrome();
-  if (!executablePath && !process.env.PUPPETEER_EXECUTABLE_PATH) {
-    throw new Error('Chrome/Chromium não encontrado para captura do thumb');
-  }
-
-  const absHtml = path.resolve(arteHtmlPath);
-  const url     = `file://${absHtml}?embed`;
-
-  const browser = await puppeteer.launch({
-    headless: true,
-    executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || executablePath,
-    args: ['--no-sandbox', '--disable-setuid-sandbox', '--font-render-hinting=none']
-  });
-
+  const isUrl = arteHtmlPath.startsWith('http://') || arteHtmlPath.startsWith('https://');
+  const url = isUrl
+    ? (arteHtmlPath.includes('?') ? arteHtmlPath : arteHtmlPath + '?embed')
+    : `file://${path.resolve(arteHtmlPath)}?embed`;
+  const browser = await launchBrowser();
   try {
     const page = await browser.newPage();
     await page.setViewport({ width: 620, height: 780, deviceScaleFactor: 2 });
-    await page.goto(url, { waitUntil: 'networkidle0', timeout: 90000 });
+    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 90000 });
     await page.waitForSelector('#the-canvas', { timeout: 15000 });
+    // Aguarda todas as imagens carregarem (inclui base64 grandes)
+    await page.evaluate(() => Promise.all(
+      [...document.images].map(img =>
+        img.complete ? Promise.resolve() : new Promise(r => { img.onload = r; img.onerror = r; })
+      )
+    ));
     await page.evaluate(() => document.fonts.ready);
-    await new Promise(r => setTimeout(r, 1200));
+    await new Promise(r => setTimeout(r, 800));
 
     const canvas = await page.$('#the-canvas');
     if (!canvas) throw new Error('#the-canvas não encontrado');

@@ -5,7 +5,12 @@
  * Podcast executivo de cibersegurança — identidade visual independente do CybersecFEST.
  *
  * CybersecFEST  →  #14A8F4 (cyan)  | Ubuntu Bold / Montserrat | #02050A bg
- * CYBERSEC.CAST →  #6366f1 (indigo) | Inter Bold / Space Mono  | #07060f bg
+ * CYBERSEC.CAST →  #6366f1 (indigo) | Space Grotesk / Inter / Space Mono | #07060f bg
+ *
+ * Font hierarchy (mirrors real CAST website tailwind.config):
+ *   display / headlines → Space Grotesk (bold, uppercase)
+ *   body / subtitle     → Inter
+ *   tags / eyebrow      → Space Mono (mono uppercase tracking)
  */
 
 const BRAND = {
@@ -17,35 +22,52 @@ const BRAND = {
   logo_asset: 'logo-cast.png',
 
   colors: {
+    // CAST website CSS vars (hosts.html, temporada.html, midia-kit2.html)
     bg: '#07060f',
-    accent: '#6366f1',
-    accent_secondary: '#8b5cf6',
+    bg_dark: '#040308',
+    accent: '#6366f1',          // indigo-500
+    accent_secondary: '#8b5cf6', // violet-500
+    indigo_400: '#818cf8',
+    indigo_300: '#a5b4fc',
+    violet_600: '#7c3aed',
+    violet_400: '#a78bfa',
+    violet_300: '#c4b5fd',
+    signal: '#37d5ff',           // live/broadcast accent
     text_primary: '#f0eeff',
     text_secondary: '#9b97c4',
     glow: 'rgba(99,102,241,0.35)',
     border: 'rgba(99,102,241,0.22)',
+    gradient_text: 'linear-gradient(135deg, #c5cae9 0%, #818cf8 38%, #a78bfa 72%, #c4b5fd 100%)',
   },
 
   fonts: {
-    headline: 'Inter',
-    headline_weight: 700,
-    subtitle: 'Space Mono',
-    subtitle_weight: 400,
-    google_fonts_url: 'https://fonts.googleapis.com/css2?family=Inter:wght@700&family=Space+Mono&display=swap',
+    display: 'Space Grotesk',
+    display_weight: 700,
+    body: 'Inter',
+    body_weight: 400,
+    mono: 'Space Mono',
+    mono_weight: 400,
+    google_fonts_url: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700;800&family=Space+Mono:wght@400;700&display=swap',
   },
 
   /**
    * Substituições de tokens aplicadas pelo brand-renderer.js
    * em cima do HTML gerado pelo renderLayout() do CybersecFEST.
-   * Ordem importa: fazer rgba antes de hex para não conflitar.
+   * Ordem importa: strings mais específicas primeiro, fallback genérico no final.
+   *
+   * Mapeamento de fontes (layouts.js usa):
+   *   Ubuntu Bold → headlines (.headline, .quote-open, .quote-close)
+   *   Montserrat w400 → subtitle body (.subtitle)
+   *   Montserrat w600 → spotlight/eyebrow tags (.sp)
+   *   Montserrat w700 → small uppercase tags (.tag-h, .tag-i, etc.)
    */
   token_replacements: [
-    // Google Fonts URL
+    // Google Fonts URL → inclui as 3 fontes CAST
     [
       'https://fonts.googleapis.com/css2?family=Ubuntu:wght@700&family=Montserrat:wght@400;600&display=swap',
-      'https://fonts.googleapis.com/css2?family=Inter:wght@700&family=Space+Mono&display=swap',
+      'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700;800&family=Space+Mono:wght@400;700&display=swap',
     ],
-    // rgba com valores de cor do CybersecFEST → CAST
+    // rgba acento CybersecFEST (#14A8F4) → CAST indigo (#6366f1)
     ['rgba(20,168,244,', 'rgba(99,102,241,'],
     ['rgba(20, 168, 244,', 'rgba(99,102,241,'],
     // cores sólidas
@@ -53,11 +75,20 @@ const BRAND = {
     ['#14a8f4', '#6366f1'],
     ['#02050A', '#07060f'],
     ['#02050a', '#07060f'],
-    // fontes
-    ["'Ubuntu'", "'Inter'"],
-    ['Ubuntu', 'Inter'],
-    ["'Montserrat'", "'Space Mono'"],
-    ['Montserrat', 'Space Mono'],
+    // ── Fontes: substituições específicas (ordem importa) ──
+    // Montserrat w400 (subtitle body) → Inter
+    ["'Montserrat',sans-serif;font-weight:400", "'Inter',sans-serif;font-weight:400"],
+    // Montserrat w600 (sp/eyebrow tags, uppercase) → Space Mono
+    ["'Montserrat',sans-serif;font-weight:600", "'Space Mono',monospace;font-weight:400"],
+    // Montserrat w700 (tiny uppercase tags) → Space Mono
+    ["'Montserrat',sans-serif;font-weight:700", "'Space Mono',monospace;font-weight:700"],
+    // Ubuntu (headlines, display) → Space Grotesk
+    ["'Ubuntu',sans-serif", "'Space Grotesk',sans-serif"],
+    ["'Ubuntu'", "'Space Grotesk'"],
+    ['Ubuntu', 'Space Grotesk'],
+    // Fallback: qualquer Montserrat restante → Inter
+    ["'Montserrat'", "'Inter'"],
+    ['Montserrat', 'Inter'],
   ],
 
   // Ref para image prompt

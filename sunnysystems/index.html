@@ -1,0 +1,1522 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sunny Systems — Galeria de Artes</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/dom-to-image-more@3.3.1/dist/dom-to-image-more.min.js"></script>
+<link rel="stylesheet" href="/assets/css/gallery.css?v=20260626a">
+<style>
+/* ── Sunny Systems — override das CSS vars do gallery.css ── */
+:root {
+  --bg:          #0f0f0f;
+  --surface-1:   #151515;
+  --surface-2:   #181818;
+  --surface-3:   #1c1c1c;
+  --elevated:    #121212;
+  --blue:        #FBB414;
+  --blue-soft:   rgba(249,115,22,0.12);
+  --blue-line:   rgba(249,115,22,0.22);
+  --elec:        #F9C842;
+  --white:       #fafafa;
+  --lavanda:     #d4a574;
+  --muted:       #9a8060;
+  --border:      rgba(249,115,22,0.12);
+  --shadow-hover:  0 16px 48px rgba(249,115,22,0.14);
+  --glow:          0 0 0 1px rgba(249,115,22,0.08), 0 0 48px rgba(249,115,22,0.07);
+  --hover-glow:    0 6px 24px rgba(249,115,22,0.2);
+  --focus-ring:    0 0 0 3px rgba(249,115,22,0.24);
+}
+body {
+  font-family: 'Inter', sans-serif;
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(249,115,22,0.09), transparent 55%),
+    radial-gradient(ellipse 40% 30% at 100% 0%, rgba(249,115,22,0.06), transparent 50%);
+}
+/* Headline / display → Space Grotesk */
+.logo, .logo-top, .propostas-title, .modal-headline,
+.side-drawer-title, h1, h2, h3,
+.prop-hl-preview, .overlay-headline, .card-layout-badge .clb-letter,
+.file-protocol-card h2, .empty h3 {
+  font-family: 'Space Grotesk', sans-serif;
+}
+/* Tags / mono → Space Grotesk */
+.live-label, .live-dot, .card-badge, .prop-rec,
+.header-badge, .nav-year, .modal-badge,
+.modal-meta-badge, .palavra-azul, .prop-tipo,
+.proposta-cta, .img-ver-pill {
+  font-family: 'Space Grotesk', monospace;
+}
+/* CAST Logo area override */
+.back-home {
+  display: flex;
+  align-items: center;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: #6b7280;
+  text-decoration: none;
+  padding: 4px 10px 4px 6px;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.08);
+  margin-right: 12px;
+  white-space: nowrap;
+  transition: color .2s, border-color .2s;
+}
+.back-home:hover { color: #fff; border-color: rgba(255,255,255,0.2); }
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  text-decoration: none;
+}
+.logo-cast-img {
+  height: 32px;
+  width: auto;
+  display: block;
+  filter: brightness(1.1);
+}
+/* Side drawer: CAST usa apenas Layout / A-B / Banco (sem Cidade) */
+.side-tab-cidade { display: none !important; }
+/* Seletor de objetivo do pedido simples */
+.pedido-objetivo-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px 2px;
+}
+.pedido-objetivo-label {
+  font-family: 'Space Grotesk', monospace;
+  font-size: 10px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.pedido-objetivo-select {
+  flex: 1;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--white);
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  padding: 4px 8px;
+  cursor: pointer;
+  transition: border-color .15s;
+}
+.pedido-objetivo-select:hover { border-color: rgba(249,115,22,0.4); }
+.pedido-objetivo-select:focus { outline: none; box-shadow: var(--focus-ring); }
+</style>
+<script>
+if (location.protocol === 'file:') {
+  document.documentElement.classList.add('file-protocol');
+}
+</script>
+</head>
+<body>
+
+<div class="file-protocol-block" id="file-protocol-block" hidden>
+  <div class="file-protocol-card">
+    <div class="file-protocol-icon">⚠</div>
+    <h2>Abra pela URL do servidor, não pelo arquivo</h2>
+    <p>O <code>index.html</code> não carrega a galeria se você abrir direto do Finder. O navegador bloqueia o <code>artes-sunnysystems.json</code>.</p>
+    <ol>
+      <li>No Terminal: <code>cd _scripts && npm run dev</code></li>
+      <li>No navegador: <a href="http://127.0.0.1:8765/sunnysystems/">http://127.0.0.1:8765/sunnysystems/</a></li>
+    </ol>
+    <p class="file-protocol-path">Pasta do projeto:<br><code id="file-protocol-path"></code></p>
+  </div>
+</div>
+
+<header class="site-header">
+  <a href="/" class="back-home" title="Studio">← Studio</a>
+  <a href="/sunnysystems/" class="logo" style="text-decoration:none;color:#FBB414;font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:17px;letter-spacing:-.01em;" aria-label="Sunny Systems — Galeria">
+    Sunny Systems
+  </a>
+  <div class="header-center">
+    <div class="live-dot"></div>
+    <span class="live-label">Ao vivo</span>
+    <span class="live-count" id="header-count">—</span>
+  </div>
+  <nav class="main-nav" aria-label="Navegação principal">
+    <a href="/cast/" class="nav-link" title="CybersecCAST">CAST</a>
+    <span class="nav-divider" aria-hidden="true"></span>
+    <a href="/fest/" class="nav-link" title="CybersecFEST">FEST</a>
+  </nav>
+</header>
+
+<!-- ══ AVISO SERVIDOR ANTIGO ══ -->
+<div class="server-warn" id="server-warn" hidden>
+  <span id="server-warn-text">Servidor desatualizado — reinicie com <code>cd _scripts && npm run dev</code>.</span>
+  <button type="button" class="server-warn-close" onclick="document.getElementById('server-warn').hidden=true" aria-label="Fechar">✕</button>
+</div>
+
+<!-- ══ PAINEL DE PEDIDO ══ -->
+<div class="pedido-panel" id="pedido-panel">
+  <div class="pedido-field">
+    <textarea class="pedido-textarea" id="pedido-tema" rows="2" placeholder="Briefing — ex.: Nosso produto Sunshine resolve o problema de custo de ingestão no Datadog. Tom direto para Head de FinOps."></textarea>
+    <button class="pedido-btn" id="pedido-btn" type="button" title="Gerar propostas" aria-label="Gerar propostas">✦</button>
+  </div>
+  <div class="pedido-objetivo-row" style="margin-top:6px;">
+    <select id="pedido-tipo" class="pedido-objetivo-select" title="Tipo de conteúdo">
+      <option value="autoridade">Autoridade técnica</option>
+      <option value="observabilidade">Observabilidade</option>
+      <option value="finops">FinOps / Custos</option>
+      <option value="platform_engineering">Platform Engineering</option>
+      <option value="ia">IA na Engenharia</option>
+      <option value="produto">Produto</option>
+      <option value="devsecops">DevSecOps</option>
+      <option value="comunidade">Comunidade / Evento</option>
+    </select>
+  </div>
+  <div class="pedido-status" id="pedido-status"></div>
+  <div class="pedido-pending" id="pedido-pending" hidden>
+    <button type="button" class="pedido-revisar-btn" id="pedido-revisar-btn">Revisar 3 propostas pendentes</button>
+  </div>
+</div>
+
+
+<!-- ══ APROVAÇÃO DE PROPOSTAS (fase 1) ══ -->
+<div class="propostas-overlay" id="propostas-overlay" aria-hidden="true">
+  <div class="propostas-sheet" onclick="event.stopPropagation()">
+    <div class="propostas-head">
+      <div>
+        <div class="propostas-title">Escolha a rota editorial</div>
+        <div class="propostas-sub" id="propostas-sub">3 propostas · só texto · aprovada gera imagem + HTML</div>
+      </div>
+      <button type="button" class="propostas-close" onclick="closePropostasOverlay()" aria-label="Fechar">✕</button>
+    </div>
+    <div class="propostas-grid" id="propostas-grid"></div>
+    <div class="propostas-foot">
+      <label class="propostas-opt propostas-visual-sug">
+        <span class="propostas-visual-label">Sugestão de cena visual (opcional)</span>
+        <textarea class="propostas-visual-input" id="propostas-sugestao-visual" rows="2" placeholder="Ex.: CISO de costas olhando monitores no estúdio escuro, iluminação indigo, microfone desfocado à esquerda"></textarea>
+      </label>
+      <label class="propostas-opt">
+        <input type="checkbox" id="propostas-backup-visual">
+        <span>Gerar visual imediato também para itens do banco (backup)</span>
+      </label>
+      <div class="propostas-actions">
+        <button type="button" class="propostas-btn ghost" id="propostas-rejeitar">Rejeitar lote</button>
+        <button type="button" class="propostas-btn primary" id="propostas-aprovar">Gerar imagem</button>
+      </div>
+      <div class="propostas-status" id="propostas-status"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ GALERIA ══ -->
+<div class="gallery-wrap">
+  <div class="gallery-toolbar" id="gallery-toolbar" hidden>
+    <label class="gallery-filter">
+      <input type="checkbox" id="filter-show-backup">
+      <span>Mostrar testes / backup</span>
+    </label>
+    <label class="gallery-filter">
+      <input type="checkbox" id="filter-show-publicado">
+      <span>Só publicadas</span>
+    </label>
+    <span class="gallery-filter-hint" id="gallery-filter-hint"></span>
+  </div>
+  <div class="grid" id="grid">
+    <div class="empty">
+      <div class="empty-icon">✦</div>
+      <h3>Nenhuma arte ainda</h3>
+      <p>As artes geradas pelo agente aparecerão aqui automaticamente.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL ══ -->
+<div class="modal-overlay" id="modal" onclick="closeModal(event)">
+  <div class="modal" id="modal-inner" onclick="event.stopPropagation()">
+
+    <!-- PAINEL ESQUERDO: arte composta -->
+    <div class="modal-preview" style="position:relative">
+      <button class="btn-toggle-panel" id="btn-toggle-panel" onclick="toggleModalPanel()" title="Expandir / recolher painel">◀ Legenda</button>
+      <div class="modal-art-box" id="modal-art-box">
+        <div class="modal-art-scaler" id="modal-art-scaler">
+          <img id="modal-img" src="" alt="Arte" style="width:100%;height:100%;object-fit:contain;display:block;">
+        </div>
+      </div>
+    </div>
+
+    <!-- PAINEL DIREITO: info -->
+    <div class="modal-info">
+      <div class="modal-info-header">
+        <button class="modal-close" onclick="closeModal()">✕</button>
+        <div class="modal-badge" id="modal-badge"></div>
+        <div class="modal-headline" id="modal-headline"></div>
+      </div>
+      <div class="modal-body">
+        <div class="modal-actions" id="modal-actions"></div>
+
+        <div class="modal-img-edit" id="modal-img-edit">
+          <label class="modal-img-edit-label" for="modal-img-instrucao">🖼 Mudar imagem</label>
+          <div class="modal-img-edit-row">
+            <input
+              type="text"
+              id="modal-img-instrucao"
+              class="modal-img-edit-input"
+              placeholder="Ex: CISO de costas olhando monitores, iluminação indigo, estúdio premium"
+              maxlength="300"
+              autocomplete="off"
+            >
+            <button type="button" class="modal-img-edit-btn" id="modal-img-edit-btn" onclick="mudarImagem()">Gerar</button>
+            <button type="button" class="modal-img-edit-btn modal-img-variar-btn" id="modal-img-variar-btn" onclick="variarCena()" title="Variação fiel da mesma composição via gpt-image-1 com seed fixo">Variar</button>
+          </div>
+          <p class="modal-img-edit-status" id="modal-img-edit-status" hidden></p>
+          <div id="modal-seed-wrap" hidden style="font-size:11px;color:var(--muted,#888);margin-top:4px;">
+            Seed: <input id="modal-img-seed" type="number" style="width:110px;background:transparent;border:none;color:inherit;font-size:inherit;" readonly>
+            <button onclick="copySeed()" style="background:transparent;border:none;cursor:pointer;color:inherit;font-size:10px;" title="Copiar seed">⎘</button>
+          </div>
+          <div class="modal-img-versoes" id="modal-img-versoes" hidden>
+            <span class="modal-img-versoes-label">Versões:</span>
+            <div class="modal-img-versoes-pills" id="modal-img-versoes-pills"></div>
+          </div>
+        </div>
+
+        <div class="modal-meta-wrap" id="modal-meta"></div>
+        <div class="modal-caption-wrap" id="modal-caption-wrap">
+          <div class="modal-caption-header">
+            <span class="modal-caption-label">📋 Legenda pronta</span>
+            <button class="btn-copy" id="btn-copy" onclick="copyCaption()">⎘ Copiar</button>
+          </div>
+          <div class="modal-caption-text" id="modal-caption-text"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ PAINEL LATERAL — DISTRIBUIÇÃO DO ACERVO ══ -->
+<div class="side-drawer-backdrop" id="side-drawer-backdrop" onclick="closeSideDrawer()"></div>
+<aside class="side-drawer" id="side-drawer" aria-hidden="true">
+  <button type="button" class="side-tab-btn" id="side-tab-btn" hidden title="Distribuição do acervo" aria-expanded="false" aria-controls="side-drawer-panel">
+    <span class="side-tab-label">Acervo</span>
+  </button>
+  <div class="side-drawer-panel" id="side-drawer-panel">
+    <div class="side-drawer-head">
+      <span class="side-drawer-title">Distribuição do Acervo</span>
+      <button type="button" class="side-revisar-btn" id="propostas-revisar-btn" hidden onclick="propostasEstado.lotePendente && openPropostasOverlay(propostasEstado.lotePendente)">Revisar propostas</button>
+      <button type="button" class="side-drawer-close" onclick="closeSideDrawer()" aria-label="Fechar">✕</button>
+    </div>
+    <div class="side-tabs" role="tablist">
+      <button type="button" class="side-tabs-btn active" role="tab" aria-selected="true" data-tab="layout">Diagramação</button>
+      <button type="button" class="side-tabs-btn" role="tab" aria-selected="false" data-tab="tipo">Tipo</button>
+      <button type="button" class="side-tabs-btn" role="tab" aria-selected="false" data-tab="ab">Legenda A/B</button>
+      <button type="button" class="side-tabs-btn" role="tab" aria-selected="false" data-tab="banco">Banco <span class="side-tab-count" id="banco-count"></span></button>
+    </div>
+    <div class="side-drawer-body">
+      <div class="side-tab-panel active" id="tab-layout" role="tabpanel"><div id="dash-layout"></div></div>
+      <div class="side-tab-panel" id="tab-tipo" role="tabpanel"><div id="dash-tipo"></div></div>
+      <div class="side-tab-panel" id="tab-ab" role="tabpanel"><div id="dash-ab"></div></div>
+      <div class="side-tab-panel" id="tab-banco" role="tabpanel">
+        <div id="dash-banco"></div>
+        <button type="button" class="banco-consumir-btn" id="banco-consumir-btn" hidden>Gerar visual do próximo</button>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<footer>
+  <span class="footer-text">© Sunny Systems 2026 — O Podcast de Referência em Cibersegurança para C-Level do Brasil</span>
+</footer>
+
+<script>
+const API = '/api/sunnysystems';
+
+let allArtes = [];
+let arteMap = {};
+let creationOrderMap = {};
+let LAYOUT_NAMES = {};
+let propostasEstado = { lotePendente: null, banco: [], bancoCount: 0 };
+let devServerApis = [];
+let showBackupArtes   = false;
+let showPublicadoOnly = false;
+let calendarioData = null;
+let modalSlug = null;
+
+const FORMATO_LABELS = {
+  feed_vertical: 'Vertical',
+  feed_quadrado: 'Quadrado',
+  stories: 'Stories',
+};
+
+const TIPO_LABELS = {
+  episodio: '🎙 Episódio',
+  convidado: '👤 Convidado',
+  insight: '💡 Insight',
+};
+
+function isDevHost() {
+  return location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+}
+
+function canDeleteArte() {
+  return isDevHost();
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function escRegex(s) {
+  return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function renderHeadlinePreview(headline, palavrasAzuis) {
+  let h = escHtml(headline || '');
+  h = h.replace(/&lt;br\s*\/?&gt;/gi, '<br>');
+  const words = String(palavrasAzuis || '').split(',').map(w => w.trim()).filter(Boolean);
+  for (const w of words) {
+    const ew = escHtml(w);
+    const re = new RegExp(`(${escRegex(ew)})`, 'gi');
+    h = h.replace(re, '<span class="prop-hl-blue">$1</span>');
+  }
+  return h;
+}
+
+function headlineStats(headline) {
+  const plain = String(headline || '').replace(/<br\s*\/?>/gi, ' ').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+  const words = plain ? plain.split(/\s+/).filter(Boolean).length : 0;
+  const lines = /<br\s*\/?>|\n/i.test(headline || '')
+    ? String(headline).split(/<br\s*\/?>|\n/i).map(l => l.replace(/<[^>]+>/g, '').trim()).filter(Boolean).length
+    : (plain ? 1 : 0);
+  return { words, lines };
+}
+
+async function parseApiJson(res) {
+  const text = await res.text();
+  try {
+    return JSON.parse(text);
+  } catch {
+    if (res.status === 405 || /method not allowed/i.test(text)) {
+      throw new Error('Servidor desatualizado — pare o terminal e reinicie: cd _scripts && npm run dev');
+    }
+    throw new Error(text.slice(0, 160) || `Erro HTTP ${res.status}`);
+  }
+}
+
+function getVisibleArtes() {
+  return allArtes.filter(a =>
+    (showBackupArtes || a.publicacao !== 'backup') &&
+    (!showPublicadoOnly || a.publicado === true)
+  );
+}
+
+function getGalleryTotalCount() {
+  return getVisibleArtes().length;
+}
+
+function buildCreationOrder(artes) {
+  creationOrderMap = {};
+  getVisibleArtes()
+    .sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
+    .forEach((arte, i) => { creationOrderMap[arte.slug] = i + 1; });
+}
+
+function getCreationNum(slug) {
+  return creationOrderMap[slug] || null;
+}
+
+function layoutBadgeHtml(arte) {
+  const L = String(arte.layout || '').toUpperCase();
+  if (!L) return '';
+  const name = LAYOUT_NAMES[L] || '';
+  return `<div class="card-layout-badge" title="Layout ${L}${name ? ' — ' + name : ''}"><span class="clb-letter">${L}</span></div>`;
+}
+
+async function loadLayoutNames() {
+  try {
+    const res = await fetch('/assets/layout-names.json?v=' + Date.now());
+    if (res.ok) LAYOUT_NAMES = await res.json();
+  } catch (_) {}
+}
+
+async function loadArtes() {
+  const grid = document.getElementById('grid');
+  if (location.protocol === 'file:') {
+    showLoadError('file');
+    return;
+  }
+  try {
+    await loadLayoutNames();
+    const res = await fetch('/artes-sunnysystems.json?v=' + Date.now());
+    if (!res.ok) {
+      showLoadError('http', res.status);
+      return;
+    }
+    allArtes = await res.json();
+    buildCreationOrder(allArtes);
+    allArtes.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+    arteMap = Object.fromEntries(allArtes.map(a => [a.slug, a]));
+    renderStats();
+    renderDashboard();
+    renderGallery();
+  } catch(e) {
+    console.warn('artes-sunnysystems.json não carregou:', e);
+    showLoadError('fetch', e.message);
+  }
+}
+
+function showLoadError(kind, detail) {
+  const grid = document.getElementById('grid');
+  if (!grid) return;
+  const isFile = kind === 'file' || location.protocol === 'file:';
+  const title = isFile ? 'Use o servidor local' : 'Não foi possível carregar artes-sunnysystems.json';
+  const steps = isFile
+    ? `<ol class="load-error-steps">
+        <li>Abra o Terminal na pasta do projeto</li>
+        <li>Rode: <code>cd _scripts && npm run dev</code></li>
+        <li>Acesse: <a href="http://127.0.0.1:8765/sunnysystems/">http://127.0.0.1:8765/sunnysystems/</a></li>
+      </ol>`
+    : `<p class="load-error-detail">Confira se o servidor está rodando (<code>npm run dev</code> em <code>_scripts</code>).${detail ? `<br><small>${escHtml(String(detail))}</small>` : ''}</p>`;
+  grid.innerHTML = `<div class="empty load-error">
+    <div class="empty-icon">⚠</div>
+    <h3>${title}</h3>
+    ${steps}
+    <p class="load-error-hint">Não abra o arquivo pelo Finder — use sempre a URL <strong>http://127.0.0.1:8765/sunnysystems/</strong></p>
+  </div>`;
+}
+
+function renderStats() {
+  const visiveis = getVisibleArtes();
+  const total = visiveis.length;
+  const backupCount = allArtes.filter(a => a.publicacao === 'backup').length;
+  const headerCount = document.getElementById('header-count');
+  if (headerCount) {
+    headerCount.textContent = total + ' arte' + (total !== 1 ? 's' : '');
+  }
+  const toolbar = document.getElementById('gallery-toolbar');
+  const hint = document.getElementById('gallery-filter-hint');
+  if (toolbar) toolbar.hidden = allArtes.length === 0;
+  if (hint && backupCount > 0 && !showBackupArtes) {
+    hint.textContent = `${backupCount} teste(s) oculto(s)`;
+  } else if (hint) {
+    hint.textContent = '';
+  }
+}
+
+function renderGallery() {
+  const filtered = getVisibleArtes();
+  const sorted = [...filtered].sort((a, b) => (getCreationNum(a.slug) || 0) - (getCreationNum(b.slug) || 0));
+  renderGrid(sorted);
+}
+
+function renderGrid(artes) {
+  const grid = document.getElementById('grid');
+  if (artes.length === 0) {
+    grid.innerHTML = '<div class="empty"><div class="empty-icon">✦</div><h3>Nenhum episódio ainda</h3><p>As artes geradas pelo agente aparecerão aqui automaticamente.</p></div>';
+    return;
+  }
+  grid.innerHTML = artes.map(arte => {
+    const date = new Date(arte.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: '2-digit' });
+    const num = getCreationNum(arte.slug);
+    const tipoLabel = TIPO_LABELS[arte.tipo] || arte.tipo || '';
+    return `
+    <div class="card" data-slug="${arte.slug}" onclick="openModalBySlug('${arte.slug}')" style="cursor:pointer">
+      <div class="card-thumb" data-card-thumb>
+        <img class="card-thumb-img" src="/artes/${arte.slug}/thumb.png" alt="${escHtml(arte.headline)}" loading="lazy" onerror="this.style.opacity=0">
+        ${layoutBadgeHtml(arte)}
+        ${num ? `<div class="card-num-badge">#${num}</div>` : ''}
+        ${arte.publicacao === 'backup' ? `<div class="card-backup-badge">backup</div>` : ''}
+        ${arte.publicado ? `<div class="card-publicado-badge" title="Publicada">✓</div>` : ''}
+        <span class="card-date-badge">${date}</span>
+        <div class="card-overlay">
+          <div class="overlay-headline">${escHtml(arte.headline)}</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderDashboard() {
+  const total = allArtes.length;
+  const tabBtn = document.getElementById('side-tab-btn');
+  if (total === 0) {
+    if (tabBtn) tabBtn.hidden = true;
+    return;
+  }
+  if (tabBtn) tabBtn.hidden = false;
+
+  // por layout
+  const layoutFreq = {};
+  allArtes.forEach(a => { if (a.layout) layoutFreq[a.layout] = (layoutFreq[a.layout] || 0) + 1; });
+  const layoutEntries = Object.entries(layoutFreq).sort((a,b) => b[1]-a[1]);
+  const layoutMax = layoutEntries.length ? layoutEntries[0][1] : 1;
+  if (layoutEntries.length === 0) {
+    document.getElementById('dash-layout').innerHTML = '<span style="font-size:11px;color:var(--muted);font-style:italic">Nenhuma arte com layout registrado.</span>';
+  } else {
+    document.getElementById('dash-layout').innerHTML = layoutEntries
+      .map(([l, n]) => `
+        <div class="dash-row">
+          <span class="dash-label">${l}<span class="dash-label-sub">${LAYOUT_NAMES[l] || ''}</span></span>
+          <div class="dash-bar-wrap">
+            <div class="dash-bar-track"><div class="dash-bar-fill layout" style="width:${Math.round(n/layoutMax*100)}%"></div></div>
+          </div>
+          <span class="dash-num layout">${n}</span>
+        </div>`).join('');
+  }
+
+  // por tipo (episodio / convidado / insight)
+  const tipoFreq = {};
+  allArtes.forEach(a => {
+    const t = (a.tipo || a.tipo_post || '').trim();
+    if (!t) return;
+    tipoFreq[t] = (tipoFreq[t] || 0) + 1;
+  });
+  const tipoEntries = Object.entries(tipoFreq).sort((a,b) => b[1]-a[1]);
+  const tipoMax = tipoEntries.length ? tipoEntries[0][1] : 1;
+  if (tipoEntries.length === 0) {
+    document.getElementById('dash-tipo').innerHTML = '<span style="font-size:11px;color:var(--muted);font-style:italic">Nenhuma arte com tipo registrado.</span>';
+  } else {
+    document.getElementById('dash-tipo').innerHTML = tipoEntries
+      .map(([t, n]) => `
+        <div class="dash-row">
+          <span class="dash-label">${TIPO_LABELS[t] || t}</span>
+          <div class="dash-bar-wrap">
+            <div class="dash-bar-track"><div class="dash-bar-fill cidade" style="width:${Math.round(n/tipoMax*100)}%"></div></div>
+          </div>
+          <span class="dash-num cidade">${n}</span>
+        </div>`).join('');
+  }
+
+  // por variante A/B
+  const abFreq = { A: 0, B: 0, '—': 0 };
+  allArtes.forEach(a => {
+    const v = a.legenda_variante;
+    if (v === 'A' || v === 'B') abFreq[v]++;
+    else abFreq['—']++;
+  });
+  const abMax = Math.max(abFreq.A, abFreq.B, abFreq['—']) || 1;
+  const AB_LABELS = { A: '🅰️ FOMO / Urgência', B: '🅱️ Intelectual / Provocador', '—': 'Sem variante' };
+  document.getElementById('dash-ab').innerHTML = Object.entries(abFreq)
+    .filter(([, n]) => n > 0)
+    .map(([v, n]) => `
+      <div class="dash-row">
+        <span class="dash-label">${AB_LABELS[v]}</span>
+        <div class="dash-bar-wrap">
+          <div class="dash-bar-track"><div class="dash-bar-fill ab" style="width:${Math.round(n/abMax*100)}%"></div></div>
+        </div>
+        <span class="dash-num ab">${n}</span>
+      </div>`).join('');
+}
+
+function toggleModalPanel() {
+  const modal = document.getElementById('modal-inner');
+  const btn = document.getElementById('btn-toggle-panel');
+  const expanded = modal.classList.toggle('expanded');
+  btn.textContent = expanded ? '▶ Legenda' : '◀ Legenda';
+  btn.title = expanded ? 'Mostrar legenda' : 'Esconder legenda';
+  setTimeout(scaleModalArt, 320);
+}
+
+function scaleModalArt() {
+  const box = document.getElementById('modal-art-box');
+  const scaler = document.getElementById('modal-art-scaler');
+  if (!box || !scaler) return;
+  const boxW = box.offsetWidth || 360;
+  const scale = boxW / 540;
+  scaler.style.transform = `scale(${scale})`;
+}
+
+function goToEditor(slug) {
+  window.location.href = `/artes/${slug}/arte.html`;
+}
+
+function openModal(slug, arte) {
+  const modal = document.getElementById('modal');
+  const img = document.getElementById('modal-img');
+  modalSlug = slug;
+
+  history.replaceState(null, '', '#arte=' + slug);
+
+  img.src = '';
+  setTimeout(() => { img.src = '/artes/' + slug + '/thumb.png'; scaleModalArt(); }, 10);
+
+  document.getElementById('modal-badge').textContent = (() => {
+    const n = getCreationNum(slug);
+    const total = getGalleryTotalCount();
+    return n ? `#${n} de ${total}` : 'Arte';
+  })();
+  document.getElementById('modal-headline').innerHTML = arte.headline;
+  const canDelete = canDeleteArte();
+  document.getElementById('modal-actions').innerHTML = `
+    <button class="btn-arte btn-arte-primary" onclick="goToEditor('${slug}')">Editor</button>
+    <button class="btn-arte btn-arte-secondary" onclick="duplicarArte('${slug}')">⎘ Duplicar</button>
+    <button class="btn-arte btn-arte-secondary" onclick="downloadArtePNG('${slug}', this)">↓ PNG</button>
+    <a class="btn-arte btn-arte-secondary" href="/artes/${slug}/arte.html" download="cyberseccast_${slug}.html">↓ HTML</a>
+    <button type="button" class="btn-arte ${arte.publicado ? 'btn-arte-primary' : 'btn-arte-secondary'}" id="btn-publicado-arte" onclick="togglePublicado('${slug}')">${arte.publicado ? '✓ Publicada' : 'Marcar publicada'}</button>
+    ${canDelete ? `<button type="button" class="btn-arte btn-arte-danger" id="btn-delete-arte" onclick="deletarArte('${slug}')">🗑 Excluir</button>` : ''}
+  `;
+  const metaEl = document.getElementById('modal-meta');
+  const rows = [];
+  const postNum = getCreationNum(slug);
+  if (postNum) rows.push(`<div class="modal-meta-row"><span class="modal-meta-key">Post</span><span class="modal-meta-val"><span class="modal-meta-badge">#${postNum} de ${getGalleryTotalCount()}</span></span></div>`);
+  if (arte.tipo || arte.tipo_post) {
+    const tipo = arte.tipo || arte.tipo_post;
+    rows.push(`<div class="modal-meta-row"><span class="modal-meta-key">Tipo</span><span class="modal-meta-val"><span class="modal-meta-badge">${TIPO_LABELS[tipo] || tipo}</span></span></div>`);
+  }
+  if (arte.subtitulo) rows.push(`<div class="modal-meta-row"><span class="modal-meta-key">Subtítulo</span><span class="modal-meta-val">${escHtml(arte.subtitulo.replace(/<br\s*\/?>/gi, ' '))}</span></div>`);
+  if (arte.palavras_azuis) {
+    const hl = arte.palavras_azuis.split(',').map(p => `<span class="palavra-azul">${escHtml(p.trim())}</span>`).join(', ');
+    rows.push(`<div class="modal-meta-row"><span class="modal-meta-key">Destaque</span><span class="modal-meta-val">${hl}</span></div>`);
+  }
+  if (arte.angulo_editorial) rows.push(`<div class="modal-meta-row"><span class="modal-meta-key">Ângulo</span><span class="modal-meta-val">${escHtml(arte.angulo_editorial)}</span></div>`);
+  metaEl.innerHTML = rows.length ? rows.join('') + '<div class="modal-divider"></div>' : '';
+
+  const captionEl = document.getElementById('modal-caption-text');
+  const copyBtn = document.getElementById('btn-copy');
+  copyBtn.classList.remove('copied');
+  copyBtn.textContent = '⎘ Copiar';
+  captionEl.textContent = arte.legenda || '';
+  if (!arte.legenda) captionEl.innerHTML = '<span class="modal-caption-empty">Legenda não disponível para esta arte.</span>';
+
+  modal.classList.add('open');
+
+  const versoesWrap = document.getElementById('modal-img-versoes');
+  if (versoesWrap) { versoesWrap.hidden = true; document.getElementById('modal-img-versoes-pills').innerHTML = ''; }
+  loadImgVersoes(slug);
+  loadSeedFromState(slug);
+}
+
+async function loadSeedFromState(slug) {
+  const wrap = document.getElementById('modal-seed-wrap');
+  if (!wrap) return;
+  wrap.hidden = true;
+  try {
+    const state = await fetch(`/artes/${slug}/state.json`).then(r => r.ok ? r.json() : null).catch(() => null);
+    if (state && typeof state.seed === 'number') {
+      document.getElementById('modal-img-seed').value = state.seed;
+      wrap.hidden = false;
+    }
+  } catch { /* seed é opcional */ }
+}
+
+function copySeed() {
+  const v = document.getElementById('modal-img-seed')?.value;
+  if (v) navigator.clipboard.writeText(v).catch(() => {});
+}
+
+async function loadImgVersoes(slug) {
+  try {
+    const res  = await fetch(`${API}/arte/imagem/versoes?slug=${encodeURIComponent(slug)}`);
+    const data = await res.json();
+    if (res.ok && data.ok) renderImgVersoes(data);
+  } catch { /* ignora silenciosamente */ }
+}
+
+function renderImgVersoes(data) {
+  const wrap  = document.getElementById('modal-img-versoes');
+  const pills = document.getElementById('modal-img-versoes-pills');
+  if (!wrap || !pills) return;
+  if (!data.versoes || data.versoes.length === 0) { wrap.hidden = true; return; }
+
+  wrap.hidden = false;
+  pills.innerHTML = data.versoes.map(v => {
+    const label = v.label ? v.label : `v${v.id}`;
+    const isAtiva = v.id === data.ativa;
+    const canDel = !isAtiva && data.versoes.length > 1;
+    return `<span class="img-ver-pill-wrap">
+      <button
+        type="button"
+        class="img-ver-pill${isAtiva ? ' ativa' : ''}"
+        title="${escHtml(v.label || '')} — ${v.criada_em ? v.criada_em.slice(0,10) : ''}"
+        onclick="ativarImgVersao(${v.id})"
+        ${isAtiva ? 'disabled' : ''}
+      >v${v.id}${v.label ? ' — ' + escHtml(label.slice(0,20)) : ''}</button>${canDel
+        ? `<button type="button" class="img-ver-del" title="Deletar v${v.id}" onclick="deletarImgVersao(${v.id})">×</button>`
+        : ''
+      }</span>`;
+  }).join('');
+}
+
+async function deletarImgVersao(id) {
+  if (!modalSlug) return;
+  if (!confirm(`Deletar v${id}? Esta ação não pode ser desfeita.`)) return;
+  try {
+    const res  = await fetch(`${API}/arte/imagem/versao/deletar`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ slug: modalSlug, id }),
+    });
+    const data = await res.json();
+    if (!res.ok || !data.ok) throw new Error(data.erro || `Erro ${res.status}`);
+    renderImgVersoes(data.versoes);
+  } catch (e) {
+    const status = document.getElementById('modal-img-edit-status');
+    if (status) { status.hidden = false; status.textContent = `❌ ${e.message}`; status.className = 'modal-img-edit-status erro'; }
+  }
+}
+
+async function ativarImgVersao(id) {
+  if (!modalSlug) return;
+  const pills = document.querySelectorAll('.img-ver-pill');
+  pills.forEach(p => p.disabled = true);
+
+  try {
+    const res  = await fetch(`${API}/arte/imagem/versao/ativar`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ slug: modalSlug, id }),
+    });
+    const data = await res.json();
+    if (!res.ok || !data.ok) throw new Error(data.erro || `Erro ${res.status}`);
+
+    const img = document.getElementById('modal-img');
+    if (img) img.src = data.thumb;
+
+    if (data.versoes) renderImgVersoes(data.versoes);
+  } catch (e) {
+    const status = document.getElementById('modal-img-edit-status');
+    if (status) { status.hidden = false; status.textContent = `❌ ${e.message}`; status.className = 'modal-img-edit-status erro'; }
+    pills.forEach(p => p.disabled = false);
+  }
+}
+
+async function mudarImagem() {
+  const instrucao = document.getElementById('modal-img-instrucao').value.trim();
+  if (!instrucao) {
+    document.getElementById('modal-img-instrucao').focus();
+    return;
+  }
+  if (!modalSlug) return;
+
+  const btn    = document.getElementById('modal-img-edit-btn');
+  const status = document.getElementById('modal-img-edit-status');
+
+  btn.disabled  = true;
+  btn.textContent = '⏳ Gerando…';
+  status.hidden = false;
+  status.textContent = 'Enviando para a IA… isso leva ~30s.';
+  status.className = 'modal-img-edit-status';
+
+  try {
+    const res = await fetch(`${API}/arte/imagem/mudar`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ slug: modalSlug, instrucao }),
+    });
+    const data = await res.json();
+
+    if (!res.ok || !data.ok) {
+      throw new Error(data.erro || `Erro ${res.status}`);
+    }
+
+    const img = document.getElementById('modal-img');
+    img.src = data.thumb;
+
+    status.textContent = '✅ Imagem atualizada!';
+    status.className = 'modal-img-edit-status ok';
+    document.getElementById('modal-img-instrucao').value = '';
+
+    if (data.versoes) renderImgVersoes(data.versoes);
+    else loadImgVersoes(modalSlug);
+
+    setTimeout(() => { status.hidden = true; }, 4000);
+  } catch (e) {
+    status.textContent = `❌ ${e.message}`;
+    status.className = 'modal-img-edit-status erro';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Gerar';
+  }
+}
+
+function copyCaption() {
+  const text = document.getElementById('modal-caption-text').textContent;
+  if (!text.trim()) return;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('btn-copy');
+    btn.classList.add('copied'); btn.textContent = '✓ Copiado!';
+    setTimeout(() => { btn.classList.remove('copied'); btn.textContent = '⎘ Copiar'; }, 2000);
+  });
+}
+
+function openModalBySlug(slug) {
+  const arte = arteMap[slug];
+  if (arte) openModal(slug, arte);
+}
+
+async function downloadArtePNG(slug, btn) {
+  if (!btn) return;
+  const original = btn.innerHTML;
+  btn.innerHTML = '⏳ Gerando...';
+  btn.disabled = true;
+
+  const tempIframe = document.createElement('iframe');
+  tempIframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:540px;height:675px;border:none;opacity:0;pointer-events:none;';
+  document.body.appendChild(tempIframe);
+
+  try {
+    await new Promise((resolve, reject) => {
+      tempIframe.onload = resolve;
+      tempIframe.onerror = reject;
+      tempIframe.src = `/artes/${slug}/arte.html`;
+      setTimeout(reject, 10000);
+    });
+
+    const doc = tempIframe.contentDocument || tempIframe.contentWindow.document;
+    const artCanvas = doc.querySelector('.art-canvas');
+    if (!artCanvas) throw new Error('.art-canvas não encontrado');
+
+    const dataUrl = await domtoimage.toPng(artCanvas, {
+      width: 540,
+      height: 675,
+      style: { transform: 'none', 'transform-origin': 'top left' },
+      quality: 1,
+    });
+
+    const link = document.createElement('a');
+    link.download = `cyberseccast_${slug}.png`;
+    link.href = dataUrl;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+  } catch(e) {
+    console.warn('Erro na captura:', e);
+    const w = window.open(`/artes/${slug}/arte.html`, '_blank', 'width=620,height=820,left=200,top=80');
+    if (!w) alert('Permita popups para esta página e tente novamente.');
+  } finally {
+    document.body.removeChild(tempIframe);
+    btn.innerHTML = original;
+    btn.disabled = false;
+  }
+}
+
+function closeModal(e) {
+  if (!e || e.target === document.getElementById('modal')) {
+    document.getElementById('modal').classList.remove('open');
+    const mi = document.getElementById('modal-img');
+    if (mi) mi.src = '';
+    modalSlug = null;
+    if (location.hash.startsWith('#arte=')) {
+      history.replaceState(null, '', location.pathname + location.search);
+    }
+  }
+}
+
+async function deletarArte(slug) {
+  const arte = arteMap[slug];
+  if (!arte) return;
+
+  const num = getCreationNum(slug);
+  const titulo = (arte.headline || slug).replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 80);
+  const msg = `Excluir permanentemente${num ? ` o post #${num}` : ''}?\n\n"${titulo}"\n\nRemove a entrada em artes-sunnysystems.json, a pasta artes/${slug}/ e o histórico editorial. Esta ação não pode ser desfeita.`;
+  if (!confirm(msg)) return;
+
+  const btn = document.getElementById('btn-delete-arte');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Excluindo…'; }
+
+  try {
+    const res = await fetch(`${API}/arte/deletar`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ slug }),
+    });
+    const data = await parseApiJson(res);
+    if (!res.ok || !data.ok) throw new Error(data.erro || 'Falha ao excluir');
+
+    closeModal();
+    await loadArtes();
+    const pedidoStatus = document.getElementById('pedido-status');
+    if (pedidoStatus) {
+      pedidoStatus.className = 'pedido-status ok';
+      pedidoStatus.textContent = `🗑 Post excluído: ${slug}`;
+    }
+  } catch (e) {
+    const msg = /405|method not allowed|desatualizado/i.test(e.message)
+      ? 'Servidor desatualizado — pare o terminal e reinicie:\ncd _scripts && npm run dev'
+      : e.message;
+    alert(msg);
+    if (btn) { btn.disabled = false; btn.textContent = '🗑 Excluir'; }
+  }
+}
+
+function openModalFromHash() {
+  const m = location.hash.match(/^#arte=(.+)$/);
+  if (m) openModalBySlug(decodeURIComponent(m[1]));
+}
+
+function initSideDrawer() {
+  const drawer = document.getElementById('side-drawer');
+  const tabBtn = document.getElementById('side-tab-btn');
+  const backdrop = document.getElementById('side-drawer-backdrop');
+  if (!drawer || !tabBtn) return;
+
+  tabBtn.addEventListener('click', () => {
+    if (drawer.classList.contains('open')) closeSideDrawer();
+    else openSideDrawer();
+  });
+
+  document.querySelectorAll('.side-tabs-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tab = btn.dataset.tab;
+      document.querySelectorAll('.side-tabs-btn').forEach(b => {
+        b.classList.toggle('active', b === btn);
+        b.setAttribute('aria-selected', b === btn ? 'true' : 'false');
+      });
+      document.querySelectorAll('.side-tab-panel').forEach(p => {
+        p.classList.toggle('active', p.id === 'tab-' + tab);
+      });
+    });
+  });
+
+  if (backdrop) backdrop.addEventListener('click', closeSideDrawer);
+}
+
+function openSideDrawer() {
+  const drawer = document.getElementById('side-drawer');
+  const tabBtn = document.getElementById('side-tab-btn');
+  const backdrop = document.getElementById('side-drawer-backdrop');
+  if (!drawer) return;
+  drawer.classList.add('open');
+  drawer.setAttribute('aria-hidden', 'false');
+  if (tabBtn) tabBtn.setAttribute('aria-expanded', 'true');
+  if (backdrop) backdrop.classList.add('visible');
+  document.body.classList.add('side-drawer-open');
+}
+
+function closeSideDrawer() {
+  const drawer = document.getElementById('side-drawer');
+  const tabBtn = document.getElementById('side-tab-btn');
+  const backdrop = document.getElementById('side-drawer-backdrop');
+  if (!drawer) return;
+  drawer.classList.remove('open');
+  drawer.setAttribute('aria-hidden', 'true');
+  if (tabBtn) tabBtn.setAttribute('aria-expanded', 'false');
+  if (backdrop) backdrop.classList.remove('visible');
+  document.body.classList.remove('side-drawer-open');
+}
+
+async function checkDevServerFluxo() {
+  const warn = document.getElementById('server-warn');
+  try {
+    const res = await fetch(`${API}/status?v=` + Date.now());
+    if (!res.ok) throw new Error('no status');
+    const data = await parseApiJson(res);
+    devServerApis = data.apis || [];
+    const deleteOk = devServerApis.some(a => a.includes('arte/deletar'));
+    if (warn) {
+      warn.hidden = data.fluxo === 'v2-propostas' && deleteOk;
+      if (!warn.hidden) {
+        const el = document.getElementById('server-warn-text');
+        if (el) el.textContent = 'Servidor CAST desatualizado — reinicie: cd _scripts && npm run dev';
+      }
+    }
+    if (allArtes.length) renderGallery();
+    if (modalSlug && arteMap[modalSlug]) openModal(modalSlug, arteMap[modalSlug]);
+    return;
+  } catch (_) {}
+  if (warn) {
+    try {
+      const r2 = await fetch(`${API}/propostas?v=` + Date.now());
+      warn.hidden = r2.ok;
+    } catch {
+      warn.hidden = false;
+    }
+  }
+}
+
+function initPedidoPanel() {
+  const panel = document.getElementById('pedido-panel');
+  const btn   = document.getElementById('pedido-btn');
+  const status = document.getElementById('pedido-status');
+  const isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+  if (!panel || !isLocal) return;
+
+  checkDevServerFluxo();
+
+  panel.classList.add('visible');
+  const PEDIDO_ICON = '✦';
+
+  async function submitPedido() {
+    const tema = document.getElementById('pedido-tema').value.trim();
+    const tipo = document.getElementById('pedido-tipo')?.value || 'autoridade';
+
+    btn.disabled = true;
+    btn.textContent = '⏳';
+    status.className = 'pedido-status';
+    status.textContent = '⏳ Gerando 3 propostas…';
+
+    try {
+      const res = await fetch(`${API}/pedido`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tema: tema || '', tipo }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.ok) throw new Error(data.erro || 'Falha na geração');
+
+      status.className = 'pedido-status ok';
+      status.textContent = '✅ 3 propostas prontas — escolha abaixo';
+      await loadPropostasEstado();
+      openPropostasOverlay(data.lote || propostasEstado.lotePendente);
+    } catch (e) {
+      status.className = 'pedido-status erro';
+      status.textContent = '❌ ' + e.message;
+    } finally {
+      btn.disabled = false;
+      btn.textContent = PEDIDO_ICON;
+    }
+  }
+
+  btn.addEventListener('click', submitPedido);
+  document.getElementById('campanha-btn')?.addEventListener('click', async () => {
+    const campBtn   = document.getElementById('campanha-btn');
+    const objetivo  = document.getElementById('campanha-objetivo')?.value || 'engajamento';
+    const quantidade = Number(document.getElementById('campanha-qtd')?.value || 5);
+    const tema      = document.getElementById('pedido-tema')?.value.trim() || '';
+    if (propostasEstado.lotePendente) {
+      if (!confirm('Existe lote pendente. Descartar e gerar campanha?')) return;
+      await fetch(`${API}/propostas/rejeitar`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ loteId: propostasEstado.lotePendente.id }),
+      });
+      await loadPropostasEstado();
+    }
+    campBtn.disabled = true;
+    status.className = 'pedido-status';
+    status.textContent = `⏳ Gerando campanha CAST (${quantidade} peças)…`;
+    try {
+      const res  = await fetch(`${API}/campanha`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ objetivo, quantidade, tema }),
+      });
+      const data = await parseApiJson(res);
+      if (!res.ok || !data.ok) throw new Error(data.erro || 'Falha na campanha');
+      status.className = 'pedido-status ok';
+      status.textContent = `✅ Campanha: ${data.lote.propostas.length} rotas prontas`;
+      await loadPropostasEstado();
+      openPropostasOverlay(data.lote);
+    } catch (e) {
+      status.className = 'pedido-status erro';
+      status.textContent = '❌ ' + e.message;
+    } finally {
+      campBtn.disabled = false;
+    }
+  });
+  document.getElementById('pedido-revisar-btn')?.addEventListener('click', () => {
+    if (propostasEstado.lotePendente) openPropostasOverlay(propostasEstado.lotePendente);
+  });
+  document.getElementById('pedido-tema').addEventListener('keydown', e => {
+    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+      e.preventDefault();
+      if (!btn.disabled) submitPedido();
+    }
+  });
+}
+
+async function loadPropostasEstado() {
+  try {
+    const res = await fetch(`${API}/propostas?v=` + Date.now());
+    if (!res.ok) return;
+    const data = await res.json();
+    const lote = data.lote || null;
+    if (lote && lote.propostas) {
+      lote.propostas = lote.propostas.map((p, i) => Object.assign({ id: String(i), angulo: p.tipo || lote.tipo || '', tipo_post: '' }, p));
+    }
+    propostasEstado = {
+      lotePendente: lote,
+      banco: [],
+      bancoCount: 0,
+      bancoMax: 0,
+    };
+    renderBancoPanel();
+    updatePropostasBadge();
+    hintPropostasPendentes();
+  } catch (_) {}
+}
+
+function hintPropostasPendentes() {
+  const pendingWrap = document.getElementById('pedido-pending');
+  const revisarBtn = document.getElementById('pedido-revisar-btn');
+  if (pendingWrap) pendingWrap.hidden = !propostasEstado.lotePendente;
+  if (revisarBtn && propostasEstado.lotePendente) {
+    const n = propostasEstado.lotePendente.propostas?.length || 3;
+    revisarBtn.textContent = `Revisar ${n} propostas pendentes`;
+  }
+  if (!propostasEstado.lotePendente) return;
+  const status = document.getElementById('pedido-status');
+  if (!status || status.classList.contains('erro')) return;
+  if (status.textContent.trim()) return;
+  status.className = 'pedido-status';
+  status.textContent = '⏳ Propostas aguardando sua escolha';
+}
+
+function updatePropostasBadge() {
+  const tabBtn = document.getElementById('side-tab-btn');
+  const countEl = document.getElementById('banco-count');
+  if (countEl) {
+    countEl.textContent = propostasEstado.bancoCount > 0 ? propostasEstado.bancoCount : '';
+    countEl.hidden = !propostasEstado.bancoCount;
+  }
+  if (tabBtn) {
+    tabBtn.classList.toggle('has-pending', !!propostasEstado.lotePendente);
+    tabBtn.title = propostasEstado.lotePendente ? 'Propostas pendentes' : 'Distribuição do acervo';
+  }
+  const revisar = document.getElementById('propostas-revisar-btn');
+  if (revisar) revisar.hidden = !propostasEstado.lotePendente;
+}
+
+function renderBancoPanel() {
+  const el = document.getElementById('dash-banco');
+  const btn = document.getElementById('banco-consumir-btn');
+  if (!el) return;
+  const banco = propostasEstado.banco || [];
+  if (!banco.length) {
+    el.innerHTML = '<span class="dash-empty">Nenhuma reserva de texto no banco.</span>';
+    if (btn) btn.hidden = true;
+    return;
+  }
+  el.innerHTML = banco.map(b => `
+    <div class="banco-row">
+      <div class="banco-row-head">${escHtml(b.angulo || 'Rota')}</div>
+      <div class="banco-row-hl">${escHtml(b.headline || '')}</div>
+      <div class="banco-row-meta">${new Date(b.aprovado_em).toLocaleDateString('pt-BR')}</div>
+    </div>`).join('');
+  if (btn) {
+    btn.hidden = false;
+    btn.textContent = `Gerar visual do próximo (${banco.length} na fila)`;
+  }
+}
+
+function resetModaisFechados() {
+  closePropostasOverlay();
+  closeSideDrawer();
+  const modal = document.getElementById('modal');
+  if (modal) {
+    modal.classList.remove('open');
+    const mi = document.getElementById('modal-img');
+    if (mi) mi.src = '';
+  }
+  document.body.classList.remove('propostas-open', 'side-drawer-open');
+}
+
+function openPropostasOverlay(lote) {
+  if (!lote || !lote.propostas) return;
+  const overlay = document.getElementById('propostas-overlay');
+  const grid = document.getElementById('propostas-grid');
+  const sub = document.getElementById('propostas-sub');
+  sub.textContent = `${lote.propostas.length} propostas · escolha 1 para gerar imagem`;
+
+  const defaultId = (lote.propostas.find(p => p.recomendada) || lote.propostas[0]).id;
+
+  grid.innerHTML = lote.propostas.map(p => {
+    const stats = headlineStats(p.headline);
+    const statsClass = stats.words > 10 || stats.lines > 5 ? ' warn' : '';
+    return `
+    <article class="prop-card${p.recomendada ? ' recommended' : ''}" data-id="${p.id}">
+      ${p.recomendada ? '<span class="prop-rec">Recomendada</span>' : ''}
+      ${p.similar_a ? '<span class="prop-similar" title="Tema semelhante a post recente aprovado">⚠ similar a post anterior</span>' : ''}
+      <div class="prop-angulo">${escHtml(p.angulo)}${p.tipo_post ? ` · <span class="prop-tipo">${escHtml(TIPO_LABELS[p.tipo_post] || p.tipo_post)}</span>` : ''}</div>
+      <div class="prop-hl-preview" aria-label="Preview do título">${renderHeadlinePreview(p.headline, p.palavras_azuis)}</div>
+      <div class="prop-hl-stats${statsClass}">${stats.words}/10 palavras · ${stats.lines}/5 linhas${p.palavras_azuis ? ` · destaque: ${escHtml(p.palavras_azuis)}` : ''}</div>
+      <p class="prop-sub">${escHtml(p.subtitulo || '')}</p>
+      <div class="prop-legenda-label">CTA visual na arte</div>
+      <input type="text" class="prop-cta-input" data-prop-id="${p.id}" maxlength="48"
+        placeholder="NOVO EPISÓDIO · OUÇA AGORA · EP 42"
+        value="${escHtml(p.cta_visual || '')}">
+      ${p.cta_visual ? `<div class="prop-cta-hint">Sugerido pela IA — edite se quiser</div>` : '<div class="prop-cta-hint">Aparece no layout E (sempre) e em J/L quando preenchido</div>'}
+      ${p.contexto_visual ? `<div class="prop-legenda-label">Cena visual (IA)</div><div class="prop-contexto">${escHtml(p.contexto_visual)}</div>` : ''}
+      <div class="prop-legenda-label">Legenda completa</div>
+      <div class="prop-legenda">${escHtml(p.legenda || '')}</div>
+      <div class="prop-picks">
+        <label class="prop-pick">
+          <input type="radio" name="prop-principal" value="${p.id}" ${p.id === defaultId ? 'checked' : ''}>
+          <span>GERAR IMAGEM</span>
+        </label>
+        <label class="prop-pick">
+          <input type="checkbox" class="prop-banco" value="${p.id}">
+          <span>Guardar no banco</span>
+        </label>
+      </div>
+    </article>`;
+  }).join('');
+
+  overlay.dataset.loteId = lote.id;
+  const sugEl = document.getElementById('propostas-sugestao-visual');
+  if (sugEl) {
+    const b = lote.tema_briefing || '';
+    sugEl.value = /imagem|visual|fundo|est[úu]dio|cena|execut|monitor/i.test(b) ? b : '';
+  }
+  overlay.classList.add('open');
+  overlay.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('propostas-open');
+
+  grid.querySelectorAll('input[name="prop-principal"]').forEach(radio => {
+    radio.addEventListener('change', () => {
+      const card = radio.closest('.prop-card');
+      grid.querySelectorAll('.prop-card').forEach(c => c.classList.toggle('selected', c === card));
+      const bancoCb = card.querySelector('.prop-banco');
+      if (bancoCb) bancoCb.checked = false;
+    });
+  });
+  grid.querySelector('.prop-card input[name="prop-principal"]:checked')
+    ?.closest('.prop-card')?.classList.add('selected');
+}
+
+function closePropostasOverlay() {
+  const overlay = document.getElementById('propostas-overlay');
+  if (!overlay) return;
+  overlay.classList.remove('open');
+  overlay.setAttribute('aria-hidden', 'true');
+  document.body.classList.remove('propostas-open');
+}
+
+async function submitAprovarPropostas() {
+  const overlay = document.getElementById('propostas-overlay');
+  const status = document.getElementById('propostas-status');
+  const principal = overlay?.querySelector('input[name="prop-principal"]:checked')?.value;
+  if (principal == null) {
+    status.textContent = 'Escolha uma proposta para gerar imagem.';
+    return;
+  }
+  const sugestaoVisual = document.getElementById('propostas-sugestao-visual')?.value.trim();
+
+  status.textContent = '⏳ Gerando visual… (30–90s)';
+  document.getElementById('propostas-aprovar').disabled = true;
+
+  try {
+    const res = await fetch(`${API}/propostas/aprovar`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ idx: parseInt(principal, 10), contexto_visual: sugestaoVisual || undefined }),
+    });
+    const data = await res.json();
+    if (!res.ok || !data.ok) throw new Error(data.erro || 'Falha na aprovação');
+
+    closePropostasOverlay();
+    await loadArtes();
+    await loadPropostasEstado();
+    openModalBySlug(data.slug);
+    history.replaceState(null, '', '#arte=' + data.slug);
+
+    const pedidoStatus = document.getElementById('pedido-status');
+    if (pedidoStatus) {
+      pedidoStatus.className = 'pedido-status ok';
+      pedidoStatus.textContent = `✅ Arte criada: ${data.slug}`;
+    }
+  } catch (e) {
+    status.textContent = '❌ ' + e.message;
+  } finally {
+    document.getElementById('propostas-aprovar').disabled = false;
+  }
+}
+
+async function submitRejeitarPropostas() {
+  if (!confirm('Descartar as propostas atuais?')) return;
+  try {
+    const res = await fetch(`${API}/propostas/rejeitar`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({}),
+    });
+    const data = await res.json();
+    if (!res.ok || !data.ok) throw new Error(data.erro || 'Falha');
+    closePropostasOverlay();
+    await loadPropostasEstado();
+    document.getElementById('pedido-status').textContent = 'Lote rejeitado.';
+  } catch (e) {
+    document.getElementById('propostas-status').textContent = '❌ ' + e.message;
+  }
+}
+
+async function loadCalendarioEditorial() {
+  const bar = document.getElementById('calendario-bar');
+  const slotsEl = document.getElementById('calendario-slots');
+  const hojeEl = document.getElementById('calendario-hoje');
+  if (!bar || !slotsEl) return;
+
+  try {
+    const res = await fetch(`${API}/temas/calendario?v=` + Date.now());
+    if (!res.ok) throw new Error('API indisponível');
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.erro || 'Falha');
+    calendarioData = data;
+    bar.hidden = false;
+
+    const dias = [
+      { key: 'segunda', label: 'Seg' },
+      { key: 'quarta', label: 'Qua' },
+      { key: 'sexta', label: 'Sex' },
+    ];
+    const dow = new Date().getDay();
+    const hojeKey = dow === 1 ? 'segunda' : dow === 3 ? 'quarta' : dow === 5 ? 'sexta' : null;
+    if (hojeEl) {
+      hojeEl.textContent = hojeKey
+        ? `Hoje: ${dias.find(d => d.key === hojeKey)?.label || ''} · ${data.calendario[hojeKey]?.tipo_post || '—'}`
+        : 'Fora do calendário fixo (seg/qua/sex)';
+    }
+
+    slotsEl.innerHTML = dias.map(({ key, label }) => {
+      const slot = data.calendario[key] || {};
+      const recent = (data.historico || []).filter(h => h.tipo_post === slot.tipo_post).slice(-1)[0];
+      return `
+        <div class="cal-slot${key === hojeKey ? ' today' : ''}">
+          <div class="cal-slot-day">${label}</div>
+          <div class="cal-slot-tipo">${escHtml(TIPO_LABELS[slot.tipo_post] || slot.tipo_post || '—')}</div>
+          <div class="cal-slot-obs">${escHtml(slot.observacao || '')}</div>
+          ${recent ? `<div class="cal-slot-last">Último: ${escHtml(recent.slug)}</div>` : ''}
+        </div>`;
+    }).join('');
+  } catch (_) {
+    /* calendário é opcional, não mostra barra se não disponível */
+  }
+}
+
+async function togglePublicado(slug) {
+  const arte = allArtes.find(a => a.slug === slug);
+  if (!arte) return;
+  const novoValor = !arte.publicado;
+  try {
+    const r = await apiFetch(`${API}/arte/salvar`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ slug, publicado: novoValor }) });
+    if (!r.ok) throw new Error(r.erro || 'Falha');
+    arte.publicado    = novoValor;
+    arte.publicado_em = novoValor ? new Date().toISOString() : null;
+    renderGallery();
+    openModalBySlug(slug);
+  } catch (e) { alert('Erro ao marcar: ' + e.message); }
+}
+
+function initGalleryFilters() {
+  const cb = document.getElementById('filter-show-backup');
+  if (cb) {
+    cb.checked = showBackupArtes;
+    cb.addEventListener('change', () => {
+      showBackupArtes = cb.checked;
+      buildCreationOrder(allArtes);
+      renderStats();
+      renderGallery();
+    });
+  }
+  const cbPub = document.getElementById('filter-show-publicado');
+  if (cbPub) {
+    cbPub.checked = showPublicadoOnly;
+    cbPub.addEventListener('change', () => {
+      showPublicadoOnly = cbPub.checked;
+      buildCreationOrder(allArtes);
+      renderGallery();
+    });
+  }
+}
+
+function initPropostasUI() {
+  document.getElementById('propostas-aprovar')?.addEventListener('click', submitAprovarPropostas);
+  document.getElementById('propostas-rejeitar')?.addEventListener('click', submitRejeitarPropostas);
+  document.getElementById('propostas-overlay')?.addEventListener('click', e => {
+    if (e.target.id === 'propostas-overlay') closePropostasOverlay();
+  });
+  document.getElementById('banco-consumir-btn')?.addEventListener('click', async () => {
+    const btn = document.getElementById('banco-consumir-btn');
+    btn.disabled = true;
+    try {
+      const res = await fetch(`${API}/banco/consumir`, { method: 'POST' });
+      const data = await res.json();
+      if (!res.ok || !data.ok) throw new Error(data.erro || 'Banco vazio');
+      await loadArtes();
+      await loadPropostasEstado();
+      openModalBySlug(data.slug);
+    } catch (e) {
+      alert(e.message);
+    } finally {
+      btn.disabled = false;
+    }
+  });
+}
+
+async function variarCena() {
+  if (!modalSlug) return;
+  const instrucao = document.getElementById('modal-img-instrucao').value.trim();
+  const btn    = document.getElementById('modal-img-variar-btn');
+  const status = document.getElementById('modal-img-edit-status');
+
+  btn.disabled = true;
+  btn.textContent = '⏳';
+  status.hidden = false;
+  status.textContent = 'Gerando variação fiel… (30–60s)';
+  status.className = 'modal-img-edit-status';
+
+  try {
+    const res = await fetch(`${API}/arte/imagem/mudar`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ slug: modalSlug, instrucao: instrucao || ' ', variar: true }),
+    });
+    const data = await res.json();
+    if (!res.ok || !data.ok) throw new Error(data.erro || `Erro ${res.status}`);
+    document.getElementById('modal-img').src = data.thumb;
+    status.textContent = '✅ Variação gerada!';
+    status.className = 'modal-img-edit-status ok';
+    setTimeout(() => { status.hidden = true; }, 4000);
+  } catch (e) {
+    status.textContent = `❌ ${e.message}`;
+    status.className = 'modal-img-edit-status erro';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Variar';
+  }
+}
+
+async function duplicarArte(slug) {
+  const btn = document.querySelector(`#modal-actions .btn-arte-secondary[onclick*="duplicarArte"]`);
+  if (btn) { btn.disabled = true; btn.textContent = '⏳'; }
+  try {
+    const res = await fetch(`${API}/arte/duplicar`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ slug }),
+    });
+    const data = await res.json();
+    if (!res.ok || !data.ok) throw new Error(data.erro || `Erro ${res.status}`);
+    closeModal();
+    await loadArtes();
+    openModalBySlug(data.slug);
+  } catch (e) {
+    alert('❌ ' + e.message);
+    if (btn) { btn.disabled = false; btn.textContent = '⎘ Duplicar'; }
+  }
+}
+
+window.addEventListener('pageshow', e => {
+  if (e.persisted) resetModaisFechados();
+});
+
+loadArtes().then(async () => {
+  if (location.protocol === 'file:') {
+    const block = document.getElementById('file-protocol-block');
+    const pathEl = document.getElementById('file-protocol-path');
+    if (block) block.hidden = false;
+    if (pathEl) pathEl.textContent = location.pathname.replace(/\/index\.html$/, '');
+    return;
+  }
+  resetModaisFechados();
+  await checkDevServerFluxo();
+  await loadPropostasEstado();
+  openModalFromHash();
+  initPedidoPanel();
+  initPropostasUI();
+  initGalleryFilters();
+  initSideDrawer();
+  loadCalendarioEditorial();
+});
+window.addEventListener('resize', () => { scaleModalArt(); });
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    closePropostasOverlay();
+    closeSideDrawer();
+    closeModal();
+  }
+});
+</script>
+</body>
+</html>

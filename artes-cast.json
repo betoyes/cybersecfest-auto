@@ -1,1 +1,40 @@
-[]
+[
+  {
+    "slug": "cast-insight-1782460632809",
+    "tipo": "insight",
+    "headline": "FinOps é<br>a nova<br>fronteira<br>da segurança?",
+    "palavras_azuis": "FinOps, segurança?, nova",
+    "subtitulo": "O impacto financeiro da segurança <br> cibernética vai além do esperado.",
+    "layout": "A",
+    "legenda": "Você já mensurou o custo real da segurança cibernética?\n\nNão é só sobre proteger dados.\nÉ sobre otimizar sua atuação financeira.\n\nAbra espaço para FinOps na sua estratégia.\nUma análise que transcende o orçamento.\nE redefine a eficiência operacional.\n\nOuvimos um especialista que entende as nuances financeiras da segurança.\nPorque só quem vive isso sabe onde estão os verdadeiros gargalos.\n\nEssa é a conversa que traz insights práticos para líderes.\n\n✅ OUÇA AGORA no CYBERSEC.CAST.\n\n#FinOps #cibersegurança #liderança #gestãoderiscos #CYBERSEC.CAST #segurançadainformação #tecnologia #executivo #brasil",
+    "legenda_variante": "aprovada",
+    "contexto_visual": "cena fotográfica do podcast: ambiente (estúdio escuro, vidro, mesa profissional), iluminação (indigo LED, violet rim), quem (host, convidado, mesa de entrevista) — SEM texto na cena",
+    "cta_visual": "OUÇA AGORA",
+    "publicacao": "normal",
+    "proposta_id": "cast-prop-1782460624587-oe9l1",
+    "angulo_editorial": "FinOps: a decisão invisível",
+    "image_path": "artes/cast-insight-1782460632809/thumb.png",
+    "html_path": "artes/cast-insight-1782460632809/arte.html",
+    "created_at": "2026-06-26T07:57:12.809Z",
+    "brand": "cyberseccast"
+  },
+  {
+    "slug": "cast-insight-1782522168833",
+    "tipo": "insight",
+    "headline": "Investimento<br>inteligente<br>que conecta líderes",
+    "palavras_azuis": "Investimento, inteligente, conecta",
+    "subtitulo": "Posicione sua empresa no ecossistema mais influente de cibersegurança.",
+    "layout": "L",
+    "legenda": "O investimento certo pode fazer toda a diferença na sua estratégia de mercado.<br>No universo da cibersegurança, os líderes estão sempre à frente, buscando conexões que realmente importam.<br><br>Patrocinar o CYBERSEC.CAST é um passo estratégico que não apenas posiciona sua marca, mas amplifica sua voz.<br>Conquiste espaço entre quem decide.<br><br>Desperte conversas que importam, influencie futuros.<br><br>✅ Descubra as oportunidades de patrocínio.<br><br>#investimento #cibersegurança #patrocínio #liderança #podcast #CISO #estratégia #inovação #cyberseccast",
+    "legenda_variante": "aprovada",
+    "contexto_visual": "cena fotográfica do podcast: ambiente (estúdio escuro, vidro, mesa profissional), iluminação (indigo LED, violet rim), quem (host, convidado, mesa de entrevista)",
+    "cta_visual": "OUÇA GRÁTIS",
+    "publicacao": "normal",
+    "proposta_id": "cast-prop-1782522150356-wvnd1",
+    "angulo_editorial": "valor do patrocínio no setor de segurança",
+    "image_path": "artes/cast-insight-1782522168833/thumb.png",
+    "html_path": "artes/cast-insight-1782522168833/arte.html",
+    "created_at": "2026-06-27T01:02:48.833Z",
+    "brand": "cyberseccast"
+  }
+]

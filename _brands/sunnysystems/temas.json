@@ -1,0 +1,236 @@
+{
+  "_meta": {
+    "versao": "1.0.0",
+    "descricao": "Banco de temas do Sunny Systems — Transformando complexidade em operações previsíveis",
+    "atualizado_em": "2023-10-05",
+    "marca": "Sunny Systems"
+  },
+  "podcast": {
+    "nome": "Sunny Systems Podcast",
+    "tagline": "Transformando complexidade em operações previsíveis",
+    "posicionamento": "Tecnologia precisa gerar controle, não complexidade. Transformamos complexidade em operações previsíveis.",
+    "descricao": "Discussões estratégicas para líderes de tecnologia que buscam transformar ambientes em operações visíveis, eficientes e governáveis.",
+    "formato": "Episódios de 40–70 minutos, entrevistas com especialistas e líderes do setor",
+    "frequencia": "Quinzenal",
+    "plataformas": [
+      "Spotify",
+      "Apple Podcasts",
+      "Google Podcasts"
+    ],
+    "ecossistema": [
+      "Sunny Systems Summit",
+      "Tech Leadership Conference"
+    ],
+    "contato": "contato@sunnysystems.com.br",
+    "hosts": [
+      {
+        "nome": "Marcos Silva",
+        "papel": "Host & Estratégia",
+        "especialidades": [
+          "Transformação digital",
+          "Engenharia de plataforma",
+          "Governança de TI"
+        ],
+        "foto_ref": "host-marcos-silva.jpg"
+      },
+      {
+        "nome": "Renata Costa",
+        "papel": "Host & Curadoria Editorial",
+        "especialidades": [
+          "Observabilidade",
+          "DevSecOps",
+          "FinOps"
+        ],
+        "foto_ref": "host-renata-costa.jpg"
+      }
+    ],
+    "publico_alvo": [
+      "CTO",
+      "CIO",
+      "VP de Engenharia",
+      "Head de Plataforma",
+      "Head de Cloud",
+      "SRE",
+      "DevOps",
+      "Tech Leads"
+    ],
+    "numeros": {
+      "profissionais_conectados": "5.000+",
+      "perfil_gerencial_ou_acima": "70%",
+      "aprovacao_convidados": "<15%",
+      "anos_expertise_ecossistema": "8+",
+      "cotas_disponiveis": 3
+    }
+  },
+  "editorial": {
+    "tom": "Técnico, estratégico, direto, inteligente. Sofisticado sem ser frio, próximo de quem vive operações complexas.",
+    "pilares": [
+      "Conteúdo técnico de alta qualidade",
+      "Estratégias práticas e aplicáveis",
+      "Conexão entre tecnologia e negócios",
+      "Insights de líderes do setor"
+    ],
+    "angulos_recorrentes": [
+      "Transformação de operações complexas em previsíveis",
+      "Impacto da observabilidade em negócios",
+      "Estratégias de FinOps para controle de custos",
+      "Segurança integrada no ciclo de desenvolvimento",
+      "IA aplicada à operação com governança"
+    ],
+    "evitar": [
+      "Explicações de conceitos básicos",
+      "Clichês de tecnologia",
+      "Conteúdo não aplicável a operações complexas",
+      "Repetição de temas em episódios consecutivos"
+    ]
+  },
+  "patrocinio": {
+    "cotas": [
+      {
+        "nome": "Bronze",
+        "subtitulo": "Awareness Builder",
+        "entregaveis": [
+          "Logo no site",
+          "Menção de 20s",
+          "Post trimestral"
+        ]
+      },
+      {
+        "nome": "Platinum",
+        "subtitulo": "Industry Leader",
+        "destaque": "Recomendado para líderes de mercado",
+        "entregaveis": [
+          "Tudo da Bronze",
+          "Duas menções por episódio",
+          "Landing page co-branded",
+          "Exclusividade por setor"
+        ]
+      },
+      {
+        "nome": "Titanium",
+        "subtitulo": "Innovation Partner",
+        "valor_referencia": "R$ 25.000+ / mês",
+        "entregaveis": [
+          "Tudo da Platinum",
+          "Conexão com C-Level",
+          "Lock de categoria"
+        ]
+      }
+    ],
+    "setores_alvo": [
+      "Tecnologia",
+      "Cloud",
+      "DevOps",
+      "Observabilidade",
+      "Segurança",
+      "Automação",
+      "Consultorias"
+    ]
+  },
+  "temas_grade": [
+    "Observabilidade Avançada",
+    "FinOps Estratégico",
+    "Engenharia de Plataforma",
+    "DevSecOps Integrado",
+    "AppSec e Segurança Automática",
+    "Cloud e Governança",
+    "OpenTelemetry e Datadog",
+    "AIOps e Automação Inteligente",
+    "Desenvolvimento Seguro"
+  ],
+  "calendario_editorial": {
+    "segunda": {
+      "tipo_post": "episodio",
+      "observacao": "Episódio da semana — entrevista ou tema principal"
+    },
+    "quarta": {
+      "tipo_post": "convidado",
+      "observacao": "Apresentação de convidado ou destaque de especialista"
+    },
+    "sexta": {
+      "tipo_post": "insight",
+      "observacao": "Post de insight técnico — inovação ou tendência"
+    }
+  },
+  "convidados_recorrentes": [
+    {
+      "nome": "João Pereira",
+      "foto_ref": "convidado-joao-pereira.png",
+      "area": "Observabilidade e SRE"
+    },
+    {
+      "nome": "Carla Mendes",
+      "area": "FinOps e Cloud"
+    },
+    {
+      "nome": "Lucas Andrade",
+      "area": "Segurança e DevSecOps"
+    },
+    {
+      "nome": "Ana Paula Sousa",
+      "area": "Engenharia de Plataforma"
+    },
+    {
+      "nome": "Roberto Lima",
+      "area": "Automação e IA aplicada"
+    }
+  ],
+  "historico_recente": [
+    {
+      "tipo_post": "episodio",
+      "layout": "B",
+      "slug": "sunny-episode-1782460632809",
+      "data": "2023-09-25"
+    },
+    {
+      "tipo_post": "convidado",
+      "layout": "C",
+      "slug": "sunny-guest-1782522168833",
+      "data": "2023-10-02"
+    }
+  ],
+  "historico_aprovacoes": [],
+  "categorias_conteudo": [
+    {
+      "nome": "Transformação Digital Estratégica",
+      "descricao": "Explorando como a tecnologia pode ser uma aliada poderosa na transformação de operações complexas em ambientes previsíveis.",
+      "temas": [
+        "Transformação Digital",
+        "Engenharia de Plataforma",
+        "Automação",
+        "Governança"
+      ]
+    },
+    {
+      "nome": "Observabilidade e Controle de Custos",
+      "descricao": "Abordagens práticas para implementar observabilidade e FinOps, garantindo visibilidade e controle sobre custos de operação.",
+      "temas": [
+        "Observabilidade",
+        "FinOps",
+        "Cloud",
+        "OpenTelemetry",
+        "Datadog"
+      ]
+    },
+    {
+      "nome": "Segurança Integrada e DevSecOps",
+      "descricao": "Como integrar a segurança no ciclo de desenvolvimento, transformando-a em um pilar estratégico para a operação.",
+      "temas": [
+        "DevSecOps",
+        "AppSec",
+        "Segurança",
+        "SRE"
+      ]
+    },
+    {
+      "nome": "Inovação com IA e Automação",
+      "descricao": "Explorando o papel da IA e automação na operação, com foco em governança e durabilidade do software.",
+      "temas": [
+        "IA aplicada à operação",
+        "AIOps",
+        "Automação",
+        "Engenharia de Software"
+      ]
+    }
+  ]
+}

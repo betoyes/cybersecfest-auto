@@ -1,0 +1,11 @@
+{
+  "name": "motion",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "npx --yes hyperframes@0.7.3 preview",
+    "check": "npx --yes hyperframes@0.7.3 lint && npx --yes hyperframes@0.7.3 validate",
+    "render": "npx --yes hyperframes@0.7.3 render --fps 30 --quality high --output preview.mp4",
+    "render:draft": "npx --yes hyperframes@0.7.3 render --quality draft --output preview-draft.mp4"
+  }
+}

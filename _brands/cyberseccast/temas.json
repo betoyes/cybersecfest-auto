@@ -1,28 +1,74 @@
 {
   "_meta": {
-    "versao": "1.0.0",
+    "versao": "1.1.0",
     "descricao": "Banco de temas do CYBERSEC.CAST — Podcast executivo de cibersegurança",
     "atualizado_em": "2026-06-26",
     "marca": "CYBERSEC.CAST"
   },
   "podcast": {
     "nome": "CYBERSEC.CAST",
+    "tagline": "Uma cadeira na mesa dos executivos",
     "posicionamento": "O Podcast de Referência em Cibersegurança para Executivos C-Level do Brasil",
+    "descricao": "Inteligência executiva para líderes de tecnologia, risco e segurança. Não é um podcast técnico — é uma plataforma de conversas estratégicas entre pares.",
     "formato": "Episódios de 30–60 minutos, entrevistas com líderes e especialistas",
     "frequencia": "Semanal",
-    "plataformas": ["Spotify", "YouTube", "Apple Podcasts", "Amazon Music"],
+    "plataformas": [
+      "Spotify",
+      "YouTube",
+      "Apple Podcasts",
+      "Amazon Music"
+    ],
+    "ecossistema": [
+      "CyberSecFest",
+      "I AM TECH DAY"
+    ],
+    "contato": "contato@devopsbootcamp.net",
+    "hosts": [
+      {
+        "nome": "Edgar",
+        "papel": "Host & Estratégia",
+        "especialidades": [
+          "Visão estratégica",
+          "Risco & tecnologia",
+          "Governança corporativa"
+        ],
+        "foto_ref": "host-edgar.jpeg"
+      },
+      {
+        "nome": "Amanda",
+        "papel": "Host & Curadoria Editorial",
+        "especialidades": [
+          "Curadoria executiva",
+          "Relacionamento & mercado",
+          "Segurança corporativa"
+        ],
+        "foto_ref": "host-amanda.jpg"
+      }
+    ],
     "publico_alvo": [
-      "CISOs",
-      "CIOs",
-      "CTOs",
-      "CEOs",
-      "VPs de Tecnologia",
-      "Diretores de Segurança",
-      "Gestores de TI"
-    ]
+      "CISO / CSO",
+      "VP / Diretor de Segurança",
+      "CTO / CIO",
+      "CEO",
+      "Head de Arquitetura",
+      "Board / Advisor"
+    ],
+    "numeros": {
+      "executivos_conectados": "3.000+",
+      "perfil_diretor_ou_acima": "80%",
+      "aprovacao_convidados": "<10%",
+      "anos_expertise_ecossistema": "10+",
+      "cotas_disponiveis": 4
+    }
   },
   "editorial": {
     "tom": "Intelectual, íntimo, provocador. O ouvinte sente que está numa conversa exclusiva entre líderes.",
+    "pilares": [
+      "Repertório executivo — curadoria antes da gravação",
+      "Confiança entre pares — convidados aprovados com rigor (<10%)",
+      "Dados exclusivos e inteligência restrita",
+      "Conversa que não é improviso"
+    ],
     "angulos_recorrentes": [
       "Decisões difíceis que só CISOs enfrentam",
       "O que os dados não mostram sobre ameaças",
@@ -37,7 +83,53 @@
       "Tom acadêmico ou técnico demais",
       "Termos de hacker/hacking sensacionalistas",
       "Clichês de cadeados e vulnerabilidades",
-      "Repetir ângulos dos últimos 5 episódios"
+      "Repetir ângulos dos últimos 5 episódios",
+      "Começar headline com O CYBERSEC.CAST"
+    ]
+  },
+  "patrocinio": {
+    "cotas": [
+      {
+        "nome": "Silver",
+        "subtitulo": "Always On",
+        "entregaveis": [
+          "Logo no site",
+          "Menção de 30s",
+          "Post mensal",
+          "Relatório de cliques"
+        ]
+      },
+      {
+        "nome": "Gold",
+        "subtitulo": "Authority Builder",
+        "destaque": "Mais procurada",
+        "entregaveis": [
+          "Tudo da Silver",
+          "Duas menções por episódio selecionado",
+          "Landing page co-branded",
+          "Exclusividade por episódio"
+        ]
+      },
+      {
+        "nome": "Diamond",
+        "subtitulo": "Strategic Partner",
+        "valor_referencia": "R$ 20.000+ / mês",
+        "entregaveis": [
+          "Tudo da Gold",
+          "C-Level Connect",
+          "Lock de categoria"
+        ]
+      }
+    ],
+    "setores_alvo": [
+      "Cibersegurança",
+      "Tecnologia",
+      "Cloud",
+      "Infraestrutura",
+      "Dados",
+      "Identidade (IAM/PAM)",
+      "Serviços especializados",
+      "Consultorias"
     ]
   },
   "temas_grade": [
@@ -52,7 +144,64 @@
     "Supply Chain Security",
     "OT/ICS Security"
   ],
-  "convidados_recorrentes": [],
-  "historico_recente": [],
+  "calendario_editorial": {
+    "segunda": {
+      "tipo_post": "episodio",
+      "observacao": "Episódio da semana — entrevista ou tema principal"
+    },
+    "quarta": {
+      "tipo_post": "convidado",
+      "observacao": "Apresentação de convidado ou destaque de especialista"
+    },
+    "sexta": {
+      "tipo_post": "insight",
+      "observacao": "Post de insight executivo — tendência ou reflexão"
+    }
+  },
+  "convidados_recorrentes": [
+    {
+      "nome": "Paulo Conduta",
+      "foto_ref": "host-paulo-conduta.png",
+      "area": "Segurança & Liderança"
+    },
+    {
+      "nome": "Fagner Almeida",
+      "area": "Cibersegurança Corporativa"
+    },
+    {
+      "nome": "Leandro Ludwig",
+      "area": "Tecnologia & Estratégia"
+    },
+    {
+      "nome": "Renan Barcelos",
+      "area": "Segurança de Dados"
+    },
+    {
+      "nome": "Vitor Padovan",
+      "area": "Infraestrutura & Risco"
+    },
+    {
+      "nome": "Izaias Gomes",
+      "area": "Governança & Compliance"
+    },
+    {
+      "nome": "Bruno Ferreira",
+      "area": "IAM & Identidade"
+    }
+  ],
+  "historico_recente": [
+    {
+      "tipo_post": "insight",
+      "layout": "A",
+      "slug": "cast-insight-1782460632809",
+      "data": "2026-06-26"
+    },
+    {
+      "tipo_post": "insight",
+      "layout": "L",
+      "slug": "cast-insight-1782522168833",
+      "data": "2026-06-27"
+    }
+  ],
   "historico_aprovacoes": []
 }
