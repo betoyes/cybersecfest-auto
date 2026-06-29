@@ -288,6 +288,52 @@
       "concluido_em": "2026-06-24T15:58:12.315Z",
       "principal_id": "prop-1782241704604-6c8ge",
       "slug_gerado": "patrocinador-1782316675205"
+    },
+    {
+      "id": "lote-1782744115805-4rom3",
+      "status": "aguardando_aprovacao",
+      "tipo_post": "blog",
+      "objetivo": "audiencia",
+      "tema_briefing": null,
+      "criado_em": "2026-06-29T14:41:55.805Z",
+      "propostas": [
+        {
+          "id": "prop-1782744113691-pni1h",
+          "angulo": "exclusividade estratégica",
+          "recomendada": true,
+          "headline": "Onde os líderes<br>decidem o futuro<br>da cibersegurança",
+          "palavras_azuis": "futuro, cibersegurança",
+          "subtitulo": "Junte-se ao CyberSecFest e veja onde as decisões estratégicas realmente são definidas.",
+          "cta_visual": "SAIBA MAIS",
+          "contexto_visual": "Em um luxuoso salão de conferências no coração de São Paulo, com vista para o MASP iluminado à noite, líderes vestidos formalmente em pequenos grupos dinâmicos, gesticulando enquanto discutem. A cena é enriquecida por um ambiente moderno e elegante, com luz suave azulada que realça o brilho das mesas de vidro e dos notebooks abertos, repletos de gráficos complexos e relatórios. No fundo, a silhueta noturna da cidade oferece um contraste sofisticado, simbolizando o encontro do passado corporativo com o futuro da tecnologia.",
+          "legenda": "\"\"\"\nDecisões estratégicas vitais? Fora dos relatórios.\n\nElas nascem em conversas com líderes visionários.\nNo CyberSecFest, moldamos o futuro da cibersegurança.\nNão é sobre tendência. É sobre transformação.\n\nVocê terá acesso a insights que reescrevem cenários.\nConexões que superam expectativas.\nE debates que desafiam o status quo.\n\n🔹 BH — Novembro\n🔹 SP — Outubro\n\n✅ Garanta sua presença: [link]\n\n#CyberSecFest #Liderança #Cibersegurança #Estratégia #Inovação #Tecnologia #CLevel #Networking #EventosExecutivos #Futuro #BH #SP\n\"\"\"",
+          "cidade": "BH e SP"
+        },
+        {
+          "id": "prop-1782744113691-h8ujm",
+          "angulo": "confraria de líderes",
+          "recomendada": false,
+          "headline": "Não é só um evento.<br>É a confraria dos<br>líderes",
+          "palavras_azuis": "confraria, líderes",
+          "subtitulo": "Participe do CyberSecFest e faça parte da elite da cibersegurança.",
+          "cta_visual": "",
+          "contexto_visual": "Cenário em um espaço de conferências moderno em Belo Horizonte, com vista panorâmica para a Serra do Curral. Executivos bem vestidos em um coquetel elegante, taças na mão, discutem animadamente em grupos. O ambiente é acolhedor, com uma iluminação quente e suave que cria uma atmosfera de exclusividade. Ao fundo, displays digitais com gráficos de cibersegurança piscam de modo discreto, simbolizando a perfeita fusão entre networking e tecnologia.",
+          "legenda": "```\nEventos de massa são para quem busca quantidade. Líderes de verdade querem qualidade.\n\nNo CyberSecFest, é diferente. Não há filtros. Só trocas autênticas.\n\nAqui, debates enriquecem perspectivas. Desafios são discutidos sem barreiras.\n\nÉ onde líderes se encontram para compartilhar visões. Aprender uns com os outros. Conectar-se de verdade.\n\nAgendas lotadas raramente permitem isso. Mas aqui, temos tempo e espaço.\n\n🔹 BH — Novembro\n🔹 SP — Outubro\n\n✅ Vamos nos encontrar lá: [link]\n\n#CyberSecFest #Confraria #Liderança #Cibersegurança #Tecnologia #Networking #EventosExecutivos #TrocaDeIdeias #BH #SP #Exclusividade\n```",
+          "cidade": "BH e SP"
+        },
+        {
+          "id": "prop-1782744113691-m55p3",
+          "angulo": "risco estratégico",
+          "recomendada": false,
+          "headline": "E se seu risco<br>virasse a chave<br>para inovação?",
+          "palavras_azuis": "risco, inovação?",
+          "subtitulo": "Transforme riscos em oportunidades de inovação no CyberSecFest.",
+          "cta_visual": "TRANSFORME",
+          "contexto_visual": "Ambiente de conferência em São Paulo durante o dia, com o Pateo do Collegio ao fundo, emoldurado por um céu claro. Executivos em trajes de negócios participam de um painel de discussão, sentados ao redor de uma mesa com laptops e tablets abertos, mostrando gráficos de tendências. A iluminação é brilhante, destacando rostos concentrados e gestos expressivos enquanto debatem acaloradamente. No ar, um senso palpável de que algo importante está sendo criado, um novo paradigma em cibersegurança.",
+          "legenda": "\"\"\"\nRiscos são muitas vezes temidos. Mas essa visão está ultrapassada.\n\nLíderes de cibersegurança sabem que o verdadeiro poder está em transformar riscos em oportunidades. No CyberSecFest, discutimos como uma abordagem estratégica pode impulsionar inovação e crescimento.\n\nÉ onde o medo se transforma em vantagem, e desafios se tornam uma nova fronteira de resiliência.\n\nAqui, você não apenas responde ao risco. Você o utiliza como diferencial competitivo.\n\n🔹 BH — Novembro\n🔹 SP — Outubro\n\n✅ Descubra como transformar seu jogo: [link]\n\n#CyberSecFest #Inovação #RiscoEstratégico #Liderança #Cibersegurança #Resiliência #Oportunidades #Estratégia #Networking #Tecnologia #SP #BH\n\"\"\"",
+          "cidade": "BH e SP"
+        }
+      ]
     }
   ]
 }
